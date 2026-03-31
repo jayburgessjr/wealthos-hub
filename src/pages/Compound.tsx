@@ -140,7 +140,12 @@ export default function Compound() {
     <DashboardLayout>
       <div className="mx-auto max-w-[1400px] space-y-5">
         {/* Page Header */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
+        >
           <div>
             <h1 className="font-display text-xl sm:text-[28px] font-extrabold leading-none tracking-tight">
               Compound <span className="text-bullish">Engine</span>
@@ -149,13 +154,15 @@ export default function Compound() {
               // Every dollar assigned. Every return reinvested. Wealth compounded systematically.
             </p>
           </div>
-          <button
+          <motion.button
             onClick={() => saveMutation.mutate()}
-            className="flex items-center justify-center gap-2 rounded-lg bg-bullish px-4 sm:px-6 py-2.5 font-display text-[13px] font-bold text-primary-foreground transition-all hover:shadow-[0_4px_24px_hsl(160_100%_45%/0.25)] hover:-translate-y-0.5 w-full sm:w-auto"
+            whileHover={{ scale: 1.03, y: -2 }}
+            whileTap={{ scale: 0.97 }}
+            className="flex items-center justify-center gap-2 rounded-lg bg-bullish px-4 sm:px-6 py-2.5 font-display text-[13px] font-bold text-primary-foreground transition-shadow hover:shadow-[0_4px_24px_hsl(160_100%_45%/0.25)] w-full sm:w-auto"
           >
             <Play className="h-3.5 w-3.5" /> Run Projection
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
 
         {/* Input Parameters Card */}
         <div className="rounded-xl border border-border bg-card overflow-hidden animate-in fade-in slide-in-from-bottom-3">
