@@ -7,6 +7,23 @@ import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Play, Lock } from "lucide-react";
+import { motion } from "framer-motion";
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i: number) => ({
+    opacity: 1, y: 0,
+    transition: { delay: i * 0.08, duration: 0.5, ease: "easeOut" as const },
+  }),
+};
+
+const statVariants = {
+  hidden: { opacity: 0, y: 8 },
+  visible: (i: number) => ({
+    opacity: 1, y: 0,
+    transition: { delay: 0.2 + i * 0.06, duration: 0.4, ease: "easeOut" },
+  }),
+};
 
 type RiskTier = "conservative" | "moderate" | "aggressive";
 
@@ -123,7 +140,12 @@ export default function Compound() {
     <DashboardLayout>
       <div className="mx-auto max-w-[1400px] space-y-5">
         {/* Page Header */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
+        >
           <div>
             <h1 className="font-display text-xl sm:text-[28px] font-extrabold leading-none tracking-tight">
               Compound <span className="text-bullish">Engine</span>
@@ -132,16 +154,18 @@ export default function Compound() {
               // Every dollar assigned. Every return reinvested. Wealth compounded systematically.
             </p>
           </div>
-          <button
+          <motion.button
             onClick={() => saveMutation.mutate()}
-            className="flex items-center justify-center gap-2 rounded-lg bg-bullish px-4 sm:px-6 py-2.5 font-display text-[13px] font-bold text-primary-foreground transition-all hover:shadow-[0_4px_24px_hsl(160_100%_45%/0.25)] hover:-translate-y-0.5 w-full sm:w-auto"
+            whileHover={{ scale: 1.03, y: -2 }}
+            whileTap={{ scale: 0.97 }}
+            className="flex items-center justify-center gap-2 rounded-lg bg-bullish px-4 sm:px-6 py-2.5 font-display text-[13px] font-bold text-primary-foreground transition-shadow hover:shadow-[0_4px_24px_hsl(160_100%_45%/0.25)] w-full sm:w-auto"
           >
             <Play className="h-3.5 w-3.5" /> Run Projection
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
 
         {/* Input Parameters Card */}
-        <div className="rounded-xl border border-border bg-card overflow-hidden animate-in fade-in slide-in-from-bottom-3">
+        <motion.div variants={cardVariants} initial="hidden" animate="visible" custom={0} className="rounded-xl border border-border bg-card overflow-hidden">
           <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
             <span className="font-display text-[11px] font-bold uppercase tracking-[1.2px] text-muted-foreground">Projection Parameters</span>
             <span className="rounded bg-bullish/10 px-2 py-0.5 font-mono text-[10px] font-medium text-bullish">LIVE MODEL</span>
@@ -188,10 +212,10 @@ export default function Compound() {
               />
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Summary Stats Row */}
-        <div className="rounded-xl border border-border bg-card overflow-hidden animate-in fade-in slide-in-from-bottom-3">
+        <motion.div variants={cardVariants} initial="hidden" animate="visible" custom={1} className="rounded-xl border border-border bg-card overflow-hidden">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
             <SummaryStat
               label="Starting"
@@ -231,12 +255,12 @@ export default function Compound() {
               last
             />
           </div>
-        </div>
+        </motion.div>
 
         {/* Chart + Monte Carlo Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5">
+        <motion.div variants={cardVariants} initial="hidden" animate="visible" custom={2} className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5">
           {/* Main Chart */}
-          <div className="rounded-xl border border-border bg-card overflow-hidden animate-in fade-in slide-in-from-bottom-3">
+          <div className="rounded-xl border border-border bg-card overflow-hidden">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-border px-5 py-3.5">
               <span className="font-display text-[11px] font-bold uppercase tracking-[1.2px] text-muted-foreground">Growth Projection</span>
               <div className="flex gap-3 sm:gap-5 flex-wrap">
@@ -268,7 +292,7 @@ export default function Compound() {
           </div>
 
           {/* Monte Carlo Panel */}
-          <div className="rounded-xl border border-border bg-card overflow-hidden animate-in fade-in slide-in-from-bottom-3">
+          <div className="rounded-xl border border-border bg-card overflow-hidden">
             <div className="border-b border-border px-5 py-3.5">
               <span className="font-display text-[11px] font-bold uppercase tracking-[1.2px] text-muted-foreground">Monte Carlo (500 runs)</span>
             </div>
@@ -307,10 +331,10 @@ export default function Compound() {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Tier Timeline */}
-        <div className="rounded-xl border border-border bg-card overflow-hidden animate-in fade-in slide-in-from-bottom-3">
+        <motion.div variants={cardVariants} initial="hidden" animate="visible" custom={3} className="rounded-xl border border-border bg-card overflow-hidden">
           <div className="border-b border-border px-5 py-3.5">
             <span className="font-display text-[11px] font-bold uppercase tracking-[1.2px] text-muted-foreground">Strategy Unlock Timeline</span>
             <p className="mt-0.5 font-mono text-[10px] text-muted-foreground">Capital milestones that unlock new wealth strategies</p>
@@ -387,10 +411,10 @@ export default function Compound() {
               );
             })}
           </div>
-        </div>
+        </motion.div>
 
         {/* Goal Calculators */}
-        <div className="rounded-xl border border-border bg-card overflow-hidden animate-in fade-in slide-in-from-bottom-3">
+        <motion.div variants={cardVariants} initial="hidden" animate="visible" custom={4} className="rounded-xl border border-border bg-card overflow-hidden">
           <div className="border-b border-border px-5 py-3.5">
             <span className="font-display text-[11px] font-bold uppercase tracking-[1.2px] text-muted-foreground">Goal Calculators</span>
           </div>
@@ -429,10 +453,10 @@ export default function Compound() {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Projection Table */}
-        <div className="rounded-xl border border-border bg-card overflow-hidden animate-in fade-in slide-in-from-bottom-3">
+        <motion.div variants={cardVariants} initial="hidden" animate="visible" custom={5} className="rounded-xl border border-border bg-card overflow-hidden">
           <div className="border-b border-border px-5 py-3.5 flex items-center justify-between">
             <span className="font-display text-[11px] font-bold uppercase tracking-[1.2px] text-muted-foreground">Month-by-Month Projection</span>
             <span className="font-mono text-[10px] text-muted-foreground">Scroll to explore</span>
@@ -467,7 +491,7 @@ export default function Compound() {
               </tbody>
             </table>
           </div>
-        </div>
+        </motion.div>
       </div>
     </DashboardLayout>
   );
