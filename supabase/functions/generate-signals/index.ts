@@ -255,7 +255,7 @@ serve(async (req) => {
           const candles = await getPriceData(ticker, POLYGON_KEY);
           const techScore = calcTechnicalScore(candles);
           const sentScore = await calcSentimentScore(ticker, POLYGON_KEY, LOVABLE_API_KEY);
-          const flowScore = 50; // placeholder for Unusual Whales API
+          const flowScore = await calcFlowScore(ticker, UW_KEY);
 
           const composite = Math.round(
             techScore * WEIGHTS.technical +
