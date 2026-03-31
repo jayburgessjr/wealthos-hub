@@ -146,7 +146,7 @@ export default function Compound() {
             <span className="font-display text-[11px] font-bold uppercase tracking-[1.2px] text-muted-foreground">Projection Parameters</span>
             <span className="rounded bg-bullish/10 px-2 py-0.5 font-mono text-[10px] font-medium text-bullish">LIVE MODEL</span>
           </div>
-          <div className="grid grid-cols-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
             {/* Starting Capital */}
             <InputCell label="Starting Capital" prefix="$" value={starting} onChange={setStarting} />
             {/* Monthly Contribution */}
