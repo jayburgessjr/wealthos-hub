@@ -438,7 +438,7 @@ export default function Compound() {
             <span className="font-mono text-[10px] text-muted-foreground">Scroll to explore</span>
           </div>
           <div className="max-h-80 overflow-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[800px]">
               <thead>
                 <tr>
                   {["Month", "Capital", "Monthly Return", "Return %", "Cumulative Gain", "All-Time %", "Tier", "Strategies", "Next Unlock"].map((h) => (
