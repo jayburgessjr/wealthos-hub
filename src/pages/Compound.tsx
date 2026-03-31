@@ -237,9 +237,9 @@ export default function Compound() {
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5">
           {/* Main Chart */}
           <div className="rounded-xl border border-border bg-card overflow-hidden animate-in fade-in slide-in-from-bottom-3">
-            <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-border px-5 py-3.5">
               <span className="font-display text-[11px] font-bold uppercase tracking-[1.2px] text-muted-foreground">Growth Projection</span>
-              <div className="flex gap-5">
+              <div className="flex gap-3 sm:gap-5 flex-wrap">
                 <LegendItem color="bg-bullish" label="Actual Path" />
                 <LegendItem color="bg-neutral/60" label="P75 Scenario" />
                 <LegendItem color="bg-bearish/50" label="P25 Scenario" />
