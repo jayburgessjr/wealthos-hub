@@ -437,7 +437,7 @@ export default function Compound() {
             <span className="font-display text-[11px] font-bold uppercase tracking-[1.2px] text-muted-foreground">Month-by-Month Projection</span>
             <span className="font-mono text-[10px] text-muted-foreground">Scroll to explore</span>
           </div>
-          <div className="max-h-80 overflow-y-auto">
+          <div className="max-h-80 overflow-auto">
             <table className="w-full">
               <thead>
                 <tr>
