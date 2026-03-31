@@ -215,7 +215,7 @@ export default function Compound() {
         </motion.div>
 
         {/* Summary Stats Row */}
-        <div className="rounded-xl border border-border bg-card overflow-hidden animate-in fade-in slide-in-from-bottom-3">
+        <motion.div variants={cardVariants} initial="hidden" animate="visible" custom={1} className="rounded-xl border border-border bg-card overflow-hidden">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
             <SummaryStat
               label="Starting"
