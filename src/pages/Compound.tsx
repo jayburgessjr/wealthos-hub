@@ -154,7 +154,7 @@ export default function Compound() {
             {/* Time Horizon */}
             <InputCell label="Time Horizon" suffix="mo" value={months} onChange={setMonths} />
             {/* Risk Tier */}
-            <div className="flex flex-col gap-2.5 border-r border-border p-5">
+            <div className="flex flex-col gap-2.5 border-b sm:border-b-0 sm:border-r border-border p-5">
               <span className="font-mono text-[9px] uppercase tracking-[1px] text-muted-foreground">Risk Tier</span>
               <div className="flex gap-1">
                 {(["conservative", "moderate", "aggressive"] as const).map((t) => (
