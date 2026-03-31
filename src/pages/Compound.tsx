@@ -491,7 +491,7 @@ export default function Compound() {
               </tbody>
             </table>
           </div>
-        </div>
+        </motion.div>
       </div>
     </DashboardLayout>
   );
