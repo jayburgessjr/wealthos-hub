@@ -396,7 +396,7 @@ export default function Compound() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2">
             {/* Time to Goal */}
-            <div className="border-r border-border p-6">
+            <div className="border-b md:border-b-0 md:border-r border-border p-4 sm:p-6">
               <span className="font-mono text-[9px] uppercase tracking-[1px] text-muted-foreground">→ Time to Goal</span>
               <div className="mt-4 space-y-3">
                 <GoalInput label="Target Capital ($)" value={goalTarget} onChange={setGoalTarget} />
