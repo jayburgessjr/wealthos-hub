@@ -128,7 +128,7 @@ export default function Compound() {
             <h1 className="font-display text-xl sm:text-[28px] font-extrabold leading-none tracking-tight">
               Compound <span className="text-bullish">Engine</span>
             </h1>
-            <p className="mt-1.5 font-mono text-[13px] text-muted-foreground">
+            <p className="mt-1.5 font-mono text-[11px] sm:text-[13px] text-muted-foreground hidden sm:block">
               // Every dollar assigned. Every return reinvested. Wealth compounded systematically.
             </p>
           </div>
