@@ -192,7 +192,7 @@ export default function Compound() {
 
         {/* Summary Stats Row */}
         <div className="rounded-xl border border-border bg-card overflow-hidden animate-in fade-in slide-in-from-bottom-3">
-          <div className="grid grid-cols-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
             <SummaryStat
               label="Starting"
               value={fmtFull(starting)}
