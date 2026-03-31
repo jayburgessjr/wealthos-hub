@@ -536,7 +536,7 @@ function ProbItem({ value, label, green }: { value: string; label: string; green
 
 function GoalInput({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
       <span className="w-36 flex-shrink-0 text-xs text-muted-foreground">{label}</span>
       <input
         type="number"
