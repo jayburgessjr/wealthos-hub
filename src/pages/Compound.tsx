@@ -414,7 +414,7 @@ export default function Compound() {
             </div>
 
             {/* Required Return Rate */}
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <span className="font-mono text-[9px] uppercase tracking-[1px] text-muted-foreground">→ Required Return Rate</span>
               <div className="mt-4 space-y-3">
                 <GoalInput label="Target Capital ($)" value={goalTarget} onChange={setGoalTarget} />
