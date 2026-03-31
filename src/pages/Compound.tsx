@@ -411,10 +411,10 @@ export default function Compound() {
               );
             })}
           </div>
-        </div>
+        </motion.div>
 
         {/* Goal Calculators */}
-        <div className="rounded-xl border border-border bg-card overflow-hidden animate-in fade-in slide-in-from-bottom-3">
+        <motion.div variants={cardVariants} initial="hidden" animate="visible" custom={4} className="rounded-xl border border-border bg-card overflow-hidden">
           <div className="border-b border-border px-5 py-3.5">
             <span className="font-display text-[11px] font-bold uppercase tracking-[1.2px] text-muted-foreground">Goal Calculators</span>
           </div>
