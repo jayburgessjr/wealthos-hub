@@ -123,7 +123,7 @@ export default function Compound() {
     <DashboardLayout>
       <div className="mx-auto max-w-[1400px] space-y-5">
         {/* Page Header */}
-        <div className="flex items-end justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 className="font-display text-[28px] font-extrabold leading-none tracking-tight">
               Compound <span className="text-bullish">Engine</span>
