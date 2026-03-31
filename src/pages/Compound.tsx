@@ -315,9 +315,9 @@ export default function Compound() {
             <span className="font-display text-[11px] font-bold uppercase tracking-[1.2px] text-muted-foreground">Strategy Unlock Timeline</span>
             <p className="mt-0.5 font-mono text-[10px] text-muted-foreground">Capital milestones that unlock new wealth strategies</p>
           </div>
-          <div className="px-6 py-6">
+          <div className="px-4 sm:px-6 py-6 overflow-x-auto">
             {/* Timeline nodes */}
-            <div className="flex items-center">
+            <div className="flex items-center min-w-[600px]">
               {tierTimeline.map((tier, i) => (
                 <div key={tier.label} className="flex flex-1 items-center">
                   <div className="flex flex-col items-center">
