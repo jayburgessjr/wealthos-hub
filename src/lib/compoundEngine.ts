@@ -1,9 +1,6 @@
-import { calcBlendedReturn, getCurrentTier, getAvailableStrategies, getNextTierUnlock } from "@/data/strategyTiers";
+import { getCurrentTier, getAvailableStrategies, getNextTierUnlock } from "@/data/strategyTiers";
 
-export { calcBlendedReturn };
-
-// Re-export for convenience
-function calcBlendedReturnLocal(capital: number, riskTier: string = "moderate"): number {
+export function calcBlendedReturn(capital: number, riskTier: string = "moderate"): number {
   const available = getAvailableStrategies(capital);
   if (!available.length) return 0.02;
   const riskMultiplier: Record<string, number> = { conservative: 0.6, moderate: 1.0, aggressive: 1.4 };
