@@ -507,7 +507,7 @@ function SummaryStat({ label, value, sub, accent, last }: {
     red: "from-bearish",
   };
   return (
-    <div className={`relative overflow-hidden p-5 ${!last ? "border-r border-border" : ""}`}>
+    <div className={`relative overflow-hidden p-4 sm:p-5 ${!last ? "border-b sm:border-b lg:border-b-0 border-r-0 sm:border-r lg:border-r border-border" : ""}`}>
       <div className={`absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r ${accentColors[accent] || ""} to-transparent`} />
       <div className="font-mono text-[9px] uppercase tracking-[1px] text-muted-foreground mb-1.5">{label}</div>
       <div className="font-display text-[22px] font-extrabold leading-none mb-1">{value}</div>
