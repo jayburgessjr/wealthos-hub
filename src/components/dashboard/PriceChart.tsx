@@ -53,11 +53,11 @@ export default function PriceChart() {
       })) as any
     );
 
-    // Add signal markers
-    candleSeries.setMarkers([
-      { time: candlestickData[10]?.time as any, position: "belowBar", color: "#00E5A0", shape: "circle", text: "B" },
-      { time: candlestickData[25]?.time as any, position: "aboveBar", color: "#FF4D6A", shape: "circle", text: "S" },
-      { time: candlestickData[38]?.time as any, position: "belowBar", color: "#3D8EFF", shape: "circle", text: "B" },
+    // Signal markers via cast
+    (candleSeries as any).setMarkers?.([
+      { time: candlestickData[10]?.time, position: "belowBar", color: "#00E5A0", shape: "circle", text: "B" },
+      { time: candlestickData[25]?.time, position: "aboveBar", color: "#FF4D6A", shape: "circle", text: "S" },
+      { time: candlestickData[38]?.time, position: "belowBar", color: "#3D8EFF", shape: "circle", text: "B" },
     ]);
 
     chart.timeScale().fitContent();
