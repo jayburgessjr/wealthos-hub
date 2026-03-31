@@ -242,6 +242,7 @@ serve(async (req) => {
     const POLYGON_KEY = Deno.env.get("POLYGON_KEY");
     const FRED_KEY = Deno.env.get("FRED_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const UW_KEY = Deno.env.get("UNUSUAL_WHALES_KEY");
 
     if (!POLYGON_KEY) throw new Error("POLYGON_KEY not configured");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
