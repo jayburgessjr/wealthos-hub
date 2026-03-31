@@ -331,10 +331,10 @@ export default function Compound() {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Tier Timeline */}
-        <div className="rounded-xl border border-border bg-card overflow-hidden animate-in fade-in slide-in-from-bottom-3">
+        <motion.div variants={cardVariants} initial="hidden" animate="visible" custom={3} className="rounded-xl border border-border bg-card overflow-hidden">
           <div className="border-b border-border px-5 py-3.5">
             <span className="font-display text-[11px] font-bold uppercase tracking-[1.2px] text-muted-foreground">Strategy Unlock Timeline</span>
             <p className="mt-0.5 font-mono text-[10px] text-muted-foreground">Capital milestones that unlock new wealth strategies</p>
