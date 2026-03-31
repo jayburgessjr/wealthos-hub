@@ -234,7 +234,7 @@ export default function Compound() {
         </div>
 
         {/* Chart + Monte Carlo Row */}
-        <div className="grid grid-cols-[1fr_300px] gap-5">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5">
           {/* Main Chart */}
           <div className="rounded-xl border border-border bg-card overflow-hidden animate-in fade-in slide-in-from-bottom-3">
             <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
