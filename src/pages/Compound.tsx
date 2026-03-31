@@ -394,7 +394,7 @@ export default function Compound() {
           <div className="border-b border-border px-5 py-3.5">
             <span className="font-display text-[11px] font-bold uppercase tracking-[1.2px] text-muted-foreground">Goal Calculators</span>
           </div>
-          <div className="grid grid-cols-2">
+          <div className="grid grid-cols-1 md:grid-cols-2">
             {/* Time to Goal */}
             <div className="border-r border-border p-6">
               <span className="font-mono text-[9px] uppercase tracking-[1px] text-muted-foreground">→ Time to Goal</span>
