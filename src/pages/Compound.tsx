@@ -125,7 +125,7 @@ export default function Compound() {
         {/* Page Header */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="font-display text-[28px] font-extrabold leading-none tracking-tight">
+            <h1 className="font-display text-xl sm:text-[28px] font-extrabold leading-none tracking-tight">
               Compound <span className="text-bullish">Engine</span>
             </h1>
             <p className="mt-1.5 font-mono text-[13px] text-muted-foreground">
