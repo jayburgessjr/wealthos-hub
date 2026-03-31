@@ -479,7 +479,7 @@ function InputCell({ label, prefix, suffix, value, onChange }: {
   label: string; prefix?: string; suffix?: string; value: number; onChange: (v: number) => void;
 }) {
   return (
-    <div className="flex flex-col gap-2.5 border-r border-border p-5 last:border-r-0">
+    <div className="flex flex-col gap-2.5 border-b sm:border-b-0 sm:border-r border-border p-4 sm:p-5 last:border-b-0 last:border-r-0">
       <span className="font-mono text-[9px] uppercase tracking-[1px] text-muted-foreground">{label}</span>
       <div className="relative flex items-center">
         {prefix && <span className="mr-1 font-mono text-sm text-muted-foreground">{prefix}</span>}
