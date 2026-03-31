@@ -123,18 +123,18 @@ export default function Compound() {
     <DashboardLayout>
       <div className="mx-auto max-w-[1400px] space-y-5">
         {/* Page Header */}
-        <div className="flex items-end justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="font-display text-[28px] font-extrabold leading-none tracking-tight">
+            <h1 className="font-display text-xl sm:text-[28px] font-extrabold leading-none tracking-tight">
               Compound <span className="text-bullish">Engine</span>
             </h1>
-            <p className="mt-1.5 font-mono text-[13px] text-muted-foreground">
+            <p className="mt-1.5 font-mono text-[11px] sm:text-[13px] text-muted-foreground hidden sm:block">
               // Every dollar assigned. Every return reinvested. Wealth compounded systematically.
             </p>
           </div>
           <button
             onClick={() => saveMutation.mutate()}
-            className="flex items-center gap-2 rounded-lg bg-bullish px-6 py-2.5 font-display text-[13px] font-bold text-primary-foreground transition-all hover:shadow-[0_4px_24px_hsl(160_100%_45%/0.25)] hover:-translate-y-0.5"
+            className="flex items-center justify-center gap-2 rounded-lg bg-bullish px-4 sm:px-6 py-2.5 font-display text-[13px] font-bold text-primary-foreground transition-all hover:shadow-[0_4px_24px_hsl(160_100%_45%/0.25)] hover:-translate-y-0.5 w-full sm:w-auto"
           >
             <Play className="h-3.5 w-3.5" /> Run Projection
           </button>
@@ -146,7 +146,7 @@ export default function Compound() {
             <span className="font-display text-[11px] font-bold uppercase tracking-[1.2px] text-muted-foreground">Projection Parameters</span>
             <span className="rounded bg-bullish/10 px-2 py-0.5 font-mono text-[10px] font-medium text-bullish">LIVE MODEL</span>
           </div>
-          <div className="grid grid-cols-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
             {/* Starting Capital */}
             <InputCell label="Starting Capital" prefix="$" value={starting} onChange={setStarting} />
             {/* Monthly Contribution */}
@@ -154,7 +154,7 @@ export default function Compound() {
             {/* Time Horizon */}
             <InputCell label="Time Horizon" suffix="mo" value={months} onChange={setMonths} />
             {/* Risk Tier */}
-            <div className="flex flex-col gap-2.5 border-r border-border p-5">
+            <div className="flex flex-col gap-2.5 border-b sm:border-b-0 sm:border-r border-border p-5">
               <span className="font-mono text-[9px] uppercase tracking-[1px] text-muted-foreground">Risk Tier</span>
               <div className="flex gap-1">
                 {(["conservative", "moderate", "aggressive"] as const).map((t) => (
@@ -192,7 +192,7 @@ export default function Compound() {
 
         {/* Summary Stats Row */}
         <div className="rounded-xl border border-border bg-card overflow-hidden animate-in fade-in slide-in-from-bottom-3">
-          <div className="grid grid-cols-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
             <SummaryStat
               label="Starting"
               value={fmtFull(starting)}
@@ -234,19 +234,19 @@ export default function Compound() {
         </div>
 
         {/* Chart + Monte Carlo Row */}
-        <div className="grid grid-cols-[1fr_300px] gap-5">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5">
           {/* Main Chart */}
           <div className="rounded-xl border border-border bg-card overflow-hidden animate-in fade-in slide-in-from-bottom-3">
-            <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-border px-5 py-3.5">
               <span className="font-display text-[11px] font-bold uppercase tracking-[1.2px] text-muted-foreground">Growth Projection</span>
-              <div className="flex gap-5">
+              <div className="flex gap-3 sm:gap-5 flex-wrap">
                 <LegendItem color="bg-bullish" label="Actual Path" />
                 <LegendItem color="bg-neutral/60" label="P75 Scenario" />
                 <LegendItem color="bg-bearish/50" label="P25 Scenario" />
               </div>
             </div>
             <div className="p-5">
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height={240}>
                 <AreaChart data={projection}>
                   <defs>
                     <linearGradient id="capitalGrad" x1="0" y1="0" x2="0" y2="1">
@@ -315,9 +315,9 @@ export default function Compound() {
             <span className="font-display text-[11px] font-bold uppercase tracking-[1.2px] text-muted-foreground">Strategy Unlock Timeline</span>
             <p className="mt-0.5 font-mono text-[10px] text-muted-foreground">Capital milestones that unlock new wealth strategies</p>
           </div>
-          <div className="px-6 py-6">
+          <div className="px-4 sm:px-6 py-6 overflow-x-auto">
             {/* Timeline nodes */}
-            <div className="flex items-center">
+            <div className="flex items-center min-w-[600px]">
               {tierTimeline.map((tier, i) => (
                 <div key={tier.label} className="flex flex-1 items-center">
                   <div className="flex flex-col items-center">
@@ -355,7 +355,7 @@ export default function Compound() {
           </div>
 
           {/* Strategy Cards Grid */}
-          <div className="grid grid-cols-3 gap-4 px-5 pb-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-5 pb-5">
             {STRATEGY_TIERS.map((tier) => {
               const unlocked = (finalRow?.capital || 0) >= tier.min_capital;
               const isCurrent = currentTier.label === tier.label;
@@ -394,9 +394,9 @@ export default function Compound() {
           <div className="border-b border-border px-5 py-3.5">
             <span className="font-display text-[11px] font-bold uppercase tracking-[1.2px] text-muted-foreground">Goal Calculators</span>
           </div>
-          <div className="grid grid-cols-2">
+          <div className="grid grid-cols-1 md:grid-cols-2">
             {/* Time to Goal */}
-            <div className="border-r border-border p-6">
+            <div className="border-b md:border-b-0 md:border-r border-border p-4 sm:p-6">
               <span className="font-mono text-[9px] uppercase tracking-[1px] text-muted-foreground">→ Time to Goal</span>
               <div className="mt-4 space-y-3">
                 <GoalInput label="Target Capital ($)" value={goalTarget} onChange={setGoalTarget} />
@@ -414,7 +414,7 @@ export default function Compound() {
             </div>
 
             {/* Required Return Rate */}
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <span className="font-mono text-[9px] uppercase tracking-[1px] text-muted-foreground">→ Required Return Rate</span>
               <div className="mt-4 space-y-3">
                 <GoalInput label="Target Capital ($)" value={goalTarget} onChange={setGoalTarget} />
@@ -437,8 +437,8 @@ export default function Compound() {
             <span className="font-display text-[11px] font-bold uppercase tracking-[1.2px] text-muted-foreground">Month-by-Month Projection</span>
             <span className="font-mono text-[10px] text-muted-foreground">Scroll to explore</span>
           </div>
-          <div className="max-h-80 overflow-y-auto">
-            <table className="w-full">
+          <div className="max-h-80 overflow-auto">
+            <table className="w-full min-w-[800px]">
               <thead>
                 <tr>
                   {["Month", "Capital", "Monthly Return", "Return %", "Cumulative Gain", "All-Time %", "Tier", "Strategies", "Next Unlock"].map((h) => (
@@ -479,7 +479,7 @@ function InputCell({ label, prefix, suffix, value, onChange }: {
   label: string; prefix?: string; suffix?: string; value: number; onChange: (v: number) => void;
 }) {
   return (
-    <div className="flex flex-col gap-2.5 border-r border-border p-5 last:border-r-0">
+    <div className="flex flex-col gap-2.5 border-b sm:border-b-0 sm:border-r border-border p-4 sm:p-5 last:border-b-0 last:border-r-0">
       <span className="font-mono text-[9px] uppercase tracking-[1px] text-muted-foreground">{label}</span>
       <div className="relative flex items-center">
         {prefix && <span className="mr-1 font-mono text-sm text-muted-foreground">{prefix}</span>}
@@ -507,10 +507,10 @@ function SummaryStat({ label, value, sub, accent, last }: {
     red: "from-bearish",
   };
   return (
-    <div className={`relative overflow-hidden p-5 ${!last ? "border-r border-border" : ""}`}>
+    <div className={`relative overflow-hidden p-4 sm:p-5 ${!last ? "border-b sm:border-b lg:border-b-0 border-r-0 sm:border-r lg:border-r border-border" : ""}`}>
       <div className={`absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r ${accentColors[accent] || ""} to-transparent`} />
       <div className="font-mono text-[9px] uppercase tracking-[1px] text-muted-foreground mb-1.5">{label}</div>
-      <div className="font-display text-[22px] font-extrabold leading-none mb-1">{value}</div>
+      <div className="font-display text-lg sm:text-[22px] font-extrabold leading-none mb-1">{value}</div>
       <div className="font-mono text-[10px] text-muted-foreground">{sub}</div>
     </div>
   );
@@ -536,13 +536,13 @@ function ProbItem({ value, label, green }: { value: string; label: string; green
 
 function GoalInput({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {
   return (
-    <div className="flex items-center gap-3">
-      <span className="w-36 flex-shrink-0 text-xs text-muted-foreground">{label}</span>
+    <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
+      <span className="sm:w-36 flex-shrink-0 text-xs text-muted-foreground">{label}</span>
       <input
         type="number"
         value={value}
         onChange={(e) => onChange(+e.target.value)}
-        className="w-36 rounded-md border border-border bg-surface px-3 py-1.5 font-mono text-[13px] text-foreground outline-none transition-all focus:border-bullish"
+        className="w-full sm:w-36 rounded-md border border-border bg-surface px-3 py-1.5 font-mono text-[13px] text-foreground outline-none transition-all focus:border-bullish"
       />
     </div>
   );
