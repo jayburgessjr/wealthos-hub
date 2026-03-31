@@ -37,7 +37,7 @@ export function projectGrowth(opts: {
   let capital = startingCapital;
 
   for (let month = 0; month <= timeHorizonMonths; month++) {
-    const monthlyRate = customMonthlyRate !== null ? customMonthlyRate / 100 : calcBlendedReturnLocal(capital, riskTier);
+    const monthlyRate = customMonthlyRate !== null ? customMonthlyRate / 100 : calcBlendedReturn(capital, riskTier);
     const returnDollars = capital * monthlyRate;
     const reinvested = returnDollars * (reinvestmentPct / 100);
     const withdrawn = returnDollars - reinvested;
@@ -77,7 +77,7 @@ export function monteCarlo(opts: {
   startingCapital: number; monthlyContribution: number; timeHorizonMonths: number; riskTier?: string; runs?: number;
 }): MonteCarloResult {
   const { startingCapital, monthlyContribution, timeHorizonMonths, riskTier = "moderate", runs = 500 } = opts;
-  const baseRate = calcBlendedReturnLocal(startingCapital, riskTier);
+  const baseRate = calcBlendedReturn(startingCapital, riskTier);
   const volatility: Record<string, number> = { conservative: 0.005, moderate: 0.012, aggressive: 0.022 };
   const vol = volatility[riskTier] || 0.012;
   const endings: number[] = [];
@@ -144,7 +144,7 @@ export function timeToGoal(opts: {
   const maxMonths = 600;
 
   while (capital < targetCapital && months < maxMonths) {
-    const rate = calcBlendedReturnLocal(capital, riskTier);
+    const rate = calcBlendedReturn(capital, riskTier);
     capital = capital * (1 + rate) + monthlyContribution;
     months++;
   }
