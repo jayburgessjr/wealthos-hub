@@ -155,6 +155,53 @@ async function calcMacroScore(fredKey: string | undefined): Promise<number> {
   }
 }
 
+// ─── OPTIONS FLOW (Unusual Whales) ───
+async function getOptionsFlow(ticker: string, apiKey: string) {
+  const res = await fetch(
+    `https://api.unusualwhales.com/api/stock/${ticker}/options-contracts?limit=50`,
+    { headers: { Authorization: `Bearer ${apiKey}` } }
+  );
+  const data = await res.json();
+  return data.data || [];
+}
+
+function scoreOptionsFlow(contracts: any[]): number {
+  if (!contracts.length) return 50;
+  let bullishPremium = 0;
+  let bearishPremium = 0;
+  let unusualCount = 0;
+  let totalPremium = 0;
+
+  contracts.forEach((c: any) => {
+    const premium = parseFloat(c.total_premium) || 0;
+    const isCall = c.type === "call" || c.put_call === "C";
+    const isBull = isCall ? (c.sentiment === "bullish" || c.ask_side_pct > 60) : c.sentiment === "bearish";
+    totalPremium += premium;
+    if (isBull) bullishPremium += premium;
+    else bearishPremium += premium;
+    if (c.volume_oi_ratio > 10 || c.is_unusual) unusualCount++;
+  });
+
+  const bullRatio = bullishPremium / (totalPremium || 1);
+  let score = bullRatio * 100;
+  if (unusualCount >= 3) score += 15;
+  else if (unusualCount >= 1) score += 8;
+  if (totalPremium > 5_000_000) score += 10;
+  else if (totalPremium > 1_000_000) score += 5;
+  return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+async function calcFlowScore(ticker: string, uwKey: string | undefined): Promise<number> {
+  if (!uwKey) return 50;
+  try {
+    const contracts = await getOptionsFlow(ticker, uwKey);
+    return scoreOptionsFlow(contracts);
+  } catch (err) {
+    console.error(`Options flow error for ${ticker}:`, err);
+    return 50;
+  }
+}
+
 // ─── ENTRY/TARGET/STOP PRICES ───
 function calcPrices(candles: any[], action: string) {
   if (!candles.length) return { entry: null, target: null, stop: null };
@@ -195,6 +242,7 @@ serve(async (req) => {
     const POLYGON_KEY = Deno.env.get("POLYGON_KEY");
     const FRED_KEY = Deno.env.get("FRED_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const UW_KEY = Deno.env.get("UNUSUAL_WHALES_KEY");
 
     if (!POLYGON_KEY) throw new Error("POLYGON_KEY not configured");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
@@ -207,7 +255,7 @@ serve(async (req) => {
           const candles = await getPriceData(ticker, POLYGON_KEY);
           const techScore = calcTechnicalScore(candles);
           const sentScore = await calcSentimentScore(ticker, POLYGON_KEY, LOVABLE_API_KEY);
-          const flowScore = 50; // placeholder for Unusual Whales API
+          const flowScore = await calcFlowScore(ticker, UW_KEY);
 
           const composite = Math.round(
             techScore * WEIGHTS.technical +
