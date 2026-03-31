@@ -255,7 +255,7 @@ export default function Compound() {
               last
             />
           </div>
-        </div>
+        </motion.div>
 
         {/* Chart + Monte Carlo Row */}
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5">
