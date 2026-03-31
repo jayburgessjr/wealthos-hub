@@ -542,7 +542,7 @@ function GoalInput({ label, value, onChange }: { label: string; value: number; o
         type="number"
         value={value}
         onChange={(e) => onChange(+e.target.value)}
-        className="w-36 rounded-md border border-border bg-surface px-3 py-1.5 font-mono text-[13px] text-foreground outline-none transition-all focus:border-bullish"
+        className="w-full sm:w-36 rounded-md border border-border bg-surface px-3 py-1.5 font-mono text-[13px] text-foreground outline-none transition-all focus:border-bullish"
       />
     </div>
   );
