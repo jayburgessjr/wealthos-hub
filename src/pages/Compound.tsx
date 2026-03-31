@@ -212,7 +212,7 @@ export default function Compound() {
               />
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Summary Stats Row */}
         <div className="rounded-xl border border-border bg-card overflow-hidden animate-in fade-in slide-in-from-bottom-3">
