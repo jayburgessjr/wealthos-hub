@@ -355,7 +355,7 @@ export default function Compound() {
           </div>
 
           {/* Strategy Cards Grid */}
-          <div className="grid grid-cols-3 gap-4 px-5 pb-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-5 pb-5">
             {STRATEGY_TIERS.map((tier) => {
               const unlocked = (finalRow?.capital || 0) >= tier.min_capital;
               const isCurrent = currentTier.label === tier.label;
