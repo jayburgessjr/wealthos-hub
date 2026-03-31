@@ -258,9 +258,9 @@ export default function Compound() {
         </motion.div>
 
         {/* Chart + Monte Carlo Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5">
+        <motion.div variants={cardVariants} initial="hidden" animate="visible" custom={2} className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5">
           {/* Main Chart */}
-          <div className="rounded-xl border border-border bg-card overflow-hidden animate-in fade-in slide-in-from-bottom-3">
+          <div className="rounded-xl border border-border bg-card overflow-hidden">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-border px-5 py-3.5">
               <span className="font-display text-[11px] font-bold uppercase tracking-[1.2px] text-muted-foreground">Growth Projection</span>
               <div className="flex gap-3 sm:gap-5 flex-wrap">
