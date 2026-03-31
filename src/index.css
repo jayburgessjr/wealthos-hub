@@ -37,6 +37,14 @@
     --sidebar-accent-foreground: 220 30% 93%;
     --sidebar-border: 215 25% 16%;
     --sidebar-ring: 160 100% 45%;
+    --card-hover: 213 30% 10%;
+    --border-bright: 213 28% 20%;
+    --purple: 270 91% 65%;
+    --purple-dim: 270 91% 65%;
+    --yellow: 38 100% 60%;
+    --yellow-dim: 38 100% 60%;
+    --blue: 216 100% 62%;
+    --blue-dim: 216 100% 62%;
   }
 }
 
