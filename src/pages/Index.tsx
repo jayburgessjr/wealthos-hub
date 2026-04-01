@@ -1,16 +1,77 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import LandingNavbar from "@/components/landing/LandingNavbar";
+import LandingHero from "@/components/landing/LandingHero";
+import Marquee from "@/components/landing/Marquee";
+import BentoGrid from "@/components/landing/BentoGrid";
+import PricingSection from "@/components/landing/PricingSection";
+import FAQ from "@/components/landing/FAQ";
+import LandingFooter from "@/components/landing/LandingFooter";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { ArrowRight, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
+    <div className="min-h-screen bg-background text-foreground">
+      <LandingNavbar />
+      
+      <main>
+        <LandingHero />
+        
+        <Marquee />
+        
+        <BentoGrid />
+        
+        <PricingSection />
+        
+        {/* Call to Action Section */}
+        <section id="strategies" className="relative overflow-hidden py-20 md:py-32">
+          <div className="absolute inset-0 -z-10 bg-primary/5" />
+          <div className="container px-4 text-center">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className="mx-auto max-w-4xl rounded-3xl border border-primary/20 bg-card p-12 md:p-20 shadow-2xl shadow-primary/10"
+            >
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
+                <Sparkles className="h-4 w-4" />
+                <span>Limited Access Release</span>
+              </div>
+              
+              <h2 className="mb-6 font-display text-4xl font-bold tracking-tight sm:text-6xl">
+                Ready to Compound? <br />
+                <span className="text-primary">Join the Hub today.</span>
+              </h2>
+              
+              <p className="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground">
+                Start managing your capital with AI-driven precision. Institutional-grade signals, automated tracking, and a suite of tools built for performance.
+              </p>
+              
+              <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+                <Button asChild size="lg" className="h-12 rounded-full px-8 text-base">
+                  <Link to="/login" className="flex items-center gap-2">
+                    Create Your Account <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="lg" className="h-12 rounded-full px-8 text-base border-border/50 hover:bg-accent/50">
+                  <Link to="#faq">Talk to Support</Link>
+                </Button>
+              </div>
+              
+              <p className="mt-8 text-sm text-muted-foreground">
+                No credit card required. Start with our free tier.
+              </p>
+            </motion.div>
+          </div>
+        </section>
+
+        <FAQ />
+      </main>
+      
+      <LandingFooter />
     </div>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;

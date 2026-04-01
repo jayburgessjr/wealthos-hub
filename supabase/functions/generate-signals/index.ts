@@ -75,47 +75,28 @@ async function fetchRecentNews(ticker: string, apiKey: string) {
   return data.results || [];
 }
 
-// ─── SENTIMENT SCORE (Lovable AI) ───
-async function calcSentimentScore(ticker: string, polygonKey: string, lovableKey: string): Promise<number> {
+// ─── SENTIMENT SCORE (OpenAI) ───
+async function calcSentimentScore(ticker: string, polygonKey: string, openaiKey: string): Promise<number> {
   const news = await fetchRecentNews(ticker, polygonKey);
   if (!news.length) return 50;
 
   const headlines = news.slice(0, 5).map((n: any) => n.title).join("\n");
 
-  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${lovableKey}`,
       "Content-Type": "application/json",
+      Authorization: `Bearer ${openaiKey}`,
     },
     body: JSON.stringify({
-      model: "google/gemini-2.5-flash-lite",
+      model: "gpt-4o",
       messages: [
         {
           role: "user",
           content: `Rate the sentiment for ${ticker} based on these headlines. Return ONLY a JSON object: {"score": 0-100, "bull_pct": 0-100, "summary": "one sentence"}\n\nHeadlines:\n${headlines}`,
         },
       ],
-      tools: [
-        {
-          type: "function",
-          function: {
-            name: "sentiment_result",
-            description: "Return the sentiment analysis result",
-            parameters: {
-              type: "object",
-              properties: {
-                score: { type: "number", description: "Sentiment score 0-100" },
-                bull_pct: { type: "number", description: "Bullish percentage 0-100" },
-                summary: { type: "string", description: "One sentence summary" },
-              },
-              required: ["score", "bull_pct", "summary"],
-              additionalProperties: false,
-            },
-          },
-        },
-      ],
-      tool_choice: { type: "function", function: { name: "sentiment_result" } },
+      response_format: { type: "json_object" },
     }),
   });
 
@@ -126,33 +107,90 @@ async function calcSentimentScore(ticker: string, polygonKey: string, lovableKey
 
   const data = await response.json();
   try {
-    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
-    const result = JSON.parse(toolCall.function.arguments);
+    const result = JSON.parse(data.choices[0].message.content);
     return Math.max(0, Math.min(100, result.score));
   } catch {
     return 50;
   }
 }
 
-// ─── MACRO SCORE (FRED) ───
-async function calcMacroScore(fredKey: string | undefined): Promise<number> {
-  if (!fredKey) return 60;
+// ─── MACRO SCORES (FRED) ───
+async function calcYieldCurveScore(fredKey: string | undefined): Promise<{ score: number; value: number; status: string }> {
+  if (!fredKey) return { score: 60, value: 0.2, status: 'Normal' };
   try {
-    // 10Y-2Y Treasury spread
     const res = await fetch(
       `https://api.stlouisfed.org/fred/series/observations?series_id=T10Y2Y&limit=5&sort_order=desc&api_key=${fredKey}&file_type=json`
     );
     const data = await res.json();
     const latest = parseFloat(data.observations?.[0]?.value);
-    if (isNaN(latest)) return 60;
-    // Positive spread = healthy economy = bullish
-    if (latest > 1) return 75;
-    if (latest > 0) return 60;
-    if (latest > -0.5) return 40;
-    return 25; // deep inversion = bearish
+    if (isNaN(latest)) return { score: 60, value: 0.2, status: 'Normal' };
+    
+    let status = 'Normal';
+    if (latest < 0) status = 'Inverted';
+    else if (latest < 0.2) status = 'Flat';
+
+    let score = 60;
+    if (latest > 1) score = 75;
+    else if (latest > 0) score = 60;
+    else if (latest > -0.5) score = 40;
+    else score = 25;
+
+    return { score, value: latest, status };
   } catch {
-    return 60;
+    return { score: 60, value: 0.2, status: 'Normal' };
   }
+}
+
+async function calcVixProxy(polygonKey: string): Promise<{ score: number; value: number; label: string }> {
+  try {
+    const res = await fetch(`https://api.polygon.io/v2/aggs/ticker/I:VIX/prev?adjusted=true&apiKey=${polygonKey}`);
+    const data = await res.json();
+    const vix = data.results?.[0]?.c || 15;
+    
+    let label = 'Low Risk';
+    if (vix > 30) label = 'Extreme Fear';
+    else if (vix > 20) label = 'Elevated Risk';
+    else if (vix > 15) label = 'Moderate';
+
+    let score = 80; // High score = bullish/low vix
+    if (vix > 35) score = 20;
+    else if (vix > 25) score = 40;
+    else if (vix > 18) score = 60;
+
+    return { score, value: vix, label };
+  } catch {
+    return { score: 70, value: 15, label: 'Low Risk' };
+  }
+}
+
+async function getMacroData(fredKey: string | undefined, polygonKey: string) {
+  const yieldCurve = await calcYieldCurveScore(fredKey);
+  const vix = await calcVixProxy(polygonKey);
+  
+  // Sector Momentum (Simplified: SPY vs Fixed threshold)
+  const spyData = await getPriceData('SPY', polygonKey);
+  const spyMomentum = spyData.length >= 20 
+    ? (spyData[spyData.length-1].c / spyData[spyData.length-20].c - 1) * 100 
+    : 0;
+  
+  const sectorScore = 50 + spyMomentum * 5;
+  const fedScore = 60; // Placeholder
+
+  const composite = Math.round(
+    yieldCurve.score * 0.4 +
+    vix.score * 0.3 +
+    sectorScore * 0.2 +
+    fedScore * 0.1
+  );
+
+  return {
+    composite,
+    yieldCurve,
+    vix,
+    sector: { score: Math.round(sectorScore), value: Number(spyMomentum.toFixed(2)), label: spyMomentum > 0 ? 'Bullish' : 'Bearish' },
+    fed: { score: fedScore, value: '0-25bps', label: 'Neutral' },
+    updatedAt: new Date().toISOString()
+  };
 }
 
 // ─── OPTIONS FLOW (Unusual Whales) ───
@@ -236,32 +274,39 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { tickers } = await req.json();
-    if (!tickers?.length) throw new Error("No tickers provided");
+    const { tickers, mode } = await req.json();
 
     const POLYGON_KEY = Deno.env.get("POLYGON_KEY");
     const FRED_KEY = Deno.env.get("FRED_KEY");
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
     const UW_KEY = Deno.env.get("UNUSUAL_WHALES_KEY");
 
     if (!POLYGON_KEY) throw new Error("POLYGON_KEY not configured");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const macroScore = await calcMacroScore(FRED_KEY);
+    const macroData = await getMacroData(FRED_KEY, POLYGON_KEY);
+
+    if (mode === 'macro') {
+      return new Response(JSON.stringify({ macro: macroData }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (!tickers?.length) throw new Error("No tickers provided");
+    if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY not configured");
 
     const results = await Promise.all(
       tickers.map(async (ticker: string) => {
         try {
           const candles = await getPriceData(ticker, POLYGON_KEY);
           const techScore = calcTechnicalScore(candles);
-          const sentScore = await calcSentimentScore(ticker, POLYGON_KEY, LOVABLE_API_KEY);
+          const sentScore = await calcSentimentScore(ticker, POLYGON_KEY, OPENAI_API_KEY);
           const flowScore = await calcFlowScore(ticker, UW_KEY);
 
           const composite = Math.round(
             techScore * WEIGHTS.technical +
             sentScore * WEIGHTS.sentiment +
             flowScore * WEIGHTS.options_flow +
-            macroScore * WEIGHTS.macro
+            macroData.composite * WEIGHTS.macro
           );
 
           const action =
@@ -282,7 +327,7 @@ serve(async (req) => {
             technical_score: techScore,
             sentiment_score: sentScore,
             options_flow_score: flowScore,
-            macro_score: macroScore,
+            macro_score: macroData.composite,
             generated_at: new Date().toISOString(),
           };
         } catch (err) {
@@ -292,7 +337,7 @@ serve(async (req) => {
       })
     );
 
-    return new Response(JSON.stringify({ signals: results }), {
+    return new Response(JSON.stringify({ signals: results, macro: macroData }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {

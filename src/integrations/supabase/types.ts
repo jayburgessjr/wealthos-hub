@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       compound_settings: {
         Row: {
+          allocations: Json | null
           id: string
           max_drawdown_pct: number | null
           monthly_contribution: number | null
@@ -28,6 +29,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          allocations?: Json | null
           id?: string
           max_drawdown_pct?: number | null
           monthly_contribution?: number | null
@@ -40,6 +42,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          allocations?: Json | null
           id?: string
           max_drawdown_pct?: number | null
           monthly_contribution?: number | null
@@ -91,6 +94,44 @@ export type Database = {
           win_rate?: number | null
         }
         Relationships: []
+      }
+      profiles: {
+        Row: {
+          id: string
+          email: string | null
+          stripe_customer_id: string | null
+          subscription_status: string | null
+          subscription_plan: string | null
+          is_admin: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          id: string
+          email?: string | null
+          stripe_customer_id?: string | null
+          subscription_status?: string | null
+          subscription_plan?: string | null
+          is_admin?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          email?: string | null
+          stripe_customer_id?: string | null
+          subscription_status?: string | null
+          subscription_plan?: string | null
+          is_admin?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       positions: {
         Row: {

@@ -1,3 +1,6 @@
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import SignalCards from "@/components/dashboard/SignalCards";
 import PriceChart from "@/components/dashboard/PriceChart";
@@ -7,15 +10,36 @@ import CompoundPanel from "@/components/dashboard/CompoundPanel";
 import WatchlistSentiment from "@/components/dashboard/WatchlistSentiment";
 
 export default function Dashboard() {
+  const [selectedTicker, setSelectedTicker] = useState<string>("SPY");
+
+  const { data: firstSignal } = useQuery({
+    queryKey: ['signals', 'first'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('signals')
+        .select('ticker')
+        .order('signal_score', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+  useEffect(() => {
+    if (firstSignal?.ticker) {
+      setSelectedTicker(firstSignal.ticker);
+    }
+  }, [firstSignal]);
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
         {/* Row 1 — Signal Cards */}
-        <SignalCards />
+        <SignalCards onSelectTicker={setSelectedTicker} />
 
         {/* Row 2 — Chart + Top Recommendation */}
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_340px]">
-          <PriceChart />
+          <PriceChart ticker={selectedTicker} />
           <TopRecommendation />
         </div>
 
