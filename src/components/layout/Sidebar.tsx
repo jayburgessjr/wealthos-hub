@@ -1,7 +1,8 @@
 import { NavLink as RouterNavLink, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Radar, Briefcase, Zap, PieChart, ShieldAlert,
-  Bot, Globe, BarChart3, Settings, Eye, ShieldCheck, LogOut
+  Bot, Globe, BarChart3, Settings, Eye, ShieldCheck, LogOut, FileText,
+  Bitcoin, TrendingUp, Landmark, Newspaper, Cpu, Shield
 } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useAuth } from "@/components/AuthProvider";
@@ -13,6 +14,7 @@ const navSections = [
     label: "Core",
     items: [
       { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+      { to: "/decisions", icon: Zap, label: "Decision Hub" },
       { to: "/signals", icon: Radar, label: "Signals" },
       { to: "/positions", icon: Briefcase, label: "Positions" },
       { to: "/watchlist", icon: Eye, label: "Watchlist" },
@@ -23,7 +25,15 @@ const navSections = [
     items: [
       { to: "/compound", icon: Zap, label: "Compound Engine" },
       { to: "/strategy-allocator", icon: PieChart, label: "Strategy Allocator" },
+      { to: "/quantum", icon: Cpu, label: "Quantum Engine" },
       { to: "/settings", icon: ShieldAlert, label: "Risk Controls" },
+    ],
+  },
+  {
+    label: "Markets",
+    items: [
+      { to: "/crypto",  icon: Bitcoin,    label: "Crypto" },
+      { to: "/markets", icon: TrendingUp, label: "Forex & Commodities" },
     ],
   },
   {
@@ -31,12 +41,15 @@ const navSections = [
     items: [
       { to: "/ai-advisor", icon: Bot, label: "AI Advisor" },
       { to: "/market-regime", icon: Globe, label: "Market Regime" },
+      { to: "/news", icon: Newspaper, label: "News & Intel" },
     ],
   },
   {
     label: "Analytics",
     items: [
       { to: "/performance", icon: BarChart3, label: "Performance" },
+      { to: "/documents", icon: FileText, label: "Documents" },
+      { to: "/security", icon: Shield, label: "Security & Audit" },
     ],
   },
   {

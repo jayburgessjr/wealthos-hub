@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" fill="none">
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#0a0a0a"/>
+
+  <!-- Subtle grid lines -->
+  <line x1="0" y1="157" x2="1200" y2="157" stroke="#ffffff" stroke-width="0.5" opacity="0.04"/>
+  <line x1="0" y1="315" x2="1200" y2="315" stroke="#ffffff" stroke-width="0.5" opacity="0.04"/>
+  <line x1="0" y1="472" x2="1200" y2="472" stroke="#ffffff" stroke-width="0.5" opacity="0.04"/>
+  <line x1="300" y1="0" x2="300" y2="630" stroke="#ffffff" stroke-width="0.5" opacity="0.04"/>
+  <line x1="600" y1="0" x2="600" y2="630" stroke="#ffffff" stroke-width="0.5" opacity="0.04"/>
+  <line x1="900" y1="0" x2="900" y2="630" stroke="#ffffff" stroke-width="0.5" opacity="0.04"/>
+
+  <!-- Chart area fill -->
+  <polygon
+    points="80,500 200,420 340,450 480,340 620,290 760,200 900,150 1040,100 1120,80 1120,540 80,540"
+    fill="#00cc73"
+    opacity="0.06"
+  />
+
+  <!-- Chart line -->
+  <polyline
+    points="80,500 200,420 340,450 480,340 620,290 760,200 900,150 1040,100 1120,80"
+    stroke="#00cc73"
+    stroke-width="3"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+    opacity="0.7"
+  />
+
+  <!-- Glow dot at end of chart -->
+  <circle cx="1120" cy="80" r="10" fill="#00cc73" opacity="0.3"/>
+  <circle cx="1120" cy="80" r="5" fill="#00cc73"/>
+
+  <!-- Left accent bar -->
+  <rect x="80" y="200" width="4" height="120" rx="2" fill="#00cc73" opacity="0.8"/>
+
+  <!-- WealthOS wordmark -->
+  <text
+    x="108"
+    y="275"
+    font-family="Arial Black, Arial, sans-serif"
+    font-size="88"
+    font-weight="900"
+    fill="#ffffff"
+    letter-spacing="-3"
+  >WealthOS</text>
+
+  <!-- Tagline -->
+  <text
+    x="110"
+    y="335"
+    font-family="Arial, sans-serif"
+    font-size="28"
+    font-weight="400"
+    fill="#00cc73"
+    letter-spacing="2"
+    opacity="0.9"
+  >YOUR PERSONAL HEDGE FUND</text>
+
+  <!-- Bottom descriptor -->
+  <text
+    x="110"
+    y="545"
+    font-family="Arial, sans-serif"
+    font-size="18"
+    fill="#ffffff"
+    opacity="0.35"
+    letter-spacing="1"
+  >AI-POWERED · SIGNALS · PORTFOLIO MANAGEMENT · COMPOUND GROWTH</text>
+
+  <!-- Live indicator -->
+  <circle cx="1100" cy="565" r="6" fill="#00cc73">
+    <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <text
+    x="1114"
+    y="570"
+    font-family="Arial, sans-serif"
+    font-size="16"
+    fill="#00cc73"
+    font-weight="600"
+    letter-spacing="1"
+  >LIVE</text>
+</svg>

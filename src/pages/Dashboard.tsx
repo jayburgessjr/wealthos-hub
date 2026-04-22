@@ -8,6 +8,7 @@ import TopRecommendation from "@/components/dashboard/TopRecommendation";
 import PositionsTable from "@/components/dashboard/PositionsTable";
 import CompoundPanel from "@/components/dashboard/CompoundPanel";
 import WatchlistSentiment from "@/components/dashboard/WatchlistSentiment";
+import AllocationDonut from "@/components/dashboard/AllocationDonut";
 
 export default function Dashboard() {
   const [selectedTicker, setSelectedTicker] = useState<string>("SPY");
@@ -48,6 +49,11 @@ export default function Dashboard() {
           <PositionsTable />
           <CompoundPanel />
           <WatchlistSentiment />
+        </div>
+
+        {/* Row 4 — Portfolio Allocation */}
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <AllocationDonut />
         </div>
       </div>
     </DashboardLayout>

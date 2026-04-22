@@ -40,12 +40,12 @@ const Index = () => {
               </div>
               
               <h2 className="mb-6 font-display text-4xl font-bold tracking-tight sm:text-6xl">
-                Ready to Compound? <br />
-                <span className="text-primary">Join the Hub today.</span>
+                Ready To Run Your Portfolio <br />
+                <span className="text-primary">With Better Decisions?</span>
               </h2>
               
               <p className="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground">
-                Start managing your capital with AI-driven precision. Institutional-grade signals, automated tracking, and a suite of tools built for performance.
+                Get decision intelligence across entry, exit, sizing, risk, and portfolio management from one operating layer.
               </p>
               
               <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">

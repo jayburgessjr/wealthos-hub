@@ -13,6 +13,8 @@ export default function Watchlist() {
   const [addOpen, setAddOpen] = useState(false);
   const [newTicker, setNewTicker] = useState('');
   const [newName, setNewName] = useState('');
+  const [newAssetClass, setNewAssetClass] = useState('equity');
+  const [assetFilter, setAssetFilter] = useState('all');
 
   const { data: items = [], isLoading } = useQuery({
     queryKey: ['watchlist', user?.id],
@@ -36,6 +38,7 @@ export default function Watchlist() {
         user_id: user.id,
         ticker,
         company_name: newName.trim() || null,
+        asset_class: newAssetClass,
       });
       if (error) throw error;
     },
@@ -45,6 +48,7 @@ export default function Watchlist() {
       setAddOpen(false);
       setNewTicker('');
       setNewName('');
+      setNewAssetClass('equity');
     },
     onError: (err: any) => {
       toast.error(err.message ?? 'Failed to add asset');
@@ -66,7 +70,7 @@ export default function Watchlist() {
 
   return (
     <DashboardLayout>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-4 flex items-center justify-between">
         <h2 className="font-display text-xl font-bold text-foreground">Watchlist</h2>
         <button
           onClick={() => setAddOpen(true)}
@@ -74,6 +78,30 @@ export default function Watchlist() {
         >
           <Plus className="h-3.5 w-3.5" /> Add Asset
         </button>
+      </div>
+      {/* Asset class filter */}
+      <div className="mb-4 flex flex-wrap gap-1.5">
+        {[
+          { value: 'all', label: 'All' },
+          { value: 'equity', label: 'Equities' },
+          { value: 'crypto', label: 'Crypto' },
+          { value: 'forex', label: 'Forex' },
+          { value: 'commodity', label: 'Commodities' },
+          { value: 'bond', label: 'Bonds' },
+          { value: 'alternative', label: 'Alternatives' },
+        ].map(f => (
+          <button
+            key={f.value}
+            onClick={() => setAssetFilter(f.value)}
+            className={`rounded-lg border px-3 py-1.5 font-mono text-xs font-bold transition-fast ${
+              assetFilter === f.value
+                ? "border-primary/40 bg-primary/10 text-primary"
+                : "border-border bg-card text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
       </div>
 
       {isLoading ? (
@@ -94,6 +122,7 @@ export default function Watchlist() {
               <tr className="border-b border-border text-muted-foreground">
                 <th className="px-4 py-3 text-xs font-medium">Ticker</th>
                 <th className="px-4 py-3 text-xs font-medium">Name</th>
+                <th className="px-4 py-3 text-xs font-medium">Asset Class</th>
                 <th className="px-4 py-3 text-xs font-medium">Alert Above</th>
                 <th className="px-4 py-3 text-xs font-medium">Alert Below</th>
                 <th className="px-4 py-3 text-xs font-medium">Added</th>
@@ -101,10 +130,15 @@ export default function Watchlist() {
               </tr>
             </thead>
             <tbody>
-              {items.map((w) => (
+              {items.filter(w => assetFilter === 'all' || (w.asset_class ?? 'equity') === assetFilter).map((w) => (
                 <tr key={w.id} className="border-b border-border/50 transition-fast hover:bg-accent/30">
                   <td className="px-4 py-4 font-mono font-bold text-foreground">{w.ticker}</td>
                   <td className="px-4 py-4 text-muted-foreground">{w.company_name ?? '—'}</td>
+                  <td className="px-4 py-4">
+                    <span className="rounded-full border border-border bg-accent px-2 py-0.5 font-mono text-[10px] capitalize text-muted-foreground">
+                      {w.asset_class ?? 'equity'}
+                    </span>
+                  </td>
                   <td className="px-4 py-4 font-mono text-muted-foreground">
                     {w.alert_price_above ? `$${w.alert_price_above}` : '—'}
                   </td>
@@ -152,6 +186,23 @@ export default function Watchlist() {
                 onChange={(e) => setNewName(e.target.value)}
                 className="w-full rounded-lg border border-border bg-background px-3 py-2 font-body text-sm text-foreground outline-none transition-fast focus:border-bullish"
               />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-muted-foreground">Asset Class</label>
+              <select
+                value={newAssetClass}
+                onChange={(e) => setNewAssetClass(e.target.value)}
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 font-body text-sm text-foreground outline-none transition-fast focus:border-bullish"
+              >
+                <option value="equity">Equity / Stock</option>
+                <option value="crypto">Crypto</option>
+                <option value="forex">Forex</option>
+                <option value="commodity">Commodity</option>
+                <option value="bond">Bond / Fixed Income</option>
+                <option value="reit">REIT</option>
+                <option value="etf">ETF</option>
+                <option value="alternative">Alternative</option>
+              </select>
             </div>
             <button
               onClick={() => addAsset()}

@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 
 type AuthCtx = { user: User | null; session: Session | null; loading: boolean };
-const AuthContext = createContext<AuthCtx>({ user: null, session: null, loading: true });
+const AuthContext = createContext<AuthCtx>({ user: null, session: null, loading: false });
 export const useAuth = () => useContext(AuthContext);
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
