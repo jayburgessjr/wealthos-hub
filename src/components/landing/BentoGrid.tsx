@@ -3,16 +3,16 @@ import { Zap, BarChart3, TrendingUp, ShieldCheck, Cpu, Globe } from "lucide-reac
 
 const features = [
   {
-    title: "AI-Powered Signals",
-    description: "Institutional-grade momentum and value signals updated in real-time by our proprietary LLM engines.",
+    title: "AI Signals",
+    description: "Scored trade ideas with entry, target, stop, and action labels to support buy, watch, and exit decisions.",
     icon: Zap,
     className: "md:col-span-2",
     color: "text-primary",
     bgColor: "bg-primary/10",
   },
   {
-    title: "Strategy Tiers",
-    description: "Diverse strategies from safe covered calls to high-alpha options trading.",
+    title: "Allocation Planning",
+    description: "Map capital across strategies so conviction changes do not quietly become concentration risk.",
     icon: ShieldCheck,
     className: "md:col-span-1",
     color: "text-neutral",
@@ -20,15 +20,15 @@ const features = [
   },
   {
     title: "Compound Engine",
-    description: "Simulate and track your long-term wealth growth with precise reinvestment modeling.",
+    description: "Model how contribution cadence, reinvestment, and portfolio policy shape long-term wealth growth.",
     icon: TrendingUp,
     className: "md:col-span-1",
     color: "text-watch",
     bgColor: "bg-watch/10",
   },
   {
-    title: "Global Market Coverage",
-    description: "Unified tracking across stocks, options, hard money lending, and specialized assets.",
+    title: "Portfolio Operating System",
+    description: "Track positions, review P&L, monitor portfolio state, and keep active risk visible in one place.",
     icon: Globe,
     className: "md:col-span-2",
     color: "text-bearish",
@@ -36,7 +36,7 @@ const features = [
   },
   {
     title: "Smart Risk Analysis",
-    description: "Automated drawdown protection and position sizing based on your personal risk tolerance.",
+    description: "Risk tiers, drawdown limits, market regime context, and suggested sizing to support disciplined execution.",
     icon: Cpu,
     className: "md:col-span-1",
     color: "text-primary",
@@ -44,7 +44,7 @@ const features = [
   },
   {
     title: "Advanced Analytics",
-    description: "Deep dive into your portfolio performance with institutional-grade metrics.",
+    description: "Review trade history, equity curve, and strategy-level results to refine how you deploy capital.",
     icon: BarChart3,
     className: "md:col-span-2",
     color: "text-neutral",
@@ -58,10 +58,10 @@ export default function BentoGrid() {
       <div className="container px-4">
         <div className="mb-16 text-center">
           <h2 className="font-display text-3xl font-bold tracking-tight sm:text-5xl">
-            Everything You Need <br /> To <span className="text-primary">Outperform</span>.
+            One Decision Stack <br /> To <span className="text-primary">Run Your Capital</span>.
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            A comprehensive suite of tools designed for the modern wealth manager.
+            Signals, sizing, risk, allocation, and review built into one operating loop.
           </p>
         </div>
 

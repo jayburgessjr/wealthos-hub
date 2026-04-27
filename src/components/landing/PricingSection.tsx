@@ -7,7 +7,7 @@ const plans = [
   {
     name: "Free",
     price: "$0",
-    description: "Basic tracking and signals for retail investors.",
+    description: "Core decision support for tracking, signals, and portfolio visibility.",
     features: [
       "Portfolio Tracking",
       "Live Price Charts",
@@ -21,7 +21,7 @@ const plans = [
   {
     name: "Pro",
     price: "$29",
-    description: "Full AI Advisor access and institutional grade optimization.",
+    description: "Full decision-intelligence stack with AI guidance, allocation tooling, and regime analysis.",
     features: [
       "Everything in Free",
       "WealthOS AI Advisor",
@@ -45,7 +45,7 @@ export default function PricingSection() {
             Simple, Transparent <span className="text-primary">Pricing</span>.
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            Choose the plan that fits your wealth compounding goals.
+            Choose the level of decision support that fits how you manage capital.
           </p>
         </div>
 

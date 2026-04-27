@@ -29,6 +29,7 @@ export function useSubscription() {
     isLoading,
     isPro: isDemoMode || profile?.subscription_status === "active" || profile?.subscription_status === "trialing",
     isAdmin: !isDemoMode && (profile?.is_admin || false),
+    onboardingCompleted: isDemoMode || (profile?.onboarding_completed || false),
     subscriptionStatus: isDemoMode ? "active" : (profile?.subscription_status || "none"),
     subscriptionPlan: isDemoMode ? "pro" : (profile?.subscription_plan || "free"),
   };

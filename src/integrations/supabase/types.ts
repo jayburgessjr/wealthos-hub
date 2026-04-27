@@ -103,6 +103,7 @@ export type Database = {
           subscription_status: string | null
           subscription_plan: string | null
           is_admin: boolean | null
+          onboarding_completed: boolean | null
           updated_at: string | null
         }
         Insert: {
@@ -112,6 +113,7 @@ export type Database = {
           subscription_status?: string | null
           subscription_plan?: string | null
           is_admin?: boolean | null
+          onboarding_completed?: boolean | null
           updated_at?: string | null
         }
         Update: {
@@ -121,6 +123,7 @@ export type Database = {
           subscription_status?: string | null
           subscription_plan?: string | null
           is_admin?: boolean | null
+          onboarding_completed?: boolean | null
           updated_at?: string | null
         }
         Relationships: [

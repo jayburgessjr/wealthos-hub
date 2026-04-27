@@ -8,23 +8,23 @@ import {
 const faqs = [
   {
     question: "How do the AI signals work?",
-    answer: "Our AI analysis engine processes market data, news sentiment, and technical indicators in real-time. It uses large language models specifically tuned for financial markets to identify high-probability setups across multiple strategies.",
+    answer: "The signal engine combines market data, sentiment, and technical context to produce scored ideas with suggested actions, entries, targets, stops, and sizing context. It is designed to support decisions, not to remove judgment.",
   },
   {
     question: "What is the Compound Engine?",
-    answer: "The Compound Engine is a sophisticated modeling tool that helps you project and track your wealth growth over years or decades. It accounts for monthly contributions, reinvestment rates, and different strategy performance tiers.",
+    answer: "The Compound Engine is a planning tool for modeling long-term wealth growth. It accounts for contributions, reinvestment, and strategy assumptions so you can pressure-test portfolio policy before changing how you deploy capital.",
   },
   {
     question: "Is my data secure?",
-    answer: "Yes, we use industry-standard encryption and secure authentication via Supabase. We never have direct access to your brokerage accounts; WealthOS Hub is a tracking and analysis layer.",
+    answer: "Yes. We use secure authentication and storage via Supabase. WealthOS is a decision and analysis layer, not a broker, and it does not require direct custody of your assets to deliver portfolio intelligence.",
   },
   {
-    question: "What strategies are covered?",
-    answer: "We provide signals and tracking for Momentum Stocks, Options (Covered Calls, Spreads, LEAPS), Hard Money Lending, and Tax Liens. Each strategy has its own risk-adjusted performance profile.",
+    question: "What does WealthOS actually help me decide?",
+    answer: "The current product is built around entry, exit, sizing, risk, and portfolio management. It helps you review opportunities, open and close tracked positions, compare allocations, understand market regime, and evaluate performance over time.",
   },
   {
     question: "Do I need trading experience?",
-    answer: "WealthOS Hub is designed for sophisticated investors, but our AI Advisor helps break down complex trades and strategies. We recommend having a basic understanding of market mechanics before executing trades.",
+    answer: "Basic market familiarity helps. WealthOS is not an autopilot hedge fund manager; it is a decision-intelligence layer that helps you think more clearly about what to buy, sell, hold, size, and monitor.",
   },
 ];
 
@@ -38,7 +38,7 @@ export default function FAQ() {
               Frequently Asked Questions
             </h2>
             <p className="mt-4 text-muted-foreground">
-              Everything you need to know about WealthOS Hub.
+              What the product does today, and how to think about it accurately.
             </p>
           </div>
           
