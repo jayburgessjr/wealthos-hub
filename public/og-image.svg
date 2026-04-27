@@ -56,7 +56,7 @@
     fill="#00cc73"
     letter-spacing="2"
     opacity="0.9"
-  >YOUR PERSONAL HEDGE FUND</text>
+  >COMPOUND WEALTH WITH AI PRECISION</text>
 
   <!-- Bottom descriptor -->
   <text
@@ -67,7 +67,7 @@
     fill="#ffffff"
     opacity="0.35"
     letter-spacing="1"
-  >AI-POWERED · SIGNALS · PORTFOLIO MANAGEMENT · COMPOUND GROWTH</text>
+  >INSTITUTIONAL-GRADE SIGNALS · AUTOMATED TRACKING · AI-DRIVEN GROWTH</text>
 
   <!-- Live indicator -->
   <circle cx="1100" cy="565" r="6" fill="#00cc73">
