@@ -9,6 +9,7 @@ import PositionsTable from "@/components/dashboard/PositionsTable";
 import CompoundPanel from "@/components/dashboard/CompoundPanel";
 import WatchlistSentiment from "@/components/dashboard/WatchlistSentiment";
 import AllocationDonut from "@/components/dashboard/AllocationDonut";
+import MorningPulse from "@/components/dashboard/MorningPulse";
 
 export default function Dashboard() {
   const [selectedTicker, setSelectedTicker] = useState<string>("SPY");
@@ -35,6 +36,9 @@ export default function Dashboard() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
+        {/* Morning Pulse */}
+        <MorningPulse />
+
         {/* Row 1 — Signal Cards */}
         <SignalCards onSelectTicker={setSelectedTicker} />
 

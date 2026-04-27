@@ -50,7 +50,7 @@ const Index = () => {
               
               <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
                 <Button asChild size="lg" className="h-12 rounded-full px-8 text-base">
-                  <Link to="/login" className="flex items-center gap-2">
+                  <Link to="/signup" className="flex items-center gap-2">
                     Create Your Account <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>

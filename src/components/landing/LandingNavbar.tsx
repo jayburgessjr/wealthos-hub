@@ -71,7 +71,7 @@ export default function LandingNavbar() {
                 <Link to="/login">Login</Link>
               </Button>
               <Button asChild variant="default" size="sm" className="rounded-full px-5">
-                <Link to="/login">Get Started</Link>
+                <Link to="/signup">Get Started</Link>
               </Button>
             </>
           )}
@@ -114,7 +114,7 @@ export default function LandingNavbar() {
                     <Link to="/login">Login</Link>
                   </Button>
                   <Button asChild variant="default" className="w-full rounded-full">
-                    <Link to="/login">Get Started</Link>
+                    <Link to="/signup">Get Started</Link>
                   </Button>
                 </>
               )}

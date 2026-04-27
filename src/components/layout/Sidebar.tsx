@@ -2,7 +2,8 @@ import { NavLink as RouterNavLink, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Radar, Briefcase, Zap, PieChart, ShieldAlert,
   Bot, Globe, BarChart3, Settings, Eye, ShieldCheck, LogOut, FileText,
-  Bitcoin, TrendingUp, Landmark, Newspaper, Cpu, Shield
+  Bitcoin, TrendingUp, Newspaper, Cpu, Shield, Brain,
+  CalendarDays, BookOpen, Calculator, Map, FlaskConical, Leaf, Megaphone
 } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useAuth } from "@/components/AuthProvider";
@@ -37,9 +38,15 @@ const navSections = [
     ],
   },
   {
+    label: "AI",
+    items: [
+      { to: "/financial-advisor", icon: Brain, label: "Financial Advisor" },
+      { to: "/ai-advisor", icon: Bot, label: "AI Advisor" },
+    ],
+  },
+  {
     label: "Intelligence",
     items: [
-      { to: "/ai-advisor", icon: Bot, label: "AI Advisor" },
       { to: "/market-regime", icon: Globe, label: "Market Regime" },
       { to: "/news", icon: Newspaper, label: "News & Intel" },
     ],
@@ -48,8 +55,26 @@ const navSections = [
     label: "Analytics",
     items: [
       { to: "/performance", icon: BarChart3, label: "Performance" },
+      { to: "/pnl-calendar", icon: CalendarDays, label: "P&L Calendar" },
+      { to: "/heat-map", icon: Map, label: "Heat Map" },
+      { to: "/earnings-calendar", icon: Megaphone, label: "Earnings Calendar" },
       { to: "/documents", icon: FileText, label: "Documents" },
       { to: "/security", icon: Shield, label: "Security & Audit" },
+    ],
+  },
+  {
+    label: "Tools",
+    items: [
+      { to: "/position-sizer", icon: Calculator, label: "Position Sizer" },
+      { to: "/paper-trading", icon: FlaskConical, label: "Paper Trading" },
+      { to: "/trading-journal", icon: BookOpen, label: "Trading Journal" },
+      { to: "/tax-harvesting", icon: Leaf, label: "Tax Harvesting" },
+    ],
+  },
+  {
+    label: "Reports",
+    items: [
+      { to: "/weekly-briefing", icon: Newspaper, label: "Weekly Briefing" },
     ],
   },
   {

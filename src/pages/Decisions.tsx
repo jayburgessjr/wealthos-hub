@@ -4,216 +4,155 @@ import { useAuth } from "@/components/AuthProvider";
 import { useDemo } from "@/components/DemoProvider";
 import { sandboxPositions, sandboxSignals, sandboxPortfolio } from "@/data/sandboxData";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Zap, TrendingUp, ArrowUpRight,
-  ShieldCheck, Calculator, Rocket,
-  Target, ChevronRight, Layers,
-  BarChart2, Activity
-} from "lucide-react";
-import { Link } from "react-router-dom";
-import { useState, useMemo } from "react";
+import { motion } from "framer-motion";
+import { CheckCircle2, XCircle, Clock, Zap, TrendingDown, TrendingUp, MinusCircle, AlertOctagon } from "lucide-react";
 
-// ─── Score ring ──────────────────────────────────────────────────────────────
-function ScoreRing({ score, color }: { score: number; color: string }) {
-  const r = 22;
-  const circ = 2 * Math.PI * r;
-  const dash = (score / 100) * circ;
-
-  return (
-    <svg width="60" height="60" viewBox="0 0 60 60" className="-rotate-90">
-      <circle cx="30" cy="30" r={r} fill="none" stroke="currentColor" strokeWidth="4" className="text-border opacity-30" />
-      <circle
-        cx="30" cy="30" r={r} fill="none" strokeWidth="4"
-        stroke={color} strokeLinecap="round"
-        strokeDasharray={`${dash} ${circ}`}
-        style={{ filter: `drop-shadow(0 0 4px ${color}60)` }}
-      />
-      <text
-        x="30" y="30" textAnchor="middle" dominantBaseline="central"
-        className="rotate-90 font-mono font-black"
-        style={{ fill: color, fontSize: 13, transform: "rotate(90deg)", transformOrigin: "30px 30px" }}
-      >
-        {score}
-      </text>
-    </svg>
-  );
-}
-
-// ─── Conviction label ─────────────────────────────────────────────────────────
-function convictionLabel(score: number) {
-  if (score >= 90) return { label: "ELITE", color: "text-bullish bg-bullish/10 border-bullish/30" };
-  if (score >= 80) return { label: "STRONG", color: "text-primary bg-primary/10 border-primary/30" };
-  if (score >= 70) return { label: "CONFIRMED", color: "text-watch bg-watch/10 border-watch/30" };
-  return { label: "SPECULATIVE", color: "text-muted-foreground bg-accent border-border" };
-}
-
-// ─── Score bar ────────────────────────────────────────────────────────────────
-function ScoreBar({ value, max = 100, color }: { value: number; max?: number; color: string }) {
-  return (
-    <div className="h-1 w-full overflow-hidden rounded-full bg-border/40">
-      <div
-        className="h-full rounded-full transition-all duration-700"
-        style={{ width: `${(value / max) * 100}%`, backgroundColor: color, boxShadow: `0 0 6px ${color}60` }}
-      />
-    </div>
-  );
-}
-
-// ─── Decision Card ────────────────────────────────────────────────────────────
-function DecisionCard({
-  ticker, score, subtitle, pnl, type, rank, onCalc, selected,
-}: {
+type Directive = {
   ticker: string;
-  score: number;
-  subtitle: string;
-  pnl?: number;
-  type: "active" | "opportunity" | "lottery";
-  rank: number;
-  onCalc: () => void;
-  selected: boolean;
-}) {
-  const typeConfig = {
-    active:      { color: "#3D8EFF", glow: "shadow-[0_0_24px_-4px_#3D8EFF30]", border: "border-primary/25", bg: "bg-primary/5",      icon: ShieldCheck,  ringColor: "#3D8EFF" },
-    opportunity: { color: "#00E5A0", glow: "shadow-[0_0_24px_-4px_#00E5A030]", border: "border-bullish/25", bg: "bg-bullish/5",      icon: TrendingUp,   ringColor: "#00E5A0" },
-    lottery:     { color: "#F59E0B", glow: "shadow-[0_0_24px_-4px_#F59E0B30]", border: "border-watch/25",   bg: "bg-watch/5",        icon: Rocket,       ringColor: "#F59E0B" },
-  }[type];
+  command: string;
+  tag: string;
+  urgency: "critical" | "high" | "medium";
+};
 
-  const conv = convictionLabel(score);
-  const Icon = typeConfig.icon;
+function getDirectives(positions: any[], signals: any[], portfolio: any) {
+  const existingTickers = new Set(positions.map((p) => p.ticker));
+  const dos: Directive[] = [];
+  const donts: Directive[] = [];
+  const watches: Directive[] = [];
+
+  // ── Active positions ──────────────────────────────────────────────────────
+  for (const p of positions) {
+    const score = p.signal_score || 0;
+    const pnl = p.pnl_percent || 0;
+
+    if (pnl > 50 && score >= 80) {
+      dos.push({ ticker: p.ticker, command: "TAKE PARTIAL PROFITS", tag: "UP BIG", urgency: "high" });
+    } else if (pnl > 20 && score >= 75) {
+      dos.push({ ticker: p.ticker, command: "HOLD & TRAIL STOP", tag: "WINNING", urgency: "medium" });
+    } else if (pnl >= 0 && score >= 70) {
+      dos.push({ ticker: p.ticker, command: "HOLD POSITION", tag: "ON TRACK", urgency: "medium" });
+    } else if (pnl < -10) {
+      donts.push({ ticker: p.ticker, command: "EXIT NOW — CUT LOSS", tag: "STOP HIT", urgency: "critical" });
+    } else if (pnl < -5) {
+      donts.push({ ticker: p.ticker, command: "REDUCE POSITION", tag: "LOSING", urgency: "high" });
+    } else if (pnl < 0 && score < 50) {
+      donts.push({ ticker: p.ticker, command: "DO NOT ADD TO THIS", tag: "WEAK SIGNAL", urgency: "high" });
+    } else if (score < 40) {
+      donts.push({ ticker: p.ticker, command: "EXIT — SIGNAL GONE", tag: "NO EDGE", urgency: "high" });
+    }
+  }
+
+  // ── New signals ───────────────────────────────────────────────────────────
+  for (const s of signals) {
+    if (existingTickers.has(s.ticker)) continue;
+    const score = s.signal_score || 0;
+
+    if (score >= 90) {
+      dos.push({ ticker: s.ticker, command: "BUY NOW — HIGH PRIORITY", tag: "ELITE SETUP", urgency: "critical" });
+    } else if (score >= 80) {
+      dos.push({ ticker: s.ticker, command: "BUY THIS", tag: "STRONG SIGNAL", urgency: "high" });
+    } else if (score >= 70) {
+      watches.push({ ticker: s.ticker, command: "WATCH — WAIT FOR ENTRY", tag: "SETTING UP", urgency: "medium" });
+    } else if (score < 50) {
+      donts.push({ ticker: s.ticker, command: "DO NOT BUY", tag: "LOW CONVICTION", urgency: "medium" });
+    }
+  }
+
+  // ── Portfolio-level directives ────────────────────────────────────────────
+  if (portfolio) {
+    const deployedPct = portfolio.deployed_capital / portfolio.total_capital;
+    const availablePct = portfolio.available_capital / portfolio.total_capital;
+
+    if (availablePct > 0.5) {
+      dos.push({ ticker: "CASH", command: "DEPLOY MORE CAPITAL", tag: "UNDERINVESTED", urgency: "high" });
+    } else if (deployedPct > 0.9) {
+      donts.push({ ticker: "PORTFOLIO", command: "DO NOT OPEN NEW POSITIONS", tag: "FULLY DEPLOYED", urgency: "high" });
+    }
+
+    if (portfolio.win_rate < 50) {
+      donts.push({ ticker: "STRATEGY", command: "STOP TRADING — REVIEW SYSTEM", tag: "WIN RATE < 50%", urgency: "critical" });
+    }
+  }
+
+  // Sort: critical first
+  const urgencyOrder = { critical: 0, high: 1, medium: 2 };
+  dos.sort((a, b) => urgencyOrder[a.urgency] - urgencyOrder[b.urgency]);
+  donts.sort((a, b) => urgencyOrder[a.urgency] - urgencyOrder[b.urgency]);
+
+  return { dos, donts, watches };
+}
+
+const urgencyStyle = {
+  critical: "border-bearish/40 bg-bearish/8",
+  high:     "border-border bg-card",
+  medium:   "border-border/50 bg-card/60",
+};
+
+const urgencyBadge = {
+  critical: "bg-bearish/15 text-bearish border-bearish/30",
+  high:     "bg-primary/10 text-primary border-primary/20",
+  medium:   "bg-accent text-muted-foreground border-border",
+};
+
+function DirectiveRow({ item, side, index }: { item: Directive; side: "do" | "dont" | "watch"; index: number }) {
+  const isX = side === "dont";
+  const isW = side === "watch";
+  const tickerColor = isX ? "text-bearish" : isW ? "text-watch" : "text-bullish";
+  const cmdColor = isX ? "text-foreground" : isW ? "text-watch" : "text-foreground";
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: rank * 0.06, duration: 0.35 }}
-      onClick={onCalc}
-      className={`group relative cursor-pointer overflow-hidden rounded-2xl border ${typeConfig.border} ${typeConfig.bg} ${typeConfig.glow} p-5 transition-all duration-200 hover:scale-[1.015] hover:brightness-105 ${selected ? "ring-2 ring-offset-2 ring-offset-background" : ""}`}
-      style={selected ? { ringColor: typeConfig.color } : undefined}
+      transition={{ delay: index * 0.05, duration: 0.28 }}
+      className={`flex items-center justify-between gap-4 rounded-xl border px-5 py-4 ${urgencyStyle[item.urgency]}`}
     >
-      {/* Rank badge */}
-      <div className="absolute right-4 top-4 font-mono text-[10px] font-bold text-muted-foreground/40">
-        #{rank + 1}
+      <div className="flex items-center gap-4 min-w-0">
+        {/* Ticker */}
+        <span className={`font-display text-2xl font-black tracking-tight shrink-0 ${tickerColor}`}>
+          {item.ticker}
+        </span>
+        {/* Command */}
+        <span className={`font-mono text-sm font-bold uppercase tracking-wide ${cmdColor}`}>
+          {item.command}
+        </span>
       </div>
-
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div className="flex-1 pr-2">
-          <div className="flex items-center gap-2">
-            <span className="font-display text-2xl font-black tracking-tight text-foreground">{ticker}</span>
-            <span className={`rounded-full border px-2 py-0.5 font-mono text-[9px] font-black uppercase tracking-widest ${conv.color}`}>
-              {conv.label}
-            </span>
-          </div>
-          <p className="mt-1 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-            {subtitle.replace(/_/g, " ")}
-          </p>
-        </div>
-        <ScoreRing score={score} color={typeConfig.ringColor} />
-      </div>
-
-      {/* Score bar */}
-      <div className="my-4 space-y-1.5">
-        <div className="flex items-center justify-between">
-          <span className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">Signal Strength</span>
-          <span className="font-mono text-[9px] text-muted-foreground">{score}/100</span>
-        </div>
-        <ScoreBar value={score} color={typeConfig.color} />
-      </div>
-
-      {/* Bottom row */}
-      <div className="flex items-end justify-between">
-        <div>
-          {pnl !== undefined ? (
-            <div>
-              <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">Return</p>
-              <p className={`font-mono text-base font-black ${pnl >= 0 ? "text-bullish" : "text-bearish"}`}>
-                {pnl >= 0 ? "+" : ""}{pnl.toFixed(1)}%
-              </p>
-            </div>
-          ) : (
-            <div>
-              <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">Risk Profile</p>
-              <p className="font-mono text-sm font-bold uppercase text-foreground">
-                {type === "lottery" ? "HIGH" : "MEDIUM"}
-              </p>
-            </div>
-          )}
-        </div>
-        <Link
-          to="/dashboard"
-          onClick={(e) => e.stopPropagation()}
-          className="flex items-center gap-1 rounded-full border border-border bg-background/80 px-3 py-1.5 font-mono text-[10px] font-bold uppercase text-foreground transition-all hover:border-foreground/30 hover:bg-foreground hover:text-background"
-        >
-          Execute <ArrowUpRight size={10} />
-        </Link>
-      </div>
-
-      {/* BG glyph */}
-      <div className="pointer-events-none absolute -bottom-3 -right-3 opacity-[0.04] transition-opacity duration-300 group-hover:opacity-[0.07]">
-        <Icon size={88} />
-      </div>
+      {/* Tag */}
+      <span className={`shrink-0 rounded-full border px-2.5 py-0.5 font-mono text-[9px] font-black uppercase tracking-widest ${urgencyBadge[item.urgency]}`}>
+        {item.tag}
+      </span>
     </motion.div>
   );
 }
 
-// ─── Section header ───────────────────────────────────────────────────────────
-function SectionHeader({
-  icon: Icon, label, count, color,
-}: {
-  icon: React.ElementType;
-  label: string;
-  count: number;
-  color: string;
-}) {
+function SectionHeader({ icon: Icon, label, color, count }: { icon: React.ElementType; label: string; color: string; count: number }) {
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-3">
-        <div className="rounded-xl p-2" style={{ background: `${color}18` }}>
-          <Icon size={16} style={{ color }} />
-        </div>
-        <h3 className="font-display text-base font-bold text-foreground">{label}</h3>
-      </div>
-      <span className="rounded-full border border-border bg-accent px-2.5 py-0.5 font-mono text-xs text-muted-foreground">
-        {count}
-      </span>
+    <div className="flex items-center gap-3">
+      <Icon className={`h-5 w-5 ${color}`} />
+      <h2 className={`font-display text-xl font-black uppercase tracking-tight ${color}`}>{label}</h2>
+      <span className="ml-auto font-mono text-xs text-muted-foreground">{count} directive{count !== 1 ? "s" : ""}</span>
     </div>
   );
 }
 
-// ─── Empty slot ───────────────────────────────────────────────────────────────
-function EmptySlot({ message }: { message: string }) {
+function EmptyState({ message }: { message: string }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-border/50 bg-accent/10 py-10">
-      <Layers size={24} className="text-muted-foreground/20" />
-      <p className="max-w-[180px] text-center font-mono text-[10px] uppercase leading-relaxed tracking-widest text-muted-foreground/50">
-        {message}
-      </p>
+    <div className="flex items-center gap-3 rounded-xl border border-dashed border-border/40 px-5 py-6">
+      <MinusCircle className="h-4 w-4 shrink-0 text-muted-foreground/30" />
+      <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground/40">{message}</p>
     </div>
   );
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
 export default function Decisions() {
   const { user } = useAuth();
   const { isDemoMode } = useDemo();
-  const [selectedTicker, setSelectedTicker] = useState<string | null>(null);
 
   const { data: portfolio, isLoading: portLoading } = useQuery({
     queryKey: ["portfolio", user?.id, isDemoMode ? "demo" : "live"],
     queryFn: async () => {
       if (isDemoMode) return sandboxPortfolio;
       const { data } = await supabase.from("portfolios").select("*").eq("user_id", user!.id).single();
-      return data;
-    },
-    enabled: !!user || isDemoMode,
-  });
-
-  const { data: settings } = useQuery({
-    queryKey: ["compound-settings", user?.id, isDemoMode ? "demo" : "live"],
-    queryFn: async () => {
-      if (isDemoMode) return { risk_tier: "moderate" };
-      const { data } = await supabase.from("compound_settings").select("*").eq("user_id", user!.id).maybeSingle();
       return data;
     },
     enabled: !!user || isDemoMode,
@@ -239,237 +178,122 @@ export default function Decisions() {
   });
 
   const isLoading = posLoading || sigLoading || portLoading;
+  const { dos, donts, watches } = getDirectives(positions, signals, portfolio);
 
-  const existingTickers = new Set(positions.map((p) => p.ticker));
-  const recommendedPositions = positions.filter((p) => (p.signal_score || 0) >= 75);
-  const newOpportunities = signals.filter((s) => !existingTickers.has(s.ticker) && (s.signal_score || 0) >= 80);
-  const lotteryPlays = signals.filter((s) => !existingTickers.has(s.ticker) && (s.signal_score || 0) >= 60 && (s.signal_score || 0) < 80);
-
-  const calcResult = useMemo(() => {
-    if (!selectedTicker) return null;
-    const item =
-      signals.find((s) => s.ticker === selectedTicker) ||
-      positions.find((p) => p.ticker === selectedTicker);
-    if (!item) return null;
-
-    const score = item.signal_score || 50;
-    const capital = portfolio?.available_capital || 0;
-    const riskTier = settings?.risk_tier || "moderate";
-    const basePct = riskTier === "aggressive" ? 0.05 : riskTier === "moderate" ? 0.03 : 0.015;
-    const recommendedPct = basePct * (score / 100);
-    const amount = Math.round(capital * recommendedPct);
-
-    return {
-      ticker: selectedTicker,
-      amount,
-      pct: (recommendedPct * 100).toFixed(2),
-      score,
-      riskTier,
-      available: capital,
-      remaining: capital - amount,
-    };
-  }, [selectedTicker, signals, positions, portfolio, settings]);
-
-  const totalSignals = newOpportunities.length + lotteryPlays.length;
+  // Top critical directive
+  const topCritical = dos.find((d) => d.urgency === "critical") || donts.find((d) => d.urgency === "critical");
 
   return (
     <DashboardLayout>
-      <div className="space-y-8 pb-20">
+      <div className="space-y-10 pb-20">
 
-        {/* ── Page header ── */}
-        <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-          <div>
-            <div className="mb-1.5 flex items-center gap-2">
-              <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Capital Intelligence</span>
-              <span className="h-px flex-1 bg-border/50 md:hidden" />
-            </div>
-            <h2 className="font-display text-3xl font-black tracking-tight text-foreground">Decision Hub</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Ranked opportunities and active positions filtered for execution.
-            </p>
+        {/* ── Header ── */}
+        <div className="text-center">
+          <div className="mb-3 flex items-center justify-center gap-2">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-bullish opacity-60" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-bullish" />
+            </span>
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              Live Decision Feed
+            </span>
           </div>
-
-          {/* Stat pills */}
-          <div className="flex flex-wrap gap-2">
-            {[
-              { label: "Available", value: `$${(portfolio?.available_capital || 0).toLocaleString()}`, icon: BarChart2, color: "text-primary" },
-              { label: "Active Pos.", value: String(positions.length), icon: Activity, color: "text-bullish" },
-              { label: "New Signals", value: String(totalSignals), icon: Zap, color: "text-watch" },
-            ].map((stat) => (
-              <div key={stat.label} className="flex items-center gap-2.5 rounded-xl border border-border bg-card px-4 py-2.5">
-                <stat.icon size={13} className={stat.color} />
-                <div>
-                  <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">{stat.label}</p>
-                  <p className={`font-mono text-sm font-black ${stat.color}`}>{isLoading ? "—" : stat.value}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ── Sizing calculator panel ── */}
-        <AnimatePresence>
-          {calcResult && (
-            <motion.div
-              key="calc"
-              initial={{ opacity: 0, y: -8, height: 0 }}
-              animate={{ opacity: 1, y: 0, height: "auto" }}
-              exit={{ opacity: 0, y: -8, height: 0 }}
-              transition={{ duration: 0.25 }}
-              className="overflow-hidden"
-            >
-              <div className="relative rounded-2xl border border-primary/30 bg-primary/5 p-5">
-                <div className="flex flex-col gap-5 md:flex-row md:items-center">
-                  {/* Label */}
-                  <div className="flex items-center gap-3">
-                    <div className="rounded-xl bg-primary/15 p-2.5">
-                      <Calculator size={18} className="text-primary" />
-                    </div>
-                    <div>
-                      <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Position Sizing</p>
-                      <p className="font-display text-lg font-black text-foreground">{calcResult.ticker}</p>
-                    </div>
-                  </div>
-
-                  <div className="h-px bg-border/50 md:h-10 md:w-px md:bg-border/50" />
-
-                  {/* Stats */}
-                  <div className="flex flex-1 flex-wrap gap-6">
-                    {[
-                      { label: "Recommended Allocation", value: `$${calcResult.amount.toLocaleString()}`, sub: `${calcResult.pct}% of capital` },
-                      { label: "Signal Score", value: `${calcResult.score}/100`, sub: convictionLabel(calcResult.score).label },
-                      { label: "Risk Profile", value: calcResult.riskTier.toUpperCase(), sub: "compound setting" },
-                      { label: "Remaining Capital", value: `$${calcResult.remaining.toLocaleString()}`, sub: "post-allocation" },
-                    ].map((item) => (
-                      <div key={item.label}>
-                        <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">{item.label}</p>
-                        <p className="font-mono text-base font-black text-foreground">{item.value}</p>
-                        <p className="font-mono text-[9px] uppercase text-muted-foreground/60">{item.sub}</p>
-                      </div>
-                    ))}
-                  </div>
-
-                  <button
-                    onClick={() => setSelectedTicker(null)}
-                    className="self-start font-mono text-xs text-muted-foreground hover:text-foreground md:self-auto"
-                  >
-                    ✕
-                  </button>
-                </div>
-
-                {/* Capital deployment bar */}
-                <div className="mt-4">
-                  <div className="mb-1.5 flex items-center justify-between">
-                    <span className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">Capital Deployment</span>
-                    <span className="font-mono text-[9px] text-muted-foreground">
-                      ${calcResult.amount.toLocaleString()} / ${calcResult.available.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="h-1.5 overflow-hidden rounded-full bg-border/40">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${(calcResult.amount / calcResult.available) * 100}%` }}
-                      transition={{ duration: 0.5, delay: 0.1 }}
-                      className="h-full rounded-full bg-primary"
-                      style={{ boxShadow: "0 0 8px #3D8EFF60" }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* ── Section 1: Portfolio Health ── */}
-        <section className="space-y-4">
-          <SectionHeader icon={ShieldCheck} label="Portfolio Health — Active" count={recommendedPositions.length} color="#3D8EFF" />
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {isLoading
-              ? Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="h-44 animate-pulse rounded-2xl bg-accent/30" />
-                ))
-              : recommendedPositions.length > 0
-              ? recommendedPositions.map((p, i) => (
-                  <DecisionCard
-                    key={p.id}
-                    ticker={p.ticker}
-                    score={p.signal_score || 0}
-                    subtitle={p.strategy_type || "Position"}
-                    pnl={p.pnl_percent || 0}
-                    type="active"
-                    rank={i}
-                    onCalc={() => setSelectedTicker(selectedTicker === p.ticker ? null : p.ticker)}
-                    selected={selectedTicker === p.ticker}
-                  />
-                ))
-              : <EmptySlot message="No active positions at conviction threshold" />}
-          </div>
-        </section>
-
-        {/* ── Divider ── */}
-        <div className="flex items-center gap-4">
-          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
-          <span className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground/50">New Opportunities</span>
-          <div className="h-px flex-1 bg-gradient-to-l from-transparent via-border to-transparent" />
-        </div>
-
-        {/* ── Section 2: High Probability ── */}
-        <section className="space-y-4">
-          <SectionHeader icon={TrendingUp} label="High-Probability Growth" count={newOpportunities.length} color="#00E5A0" />
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {isLoading
-              ? Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="h-44 animate-pulse rounded-2xl bg-accent/30" />
-                ))
-              : newOpportunities.length > 0
-              ? newOpportunities.map((s, i) => (
-                  <DecisionCard
-                    key={s.id}
-                    ticker={s.ticker}
-                    score={s.signal_score || 0}
-                    subtitle={s.action || "New Signal"}
-                    type="opportunity"
-                    rank={i}
-                    onCalc={() => setSelectedTicker(selectedTicker === s.ticker ? null : s.ticker)}
-                    selected={selectedTicker === s.ticker}
-                  />
-                ))
-              : <EmptySlot message="Scan signals for new high-conviction setups" />}
-          </div>
-        </section>
-
-        {/* ── Section 3: Asymmetric Plays ── */}
-        <section className="space-y-4">
-          <SectionHeader icon={Rocket} label="Asymmetric Payoffs — Lottery" count={lotteryPlays.length} color="#F59E0B" />
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {isLoading
-              ? Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="h-44 animate-pulse rounded-2xl bg-accent/30" />
-                ))
-              : lotteryPlays.length > 0
-              ? lotteryPlays.map((s, i) => (
-                  <DecisionCard
-                    key={s.id}
-                    ticker={s.ticker}
-                    score={s.signal_score || 0}
-                    subtitle="High Volatility Setup"
-                    type="lottery"
-                    rank={i}
-                    onCalc={() => setSelectedTicker(selectedTicker === s.ticker ? null : s.ticker)}
-                    selected={selectedTicker === s.ticker}
-                  />
-                ))
-              : <EmptySlot message="No asymmetric setups detected currently" />}
-          </div>
-        </section>
-
-        {/* ── Footer hint ── */}
-        <div className="flex items-center justify-center gap-2 pt-4">
-          <Target size={11} className="text-muted-foreground/40" />
-          <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground/40">
-            Click any card to calculate position sizing
+          <h1 className="font-display text-4xl font-black uppercase tracking-tight text-foreground sm:text-5xl">
+            This Is What You Need To Do
+          </h1>
+          <p className="mt-2 font-mono text-xs uppercase tracking-widest text-muted-foreground/60">
+            No context. No explanation. Execute.
           </p>
         </div>
+
+        {isLoading ? (
+          <div className="flex items-center justify-center py-32">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-primary" />
+          </div>
+        ) : (
+          <div className="space-y-10">
+
+            {/* ── Critical Alert Banner ── */}
+            {topCritical && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="flex items-center gap-4 rounded-xl border border-bearish/40 bg-bearish/8 px-6 py-5"
+              >
+                <AlertOctagon className="h-6 w-6 shrink-0 text-bearish animate-pulse" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-mono text-[10px] uppercase tracking-widest text-bearish/70 mb-0.5">
+                    Most Urgent Right Now
+                  </p>
+                  <p className="font-display text-lg font-black uppercase text-foreground">
+                    <span className="text-bearish">{topCritical.ticker}</span> — {topCritical.command}
+                  </p>
+                </div>
+                <span className="shrink-0 rounded-full border border-bearish/30 bg-bearish/15 px-3 py-1 font-mono text-[9px] font-black uppercase tracking-widest text-bearish">
+                  {topCritical.tag}
+                </span>
+              </motion.div>
+            )}
+
+            {/* ── Three columns ── */}
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+
+              {/* DO THIS */}
+              <div className="space-y-3">
+                <SectionHeader icon={CheckCircle2} label="Do This" color="text-bullish" count={dos.length} />
+                <div className="h-px bg-bullish/20" />
+                <div className="space-y-2.5 pt-1">
+                  {dos.length === 0
+                    ? <EmptyState message="No actions required" />
+                    : dos.map((item, i) => <DirectiveRow key={item.ticker + i} item={item} side="do" index={i} />)
+                  }
+                </div>
+              </div>
+
+              {/* DO NOT DO THIS */}
+              <div className="space-y-3">
+                <SectionHeader icon={XCircle} label="Do Not Do This" color="text-bearish" count={donts.length} />
+                <div className="h-px bg-bearish/20" />
+                <div className="space-y-2.5 pt-1">
+                  {donts.length === 0
+                    ? <EmptyState message="No positions to exit" />
+                    : donts.map((item, i) => <DirectiveRow key={item.ticker + i} item={item} side="dont" index={i} />)
+                  }
+                </div>
+              </div>
+
+              {/* WATCH */}
+              <div className="space-y-3">
+                <SectionHeader icon={Clock} label="Watch Closely" color="text-watch" count={watches.length} />
+                <div className="h-px bg-watch/20" />
+                <div className="space-y-2.5 pt-1">
+                  {watches.length === 0
+                    ? <EmptyState message="Nothing on deck" />
+                    : watches.map((item, i) => <DirectiveRow key={item.ticker + i} item={item} side="watch" index={i} />)
+                  }
+                </div>
+              </div>
+
+            </div>
+
+            {/* ── Summary bar ── */}
+            <div className="flex flex-wrap items-center justify-center gap-6 rounded-xl border border-border/50 bg-card/60 px-8 py-4">
+              {[
+                { icon: TrendingUp, label: "Execute", value: dos.length, color: "text-bullish" },
+                { icon: TrendingDown, label: "Exit / Avoid", value: donts.length, color: "text-bearish" },
+                { icon: Clock, label: "Monitor", value: watches.length, color: "text-watch" },
+                { icon: Zap, label: "Critical", value: [...dos, ...donts].filter(d => d.urgency === "critical").length, color: "text-primary" },
+              ].map((s) => (
+                <div key={s.label} className="flex items-center gap-2.5">
+                  <s.icon className={`h-4 w-4 ${s.color}`} />
+                  <span className="font-mono text-xs text-muted-foreground uppercase tracking-widest">{s.label}</span>
+                  <span className={`font-mono text-sm font-black ${s.color}`}>{s.value}</span>
+                </div>
+              ))}
+            </div>
+
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );
