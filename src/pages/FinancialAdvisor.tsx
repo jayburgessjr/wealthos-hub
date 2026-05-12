@@ -262,7 +262,7 @@ export default function FinancialAdvisor() {
   return (
     <DashboardLayout>
       <SubscriptionGate>
-        <div className="mx-auto flex h-[calc(100vh-8rem)] max-w-3xl flex-col">
+        <div className="flex h-[calc(100vh-8rem)] flex-col">
           {/* Header */}
           <div className="mb-4 flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-500/10 border border-violet-500/20">

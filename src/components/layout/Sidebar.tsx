@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Radar, Briefcase, Zap, PieChart, ShieldAlert,
   Bot, Globe, BarChart3, Settings, Eye, ShieldCheck, LogOut, FileText,
   Bitcoin, TrendingUp, Newspaper, Cpu, Shield, Brain,
-  CalendarDays, BookOpen, Calculator, Map, FlaskConical, Leaf, Megaphone
+  CalendarDays, BookOpen, Calculator, Map, FlaskConical, Leaf, Megaphone, Crosshair
 } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useAuth } from "@/components/AuthProvider";
@@ -65,6 +65,7 @@ const navSections = [
   {
     label: "Tools",
     items: [
+      { to: "/strategy-123", icon: Crosshair, label: "1-2-3 Strategy" },
       { to: "/position-sizer", icon: Calculator, label: "Position Sizer" },
       { to: "/paper-trading", icon: FlaskConical, label: "Paper Trading" },
       { to: "/trading-journal", icon: BookOpen, label: "Trading Journal" },

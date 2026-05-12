@@ -301,7 +301,7 @@ export default function EarningsCalendar() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 pb-10">
+      <div className="space-y-6">
 
         {/* ── Header ─────────────────────────────────────────────────────────── */}
         <div className="flex items-start justify-between gap-4">

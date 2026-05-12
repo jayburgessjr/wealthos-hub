@@ -243,9 +243,9 @@ export default function WeeklyBriefing() {
   return (
     <DashboardLayout>
       <SubscriptionGate>
-        <div className="mx-auto max-w-3xl">
+        <div className="space-y-6">
           {/* Header */}
-          <div className="mb-6 flex items-start justify-between">
+          <div className="flex items-start justify-between">
             <div>
               <h2 className="font-display text-xl font-bold text-foreground">Weekly Briefing</h2>
               <div className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">

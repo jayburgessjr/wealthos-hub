@@ -147,7 +147,7 @@ export default function Crypto() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 pb-10">
+      <div className="space-y-6">
 
         {/* ── Header ── */}
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">

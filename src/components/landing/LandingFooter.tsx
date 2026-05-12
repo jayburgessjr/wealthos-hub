@@ -54,16 +54,20 @@ export default function LandingFooter() {
           <div>
             <h4 className="font-display text-sm font-bold uppercase tracking-wider">Legal</h4>
             <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-              <li><Link to="#" className="transition-colors hover:text-foreground">Privacy</Link></li>
-              <li><Link to="#" className="transition-colors hover:text-foreground">Terms</Link></li>
-              <li><Link to="#" className="transition-colors hover:text-foreground">Disclaimer</Link></li>
+              <li><Link to="/privacy" className="transition-colors hover:text-foreground">Privacy</Link></li>
+              <li><Link to="/terms" className="transition-colors hover:text-foreground">Terms</Link></li>
+              <li><Link to="/disclaimer" className="transition-colors hover:text-foreground">Disclaimer</Link></li>
             </ul>
           </div>
         </div>
         
         <div className="mt-20 border-t border-border/30 pt-8 text-center text-xs text-muted-foreground">
           <p>© {new Date().getFullYear()} WealthOS Hub. All rights reserved.</p>
-          <p className="mt-2">WealthOS Hub is for informational purposes only. Trading involves significant risk of loss.</p>
+          <p className="mt-2">
+            WealthOS Hub is for informational and entertainment purposes only,
+            not financial, investment, tax, or legal advice. Please consult
+            licensed professionals before making decisions.
+          </p>
         </div>
       </div>
     </footer>

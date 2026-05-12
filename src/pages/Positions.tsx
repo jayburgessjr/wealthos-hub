@@ -149,7 +149,8 @@ export default function Positions() {
 
   return (
     <DashboardLayout>
-      <div className="mb-6 space-y-1">
+      <div className="space-y-6">
+      <div className="space-y-1">
         <div className="flex items-center gap-2">
           <Briefcase size={12} className="text-muted-foreground" />
           <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Trading</span>
@@ -416,6 +417,7 @@ export default function Positions() {
           </table>
         </div>
       )}
+      </div>
     </DashboardLayout>
   );
 }

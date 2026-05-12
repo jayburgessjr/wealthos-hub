@@ -216,8 +216,9 @@ export default function PaperTrading() {
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <DashboardLayout>
+      <div className="space-y-6">
       {/* Page header */}
-      <div className="mb-6 space-y-1">
+      <div className="space-y-1">
         <div className="flex items-center gap-2">
           <FlaskConical size={12} className="text-muted-foreground" />
           <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Trading</span>
@@ -721,6 +722,7 @@ export default function PaperTrading() {
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
     </DashboardLayout>
   );
 }

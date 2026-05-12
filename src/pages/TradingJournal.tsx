@@ -328,8 +328,9 @@ export default function TradingJournal() {
   // ─────────────────────────────────────────────────────────────────────────
   return (
     <DashboardLayout>
+      <div className="space-y-6">
       {/* ── Page header ── */}
-      <div className="mb-6 flex items-start justify-between">
+      <div className="flex items-start justify-between">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <BookOpen size={12} className="text-muted-foreground" />
@@ -900,6 +901,7 @@ export default function TradingJournal() {
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
     </DashboardLayout>
   );
 }

@@ -56,6 +56,42 @@ export type Database = {
         }
         Relationships: []
       }
+      legal_acceptances: {
+        Row: {
+          accepted_at: string
+          accepted_text: string
+          created_at: string
+          document_key: string
+          document_version: string
+          id: string
+          initials: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          accepted_at?: string
+          accepted_text: string
+          created_at?: string
+          document_key: string
+          document_version: string
+          id?: string
+          initials: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          accepted_at?: string
+          accepted_text?: string
+          created_at?: string
+          document_key?: string
+          document_version?: string
+          id?: string
+          initials?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       portfolios: {
         Row: {
           available_capital: number | null

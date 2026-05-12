@@ -162,7 +162,7 @@ export default function Performance() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8 pb-20">
+      <div className="space-y-6">
         <div>
           <h2 className="font-display text-2xl font-bold text-foreground">Performance Analytics</h2>
           <p className="text-sm text-muted-foreground mt-1">Complete risk-adjusted performance breakdown</p>

@@ -321,7 +321,7 @@ export default function News() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 pb-10">
+      <div className="space-y-6">
 
         {/* Header */}
         <div className="flex items-start justify-between">

@@ -233,9 +233,13 @@ export default function Signup() {
 
         <p className="mt-6 text-center text-xs text-muted-foreground/60">
           By creating an account you agree to our{" "}
-          <span className="hover:text-muted-foreground cursor-pointer transition-colors">Terms of Service</span>
+          <Link to="/terms" className="transition-colors hover:text-muted-foreground">
+            Terms of Service
+          </Link>
           {" "}and{" "}
-          <span className="hover:text-muted-foreground cursor-pointer transition-colors">Privacy Policy</span>.
+          <Link to="/privacy" className="transition-colors hover:text-muted-foreground">
+            Privacy Policy
+          </Link>.
         </p>
       </motion.div>
     </div>

@@ -21,7 +21,7 @@ async function getPriceData(ticker: string, apiKey: string) {
 
     const url = `https://api.polygon.io/v2/aggs/ticker/${ticker}/range/1/day/${from}/${to}?apiKey=${apiKey}`;
     const res = await fetch(url);
-    
+
     if (!res.ok) {
       console.error(`Polygon error for ${ticker}: ${res.status} ${res.statusText}`);
       return [];
@@ -76,6 +76,30 @@ function calcTechnicalScore(candles: any[]): number {
   return Math.max(0, Math.min(100, score));
 }
 
+// ─── PRICE LEVELS (entry, stop, target derived from candles) ───
+function calcPriceLevels(
+  candles: any[],
+  action: string
+): { entry_price: number | null; stop_price: number | null; target_price: number | null } {
+  if (!candles.length || action === "exit" || action === "strong_exit") {
+    return { entry_price: null, stop_price: null, target_price: null };
+  }
+
+  const entry = Math.round(candles[candles.length - 1].c * 100) / 100;
+
+  // Stop: lowest low of last 10 candles with 0.5% buffer below
+  const lookback = Math.min(10, candles.length);
+  const swingLow = Math.min(...candles.slice(-lookback).map((c: any) => c.l));
+  const stop = Math.round(swingLow * 0.995 * 100) / 100;
+
+  // Target: 2:1 R/R for strong_buy, 1.5:1 for everything else
+  const riskPoints = entry - stop;
+  const rrRatio = action === "strong_buy" ? 2.0 : 1.5;
+  const target = Math.round((entry + riskPoints * rrRatio) * 100) / 100;
+
+  return { entry_price: entry, stop_price: stop, target_price: target };
+}
+
 // ─── NEWS FETCH (Polygon) ───
 async function fetchRecentNews(ticker: string, apiKey: string) {
   try {
@@ -91,9 +115,13 @@ async function fetchRecentNews(ticker: string, apiKey: string) {
 }
 
 // ─── SENTIMENT SCORE (OpenAI) ───
-async function calcSentimentScore(ticker: string, polygonKey: string, openaiKey: string): Promise<number> {
+async function calcSentimentScore(
+  ticker: string,
+  polygonKey: string,
+  openaiKey: string
+): Promise<{ score: number; summary: string }> {
   const news = await fetchRecentNews(ticker, polygonKey);
-  if (!news.length) return 50;
+  if (!news.length) return { score: 50, summary: "" };
 
   const headlines = news.slice(0, 5).map((n: any) => n.title).join("\n");
 
@@ -118,19 +146,85 @@ async function calcSentimentScore(ticker: string, polygonKey: string, openaiKey:
 
     if (!response.ok) {
       console.error(`OpenAI error for ${ticker}: ${response.status}`);
-      return 50;
+      return { score: 50, summary: "" };
     }
 
     const data = await response.json();
     const result = JSON.parse(data.choices[0].message.content);
-    return Math.max(0, Math.min(100, result.score));
+    return {
+      score: Math.max(0, Math.min(100, result.score)),
+      summary: result.summary || "",
+    };
   } catch (err) {
     console.error(`Sentiment score exception for ${ticker}:`, err);
-    return 50;
+    return { score: 50, summary: "" };
   }
 }
 
-// ─── MACRO SCORES (FRED) ───
+// ─── REASONING BULLETS ───
+function buildReasoning(
+  candles: any[],
+  techScore: number,
+  sentimentSummary: string,
+  macroComposite: number,
+  action: string
+): string[] {
+  const reasons: string[] = [];
+  if (!candles.length) return reasons;
+
+  const closes = candles.map((c: any) => c.c);
+
+  // RSI
+  const gains: number[] = [];
+  const losses: number[] = [];
+  for (let i = 1; i < 15; i++) {
+    const diff = closes[closes.length - i] - closes[closes.length - i - 1];
+    diff > 0 ? gains.push(diff) : losses.push(Math.abs(diff));
+  }
+  const avgGain = gains.reduce((a, b) => a + b, 0) / 14;
+  const avgLoss = losses.reduce((a, b) => a + b, 0) / 14;
+  const rsi = Math.round(100 - 100 / (1 + avgGain / (avgLoss || 0.001)));
+
+  // Momentum
+  const momentum10 = candles.length >= 11
+    ? ((closes[closes.length - 1] / closes[closes.length - 11] - 1) * 100)
+    : 0;
+
+  // Volume
+  const volumes = candles.map((c: any) => c.v);
+  const recentVol = volumes.slice(-5).reduce((a: number, b: number) => a + b, 0) / 5;
+  const avgVol = volumes.slice(-20).reduce((a: number, b: number) => a + b, 0) / 20;
+  const volRatio = Math.round((recentVol / avgVol) * 10) / 10;
+
+  // RSI reason
+  if (rsi < 30) reasons.push(`RSI ${rsi} — oversold, historical mean-reversion zone`);
+  else if (rsi < 45) reasons.push(`RSI ${rsi} — cooling from overbought, momentum building`);
+  else if (rsi > 70) reasons.push(`RSI ${rsi} — overbought, pullback risk elevated`);
+  else reasons.push(`RSI ${rsi} — neutral, watching for directional break`);
+
+  // Momentum reason
+  if (momentum10 > 3) reasons.push(`10-day momentum +${momentum10.toFixed(1)}% — strong trend continuation`);
+  else if (momentum10 > 1) reasons.push(`10-day momentum +${momentum10.toFixed(1)}% — mild upside bias`);
+  else if (momentum10 < -3) reasons.push(`10-day momentum ${momentum10.toFixed(1)}% — downtrend in force`);
+  else reasons.push(`10-day momentum flat (${momentum10.toFixed(1)}%) — no clear directional edge`);
+
+  // Volume reason
+  if (volRatio > 2) reasons.push(`Volume ${volRatio}× average — institutional participation spike`);
+  else if (volRatio > 1.3) reasons.push(`Volume ${volRatio}× average — above-normal buying interest`);
+  else reasons.push(`Volume ${volRatio}× average — in line with recent activity`);
+
+  // Sentiment reason (from OpenAI summary)
+  if (sentimentSummary) reasons.push(`News: ${sentimentSummary}`);
+
+  // Macro reason
+  if (macroComposite > 65) reasons.push(`Macro bullish (${macroComposite}/100) — regime tailwind for longs`);
+  else if (macroComposite < 40) reasons.push(`Macro bearish (${macroComposite}/100) — headwind, size conservatively`);
+  else reasons.push(`Macro neutral (${macroComposite}/100) — no strong regime bias`);
+
+  return reasons;
+}
+
+// ─── MACRO SCORES (FRED + Polygon) ───
 async function calcYieldCurveScore(fredKey: string | undefined): Promise<{ score: number; value: number; status: string }> {
   if (!fredKey) return { score: 60, value: 0.2, status: 'Normal (Key Missing)' };
   try {
@@ -141,7 +235,7 @@ async function calcYieldCurveScore(fredKey: string | undefined): Promise<{ score
     const data = await res.json();
     const latest = parseFloat(data.observations?.[0]?.value);
     if (isNaN(latest)) return { score: 60, value: 0.2, status: 'Normal' };
-    
+
     let status = 'Normal';
     if (latest < 0) status = 'Inverted';
     else if (latest < 0.2) status = 'Flat';
@@ -160,7 +254,6 @@ async function calcYieldCurveScore(fredKey: string | undefined): Promise<{ score
 
 async function calcVixProxy(polygonKey: string): Promise<{ score: number; value: number; label: string }> {
   try {
-    // Note: I:VIX requires a specific Polygon subscription. If it fails, we fallback gracefully.
     const res = await fetch(`https://api.polygon.io/v2/aggs/ticker/I:VIX/prev?adjusted=true&apiKey=${polygonKey}`);
     if (!res.ok) {
       console.warn("VIX Index fetch failed (likely subscription level). Falling back to SPY volatility proxy.");
@@ -168,7 +261,7 @@ async function calcVixProxy(polygonKey: string): Promise<{ score: number; value:
     }
     const data = await res.json();
     const vix = data.results?.[0]?.c || 15;
-    
+
     let label = 'Low Risk';
     if (vix > 30) label = 'Extreme Fear';
     else if (vix > 20) label = 'Elevated Risk';
@@ -189,12 +282,12 @@ async function getMacroData(fredKey: string | undefined, polygonKey: string) {
   console.log("Fetching Macro Data...");
   const yieldCurve = await calcYieldCurveScore(fredKey);
   const vix = await calcVixProxy(polygonKey);
-  
+
   const spyData = await getPriceData('SPY', polygonKey);
-  const spyMomentum = spyData.length >= 20 
-    ? (spyData[spyData.length-1].c / spyData[spyData.length-20].c - 1) * 100 
+  const spyMomentum = spyData.length >= 20
+    ? (spyData[spyData.length - 1].c / spyData[spyData.length - 20].c - 1) * 100
     : 0;
-  
+
   const sectorScore = 50 + spyMomentum * 5;
   const fedScore = 60;
 
@@ -226,7 +319,6 @@ serve(async (req) => {
     const POLYGON_KEY = Deno.env.get("POLYGON_KEY");
     const FRED_KEY = Deno.env.get("FRED_KEY");
     const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
-    const UW_KEY = Deno.env.get("UNUSUAL_WHALES_KEY");
 
     if (!POLYGON_KEY) throw new Error("POLYGON_KEY not configured in Supabase secrets");
 
@@ -258,11 +350,11 @@ serve(async (req) => {
           }
 
           const techScore = calcTechnicalScore(candles);
-          const sentScore = await calcSentimentScore(ticker, POLYGON_KEY, OPENAI_API_KEY);
-          
+          const sentiment = await calcSentimentScore(ticker, POLYGON_KEY, OPENAI_API_KEY);
+
           const composite = Math.round(
             techScore * WEIGHTS.technical +
-            sentScore * WEIGHTS.sentiment +
+            sentiment.score * WEIGHTS.sentiment +
             macroData.composite * WEIGHTS.macro
           );
 
@@ -272,13 +364,19 @@ serve(async (req) => {
             composite >= 45 ? "hold" :
             composite >= 30 ? "watch" : "exit";
 
+          const priceLevels = calcPriceLevels(candles, action);
+          const reasoning = buildReasoning(candles, techScore, sentiment.summary, macroData.composite, action);
+
           return {
             ticker,
+            asset_class: "equity",
             signal_score: composite,
             action,
             technical_score: techScore,
-            sentiment_score: sentScore,
+            sentiment_score: sentiment.score,
             macro_score: macroData.composite,
+            ...priceLevels,
+            reasoning,
             generated_at: new Date().toISOString(),
           };
         } catch (err) {

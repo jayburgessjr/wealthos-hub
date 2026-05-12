@@ -138,7 +138,7 @@ export default function Compound() {
 
   return (
     <DashboardLayout>
-      <div className="mx-auto max-w-[1400px] space-y-5">
+      <div className="space-y-6">
         {/* Page Header */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}

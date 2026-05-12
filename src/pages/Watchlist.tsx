@@ -70,7 +70,8 @@ export default function Watchlist() {
 
   return (
     <DashboardLayout>
-      <div className="mb-4 flex items-center justify-between">
+      <div className="space-y-6">
+      <div className="flex items-center justify-between">
         <h2 className="font-display text-xl font-bold text-foreground">Watchlist</h2>
         <button
           onClick={() => setAddOpen(true)}
@@ -214,6 +215,7 @@ export default function Watchlist() {
           </div>
         </DialogContent>
       </Dialog>
+      </div>
     </DashboardLayout>
   );
 }

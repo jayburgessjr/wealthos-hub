@@ -98,7 +98,8 @@ export default function SettingsPage() {
 
   return (
     <DashboardLayout>
-      <h2 className="mb-6 font-display text-xl font-bold text-foreground">Settings</h2>
+      <div className="space-y-6">
+      <h2 className="font-display text-xl font-bold text-foreground">Settings</h2>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
 
         {/* Profile */}
@@ -278,6 +279,7 @@ export default function SettingsPage() {
             {resetting ? 'Resetting…' : 'Reset Portfolio'}
           </button>
         </div>
+      </div>
       </div>
     </DashboardLayout>
   );

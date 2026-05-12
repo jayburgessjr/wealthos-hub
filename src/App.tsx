@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { DemoProvider } from "@/components/DemoProvider";
 import AuthProvider from "@/components/AuthProvider";
+import LegalDisclosureGate from "@/components/legal/LegalDisclosureGate";
 import Index from "./pages/Index";
 import Onboarding from "./pages/Onboarding";
 import Decisions from "./pages/Decisions";
@@ -38,8 +39,19 @@ import TaxHarvesting from "./pages/TaxHarvesting";
 import EarningsCalendar from "./pages/EarningsCalendar";
 import HeatMap from "./pages/HeatMap";
 import PaperTrading from "./pages/PaperTrading";
+import TermsOfService from "./pages/TermsOfService";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Disclaimer from "./pages/Disclaimer";
+import Strategy123 from "./pages/Strategy123";
 
 const queryClient = new QueryClient();
+
+const AppShell = () => (
+  <>
+    <AppRoutes />
+    <LegalDisclosureGate />
+  </>
+);
 
 const AppRoutes = () => (
   <Routes>
@@ -66,6 +78,9 @@ const AppRoutes = () => (
     <Route path="/financial-advisor" element={<FinancialAdvisor />} />
     <Route path="/login" element={<Login />} />
     <Route path="/signup" element={<Signup />} />
+    <Route path="/terms" element={<TermsOfService />} />
+    <Route path="/privacy" element={<PrivacyPolicy />} />
+    <Route path="/disclaimer" element={<Disclaimer />} />
     <Route path="/pnl-calendar" element={<PnLCalendar />} />
     <Route path="/position-sizer" element={<PositionSizer />} />
     <Route path="/trading-journal" element={<TradingJournal />} />
@@ -74,6 +89,7 @@ const AppRoutes = () => (
     <Route path="/earnings-calendar" element={<EarningsCalendar />} />
     <Route path="/heat-map" element={<HeatMap />} />
     <Route path="/paper-trading" element={<PaperTrading />} />
+    <Route path="/strategy-123" element={<Strategy123 />} />
     <Route path="*" element={<NotFound />} />
   </Routes>
 );
@@ -87,7 +103,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <AppRoutes />
+            <AppShell />
           </BrowserRouter>
         </TooltipProvider>
       </DemoProvider>

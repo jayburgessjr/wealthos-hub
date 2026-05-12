@@ -238,7 +238,7 @@ ${topSignals.map(s =>
   return (
     <DashboardLayout>
       <SubscriptionGate>
-        <div className="mx-auto flex h-[calc(100vh-8rem)] max-w-3xl flex-col">
+        <div className="flex h-[calc(100vh-8rem)] flex-col">
           <h2 className="mb-4 font-display text-xl font-bold text-foreground">AI Advisor</h2>
 
           {/* Quick Prompts */}

@@ -470,7 +470,7 @@ export default function Markets() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 pb-10">
+      <div className="space-y-6">
 
         {/* ── Header ── */}
         <div>
