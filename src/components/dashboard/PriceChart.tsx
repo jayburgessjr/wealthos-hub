@@ -77,7 +77,7 @@ export default function PriceChart({ ticker = "SPY" }: PriceChartProps) {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        console.log("Fetching price data for:", ticker);
+        
         const { data, error } = await supabase.functions.invoke("get-price-data", {
           body: { ticker, timeframe },
         });

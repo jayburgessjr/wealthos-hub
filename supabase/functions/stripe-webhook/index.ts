@@ -12,15 +12,19 @@ const supabaseAdmin = createClient(
 );
 
 serve(async (req) => {
+  const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
+  if (!webhookSecret) {
+    return new Response("Webhook secret not configured", { status: 500 });
+  }
+
   const signature = req.headers.get("stripe-signature");
+  if (!signature) {
+    return new Response("Missing stripe-signature header", { status: 400 });
+  }
 
   try {
     const body = await req.text();
-    const event = stripe.webhooks.constructEvent(
-      body,
-      signature ?? "",
-      Deno.env.get("STRIPE_WEBHOOK_SECRET") ?? ""
-    );
+    const event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
 
     console.log(`Processing event: ${event.type}`);
 
@@ -47,7 +51,7 @@ serve(async (req) => {
       }
       case "customer.subscription.updated":
       case "customer.subscription.deleted": {
-        const subscription = event.data.object as Stripe.Stripe.Subscription;
+        const subscription = event.data.object as Stripe.Subscription;
         const customerId = subscription.customer as string;
         const status = subscription.status; // active, trialing, past_due, canceled
         

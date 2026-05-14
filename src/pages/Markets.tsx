@@ -269,7 +269,7 @@ function ProbBar({ yes, no }: { yes: number; no: number }) {
 function EVBadge({ ev }: { ev: number }) {
   const pos = ev > 0;
   return (
-    <span className={`rounded-full px-2.5 py-0.5 font-mono text-[10px] font-black uppercase ${
+    <span className={`rounded-full px-2.5 py-0.5 text-xs font-black uppercase ${
       pos ? "bg-bullish/10 text-bullish" : "bg-bearish/10 text-bearish"
     }`}>
       EV {pos ? "+" : ""}{(ev * 100).toFixed(1)}¢
@@ -476,7 +476,7 @@ export default function Markets() {
         <div>
           <div className="mb-1 flex items-center gap-2">
             <Zap size={12} className="text-muted-foreground" />
-            <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Global Markets</span>
+            <span className="text-xs uppercase tracking-widest text-muted-foreground">Global Markets</span>
           </div>
           <h2 className="font-display text-3xl font-black tracking-tight">Markets</h2>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -513,7 +513,7 @@ export default function Markets() {
                 { label: "Base Currency",  value: "USD",                         color: "text-primary" },
               ].map(s => (
                 <div key={s.label} className="rounded-xl border border-border bg-card p-4">
-                  <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">{s.label}</p>
+                  <p className="text-xs uppercase tracking-widest text-muted-foreground">{s.label}</p>
                   <p className={`font-mono text-xl font-black ${s.color}`}>{isLoading ? "—" : s.value}</p>
                 </div>
               ))}
@@ -523,7 +523,7 @@ export default function Markets() {
                 <thead>
                   <tr className="border-b border-border">
                     {["Pair","Name","Rate (vs USD)","Raw Rate","24h Change","Direction"].map(h => (
-                      <th key={h} className="px-4 py-3 font-mono text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{h}</th>
+                      <th key={h} className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -553,7 +553,7 @@ export default function Markets() {
                             <td className="px-4 py-3 font-mono text-sm text-muted-foreground">1 USD = {f.rawRate.toFixed(4)} {f.base}</td>
                             <td className="px-4 py-3"><PctBadge v={f.changePct} /></td>
                             <td className="px-4 py-3">
-                              <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[9px] font-bold uppercase ${pos ? "bg-bullish/10 text-bullish" : "bg-bearish/10 text-bearish"}`}>
+                              <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold uppercase ${pos ? "bg-bullish/10 text-bullish" : "bg-bearish/10 text-bearish"}`}>
                                 {pos ? <TrendingUp size={9} /> : <TrendingDown size={9} />}
                                 {pos ? "Gaining" : "Losing"}
                               </span>
@@ -564,7 +564,7 @@ export default function Markets() {
                 </tbody>
               </table>
             </div>
-            <p className="mt-2 text-right font-mono text-[9px] uppercase tracking-widest text-muted-foreground/40">Data: Frankfurter · ECB reference rates</p>
+            <p className="mt-2 text-right text-xs uppercase tracking-widest text-muted-foreground/40">Data: Frankfurter · ECB reference rates</p>
           </motion.div>
         )}
 
@@ -599,9 +599,9 @@ export default function Markets() {
                         <div>
                           <div className="flex items-center gap-2">
                             <span className="font-display text-lg font-black text-foreground">{c.name}</span>
-                            <span className="rounded-full px-2 py-0.5 font-mono text-[9px] font-bold uppercase" style={{ background: `${catColor}18`, color: catColor }}>{c.category}</span>
+                            <span className="rounded-full px-2 py-0.5 text-xs font-bold uppercase" style={{ background: `${catColor}18`, color: catColor }}>{c.category}</span>
                           </div>
-                          <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">{c.ticker} · {c.unit}</p>
+                          <p className="text-xs uppercase tracking-widest text-muted-foreground">{c.ticker} · {c.unit}</p>
                         </div>
                         <div className="text-right">
                           <p className="font-mono text-xl font-black text-foreground">${c.price.toFixed(2)}</p>
@@ -613,7 +613,7 @@ export default function Markets() {
                       <div className="mt-4 grid grid-cols-3 gap-2 border-t border-border/50 pt-3">
                         {[{ label: "Open", value: `$${c.open?.toFixed(2)}` }, { label: "High", value: `$${c.high?.toFixed(2)}` }, { label: "Low", value: `$${c.low?.toFixed(2)}` }].map(s => (
                           <div key={s.label}>
-                            <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">{s.label}</p>
+                            <p className="text-xs uppercase tracking-widest text-muted-foreground">{s.label}</p>
                             <p className="font-mono text-xs font-bold text-foreground">{s.value}</p>
                           </div>
                         ))}
@@ -623,7 +623,7 @@ export default function Markets() {
                 })}
               </div>
             )}
-            <p className="text-right font-mono text-[9px] uppercase tracking-widest text-muted-foreground/40">Metals: Polygon C:XAUUSD · ETFs: Polygon prev close</p>
+            <p className="text-right text-xs uppercase tracking-widest text-muted-foreground/40">Metals: Polygon C:XAUUSD · ETFs: Polygon prev close</p>
           </motion.div>
         )}
 
@@ -632,32 +632,32 @@ export default function Markets() {
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div className={`rounded-2xl border p-5 ${bonds.inverted ? "border-bearish/30 bg-bearish/5" : "border-bullish/30 bg-bullish/5"}`}>
-                <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">10Y–2Y Spread</p>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground">10Y–2Y Spread</p>
                 <p className={`font-mono text-3xl font-black ${bonds.spread10y2y >= 0 ? "text-bullish" : "text-bearish"}`}>
                   {bonds.spread10y2y >= 0 ? "+" : ""}{bonds.spread10y2y?.toFixed(2) ?? "—"}%
                 </p>
-                <p className="mt-1 font-mono text-[10px] text-muted-foreground">{bonds.inverted ? "⚠ Inverted — recession signal" : "Normal — curve not inverted"}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{bonds.inverted ? "⚠ Inverted — recession signal" : "Normal — curve not inverted"}</p>
               </div>
               <div className="rounded-2xl border border-border bg-card p-5">
-                <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">Fed Funds Rate</p>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground">Fed Funds Rate</p>
                 <p className="font-mono text-3xl font-black text-primary">{bonds.yields.find(y => y.id === "FEDFUNDS")?.yield?.toFixed(2) ?? "—"}%</p>
-                <p className="mt-1 font-mono text-[10px] text-muted-foreground">Current effective rate</p>
+                <p className="mt-1 text-xs text-muted-foreground">Current effective rate</p>
               </div>
               <div className="rounded-2xl border border-border bg-card p-5">
-                <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">10-Year Yield</p>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground">10-Year Yield</p>
                 <p className="font-mono text-3xl font-black text-foreground">{bonds.yields.find(y => y.id === "DGS10")?.yield?.toFixed(2) ?? "—"}%</p>
-                <p className="mt-1 font-mono text-[10px] text-muted-foreground">US Treasury benchmark</p>
+                <p className="mt-1 text-xs text-muted-foreground">US Treasury benchmark</p>
               </div>
             </div>
             <div className="rounded-2xl border border-border bg-card p-6">
               <h3 className="mb-1 font-display text-sm font-bold text-foreground">US Treasury Yield Curve</h3>
-              <p className="mb-4 font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
+              <p className="mb-4 text-xs text-muted-foreground uppercase tracking-widest">
                 {bonds.inverted ? "Inverted — historically precedes recession 12–18 months out" : "Normal — positive slope, healthy credit conditions"}
               </p>
               <div className="h-24"><YieldCurve yields={bonds.yields} /></div>
               <div className="mt-3 flex justify-between">
                 {bonds.yields.filter(y => y.maturity > 0).sort((a, b) => a.maturity - b.maturity).map(y => (
-                  <span key={y.id} className="font-mono text-[9px] text-muted-foreground">{y.label.replace("-Year","Y").replace("-Month","M")}</span>
+                  <span key={y.id} className="text-xs text-muted-foreground">{y.label.replace("-Year","Y").replace("-Month","M")}</span>
                 ))}
               </div>
             </div>
@@ -666,7 +666,7 @@ export default function Markets() {
                 <thead>
                   <tr className="border-b border-border">
                     {["Maturity","Yield","Prev Yield","Change","Status"].map(h => (
-                      <th key={h} className="px-4 py-3 font-mono text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{h}</th>
+                      <th key={h} className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -687,7 +687,7 @@ export default function Markets() {
                             <td className="px-4 py-3 font-mono text-sm text-muted-foreground">{y.prevYield?.toFixed(3) ?? "—"}%</td>
                             <td className={`px-4 py-3 font-mono text-sm font-bold ${pos ? "text-bullish" : "text-bearish"}`}>{pos ? "+" : ""}{y.change?.toFixed(3) ?? "—"}</td>
                             <td className="px-4 py-3">
-                              <span className={`rounded-full px-2.5 py-0.5 font-mono text-[9px] font-bold uppercase ${pos ? "bg-bearish/10 text-bearish" : "bg-bullish/10 text-bullish"}`}>
+                              <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold uppercase ${pos ? "bg-bearish/10 text-bearish" : "bg-bullish/10 text-bullish"}`}>
                                 {pos ? "Rates Rising" : "Rates Falling"}
                               </span>
                             </td>
@@ -697,7 +697,7 @@ export default function Markets() {
                 </tbody>
               </table>
             </div>
-            <p className="text-right font-mono text-[9px] uppercase tracking-widest text-muted-foreground/40">Data: FRED · Federal Reserve Bank of St. Louis</p>
+            <p className="text-right text-xs uppercase tracking-widest text-muted-foreground/40">Data: FRED · Federal Reserve Bank of St. Louis</p>
           </motion.div>
         )}
 
@@ -727,7 +727,7 @@ export default function Markets() {
                   { label: "Open Interest",  value: `$${(kalshiMarkets.reduce((a, m) => a + (m.open_interest ?? 0), 0) / 1000).toFixed(0)}K`,           color: "text-watch"      },
                 ].map(s => (
                   <div key={s.label} className="rounded-xl border border-border bg-card p-4">
-                    <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">{s.label}</p>
+                    <p className="text-xs uppercase tracking-widest text-muted-foreground">{s.label}</p>
                     <p className={`font-mono text-lg font-black ${s.color}`}>{kalshiLoading ? "—" : s.value}</p>
                   </div>
                 ))}
@@ -786,8 +786,8 @@ export default function Markets() {
                       <motion.div key={m.ticker} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
                         className="group rounded-2xl border border-border bg-card p-4 transition-all hover:border-primary/30">
                         <div className="mb-1.5 flex items-center gap-2">
-                          <span className="rounded-full border border-border bg-accent px-2 py-0.5 font-mono text-[8px] text-muted-foreground">{m.category}</span>
-                          <span className="rounded-full border border-primary/20 bg-primary/5 px-2 py-0.5 font-mono text-[8px] font-bold text-primary">CFTC Regulated</span>
+                          <span className="rounded-full border border-border bg-accent px-2 py-0.5 text-xs text-muted-foreground">{m.category}</span>
+                          <span className="rounded-full border border-primary/20 bg-primary/5 px-2 py-0.5 text-xs font-bold text-primary">CFTC Regulated</span>
                         </div>
                         <p className="font-display text-sm font-bold leading-snug text-foreground mb-3">{m.title}</p>
                         <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-border/40">
@@ -799,11 +799,11 @@ export default function Markets() {
                             <span className="font-mono text-sm font-black text-bullish">{(m.yes * 100).toFixed(0)}¢ Yes</span>
                             <span className="font-mono text-sm font-black text-bearish">{(no * 100).toFixed(0)}¢ No</span>
                           </div>
-                          <div className="font-mono text-[10px] text-muted-foreground">
+                          <div className="text-xs text-muted-foreground">
                             Vol {vol} · Closes {new Date(m.close).toLocaleDateString()}
                           </div>
                         </div>
-                        <p className="mt-1.5 font-mono text-[8px] uppercase tracking-widest text-muted-foreground/40">{m.ticker}</p>
+                        <p className="mt-1.5 text-xs uppercase tracking-widest text-muted-foreground/40">{m.ticker}</p>
                       </motion.div>
                     );
                   })}
@@ -833,9 +833,9 @@ export default function Markets() {
                       className="rounded-2xl border border-border bg-card p-4 transition-all hover:border-primary/30">
                       <div className="mb-1.5 flex flex-wrap gap-1.5">
                         {m.category && (
-                          <span className="rounded-full border border-border bg-accent px-2 py-0.5 font-mono text-[8px] text-muted-foreground">{m.category}</span>
+                          <span className="rounded-full border border-border bg-accent px-2 py-0.5 text-xs text-muted-foreground">{m.category}</span>
                         )}
-                        <span className="rounded-full border border-primary/20 bg-primary/5 px-2 py-0.5 font-mono text-[8px] font-bold text-primary">CFTC</span>
+                        <span className="rounded-full border border-primary/20 bg-primary/5 px-2 py-0.5 text-xs font-bold text-primary">CFTC</span>
                       </div>
                       <p className="font-display text-sm font-bold leading-snug text-foreground mb-3">{m.title}</p>
                       <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-border/40">
@@ -847,17 +847,17 @@ export default function Markets() {
                           <span className="font-mono text-sm font-black text-bullish">{yesPct}¢ Yes</span>
                           <span className="font-mono text-sm font-black text-bearish">{noPct}¢ No</span>
                         </div>
-                        <div className="font-mono text-[10px] text-muted-foreground">
+                        <div className="text-xs text-muted-foreground">
                           Vol {vol} · Closes {closeDate}
                         </div>
                       </div>
-                      <p className="mt-1.5 font-mono text-[8px] uppercase tracking-widest text-muted-foreground/40">{m.ticker}</p>
+                      <p className="mt-1.5 text-xs uppercase tracking-widest text-muted-foreground/40">{m.ticker}</p>
                     </motion.div>
                   );
                 })}
               </div>
             )}
-            <p className="text-right font-mono text-[9px] uppercase tracking-widest text-muted-foreground/40">
+            <p className="text-right text-xs uppercase tracking-widest text-muted-foreground/40">
               Data: Kalshi API · CFTC-regulated prediction contracts · Prices in cents (1¢ = 1%)
             </p>
           </motion.div>
@@ -886,7 +886,7 @@ export default function Markets() {
                 { label: "Categories",     value: String(polyCategories.length - 1),                          color: "text-watch" },
               ].map(s => (
                 <div key={s.label} className="rounded-xl border border-border bg-card p-4">
-                  <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">{s.label}</p>
+                  <p className="text-xs uppercase tracking-widest text-muted-foreground">{s.label}</p>
                   <p className={`font-mono text-lg font-black ${s.color}`}>{polyLoading ? "—" : s.value}</p>
                 </div>
               ))}
@@ -944,7 +944,7 @@ export default function Markets() {
                       </div>
                       {m.category && (
                         <div className="mt-2">
-                          <span className="rounded-full border border-border bg-accent px-2 py-0.5 font-mono text-[9px] text-muted-foreground">{m.category}</span>
+                          <span className="rounded-full border border-border bg-accent px-2 py-0.5 text-xs text-muted-foreground">{m.category}</span>
                         </div>
                       )}
                     </motion.div>
@@ -952,7 +952,7 @@ export default function Markets() {
                 })}
               </div>
             )}
-            <p className="text-right font-mono text-[9px] uppercase tracking-widest text-muted-foreground/40">
+            <p className="text-right text-xs uppercase tracking-widest text-muted-foreground/40">
               Data: Polymarket · Decentralized prediction market · USDC collateral
             </p>
           </motion.div>
@@ -1039,8 +1039,8 @@ export default function Markets() {
                       className="rounded-2xl border border-border bg-card p-5 transition-all hover:border-border/80">
                       <div className="mb-3 flex items-center justify-between">
                         <div>
-                          <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">{game.sport_title} · {book?.title ?? "N/A"}</p>
-                          <p className="font-mono text-[10px] text-muted-foreground/60">{commence.toLocaleDateString()} {commence.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                          <p className="text-xs uppercase tracking-widest text-muted-foreground">{game.sport_title} · {book?.title ?? "N/A"}</p>
+                          <p className="text-xs text-muted-foreground/60">{commence.toLocaleDateString()} {commence.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                         </div>
                         <div className="flex items-center gap-2">
                           <EVBadge ev={homeEV} />
@@ -1055,7 +1055,7 @@ export default function Markets() {
                           <div key={side.team} className={`rounded-xl border p-3 ${side.ev > 0 ? "border-bullish/20 bg-bullish/5" : "border-border bg-accent/20"}`}>
                             <div className="flex items-start justify-between">
                               <div>
-                                <p className="font-mono text-[9px] uppercase text-muted-foreground">{side.label}</p>
+                                <p className="text-xs uppercase text-muted-foreground">{side.label}</p>
                                 <p className="font-display text-sm font-bold text-foreground">{side.team}</p>
                               </div>
                               <p className={`font-mono text-lg font-black ${side.odds > 0 ? "text-bullish" : "text-foreground"}`}>
@@ -1064,15 +1064,15 @@ export default function Markets() {
                             </div>
                             <div className="mt-2 grid grid-cols-3 gap-1">
                               <div>
-                                <p className="font-mono text-[8px] uppercase text-muted-foreground">Implied</p>
+                                <p className="text-xs uppercase text-muted-foreground">Implied</p>
                                 <p className="font-mono text-xs font-bold text-foreground">{(side.prob * 100).toFixed(1)}%</p>
                               </div>
                               <div>
-                                <p className="font-mono text-[8px] uppercase text-muted-foreground">Kelly</p>
+                                <p className="text-xs uppercase text-muted-foreground">Kelly</p>
                                 <p className={`font-mono text-xs font-bold ${side.kelly > 0 ? "text-watch" : "text-muted-foreground"}`}>{side.kelly.toFixed(2)}%</p>
                               </div>
                               <div>
-                                <p className="font-mono text-[8px] uppercase text-muted-foreground">Edge</p>
+                                <p className="text-xs uppercase text-muted-foreground">Edge</p>
                                 <p className={`font-mono text-xs font-bold ${side.ev > 0 ? "text-bullish" : "text-bearish"}`}>{(side.ev * 100).toFixed(1)}¢</p>
                               </div>
                             </div>
@@ -1084,7 +1084,7 @@ export default function Markets() {
                 })}
               </div>
             )}
-            <p className="text-right font-mono text-[9px] uppercase tracking-widest text-muted-foreground/40">
+            <p className="text-right text-xs uppercase tracking-widest text-muted-foreground/40">
               Data: The Odds API · Kelly Criterion position sizing · {kellyFraction === "full" ? "Full" : kellyFraction === "half" ? "½" : "¼"} Kelly applied
             </p>
           </motion.div>
@@ -1133,7 +1133,7 @@ export default function Markets() {
 
                 {/* White balls grid */}
                 <div>
-                  <p className="mb-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                  <p className="mb-2 text-xs uppercase tracking-widest text-muted-foreground">
                     Pick {pickerCfg.whiteBalls} numbers (1–{pickerCfg.whiteMax})
                     <span className="ml-2 text-bullish">{selectedWhite.length}/{pickerCfg.whiteBalls} selected</span>
                   </p>
@@ -1158,7 +1158,7 @@ export default function Markets() {
 
                 {/* Bonus ball grid */}
                 <div>
-                  <p className="mb-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                  <p className="mb-2 text-xs uppercase tracking-widest text-muted-foreground">
                     Pick 1 {pickerCfg.bonusLabel} (1–{pickerCfg.bonusMax})
                     {selectedBonus !== null && (
                       <span className="ml-2" style={{ color: pickerCfg.bonusColor }}>Selected: {selectedBonus}</span>
@@ -1213,7 +1213,7 @@ export default function Markets() {
                 {/* Drawn numbers display */}
                 {drawnNumbers && (
                   <div className="rounded-xl border border-bullish/20 bg-bullish/5 p-4">
-                    <p className="mb-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Simulated Draw Result</p>
+                    <p className="mb-2 text-xs uppercase tracking-widest text-muted-foreground">Simulated Draw Result</p>
                     <div className="flex flex-wrap items-center gap-2">
                       {drawnNumbers.white.map(n => (
                         <span key={n}
@@ -1254,13 +1254,13 @@ export default function Markets() {
                 {/* Saved picks */}
                 {savedPicks.filter(p => p.label === LOTTERIES[lotteryIdx].name).length > 0 && (
                   <div>
-                    <p className="mb-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Saved Picks</p>
+                    <p className="mb-2 text-xs uppercase tracking-widest text-muted-foreground">Saved Picks</p>
                     <div className="space-y-2">
                       {savedPicks.filter(p => p.label === LOTTERIES[lotteryIdx].name).map((pick, i) => (
                         <div key={i} className="flex flex-wrap items-center gap-1.5 rounded-lg border border-border/50 bg-accent/20 px-3 py-2">
                           {pick.white.map(n => (
                             <span key={n}
-                              className={`flex h-7 w-7 items-center justify-center rounded-full font-mono text-[11px] font-bold border ${
+                              className={`flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold border ${
                                 drawnNumbers?.white.includes(n) ? "bg-bullish text-background border-bullish" : "border-border text-foreground"
                               }`}>
                               {n}
@@ -1268,7 +1268,7 @@ export default function Markets() {
                           ))}
                           <span className="mx-0.5 text-muted-foreground text-xs">+</span>
                           <span
-                            className="flex h-7 w-7 items-center justify-center rounded-full font-mono text-[11px] font-bold border"
+                            className="flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold border"
                             style={
                               drawnNumbers?.bonus === pick.bonus
                                 ? { background: pickerCfg.bonusColor, borderColor: pickerCfg.bonusColor, color: "#000" }
@@ -1288,7 +1288,7 @@ export default function Markets() {
               <>
                 {/* Jackpot header */}
                 <div className="rounded-2xl border p-6 text-center" style={{ borderColor: `${lottery.color}40`, background: `${lottery.color}08` }}>
-                  <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Current Jackpot</p>
+                  <p className="text-xs uppercase tracking-widest text-muted-foreground">Current Jackpot</p>
                   <p className="font-display text-5xl font-black" style={{ color: lottery.color }}>
                     ${(lottery.jackpot / 1e6).toFixed(0)}M
                   </p>
@@ -1304,9 +1304,9 @@ export default function Markets() {
                     { label: "Odds of Jackpot",    value: `1 in ${(lottery.oddsJackpot / 1e6).toFixed(0)}M`, color: "text-muted-foreground", sub: "Your chance" },
                   ].map(s => (
                     <div key={s.label} className="rounded-xl border border-border bg-card p-4">
-                      <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">{s.label}</p>
+                      <p className="text-xs uppercase tracking-widest text-muted-foreground">{s.label}</p>
                       <p className={`font-mono text-base font-black ${s.color}`}>{s.value}</p>
-                      <p className="font-mono text-[9px] text-muted-foreground/60">{s.sub}</p>
+                      <p className="text-xs text-muted-foreground/60">{s.sub}</p>
                     </div>
                   ))}
                 </div>
@@ -1343,13 +1343,13 @@ export default function Markets() {
                       { label: "Expected Loss",    value: `-$${evCalc.expectedLoss.toFixed(2)}`,                    color: "text-bearish" },
                     ].map(s => (
                       <div key={s.label} className="rounded-xl border border-border bg-accent/30 p-4 text-center">
-                        <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">{s.label}</p>
+                        <p className="text-xs uppercase tracking-widest text-muted-foreground">{s.label}</p>
                         <p className={`font-mono text-lg font-black ${s.color}`}>{s.value}</p>
                       </div>
                     ))}
                   </div>
 
-                  <p className="mt-4 font-mono text-[10px] text-muted-foreground/50">
+                  <p className="mt-4 text-xs text-muted-foreground/50">
                     ⚠ This is a mathematical analysis tool. Lottery is entertainment, not investment. EV assumes a single winner splits no jackpot.
                     State taxes vary — this uses a flat 37% federal estimate. Seek qualified tax advice.
                   </p>
@@ -1374,7 +1374,7 @@ export default function Markets() {
                             <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-border/40">
                               <div className="h-full rounded-full" style={{ width: `${barWidth}%`, backgroundColor: item.color, boxShadow: `0 0 6px ${item.color}60` }} />
                             </div>
-                            <span className="w-28 shrink-0 font-mono text-[10px] text-muted-foreground text-right">1 in {item.odds.toLocaleString()}</span>
+                            <span className="w-28 shrink-0 text-xs text-muted-foreground text-right">1 in {item.odds.toLocaleString()}</span>
                           </div>
                         </div>
                       );
@@ -1383,7 +1383,7 @@ export default function Markets() {
                 </div>
               </>
             )}
-            <p className="text-right font-mono text-[9px] uppercase tracking-widest text-muted-foreground/40">
+            <p className="text-right text-xs uppercase tracking-widest text-muted-foreground/40">
               Jackpot data: static estimates · Tax: 37% federal flat rate · Not financial advice
             </p>
           </motion.div>

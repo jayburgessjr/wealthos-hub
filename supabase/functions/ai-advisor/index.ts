@@ -65,6 +65,14 @@ Always include a brief note at the end of strategy recommendations reminding the
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  // ── Auth guard — require valid JWT ──────────────────────────────────────────
+  const authHeader = req.headers.get("authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   try {
     const { messages, context, mode } = await req.json();
     const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");

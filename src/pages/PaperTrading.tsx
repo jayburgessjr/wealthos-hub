@@ -221,16 +221,16 @@ export default function PaperTrading() {
       <div className="space-y-1">
         <div className="flex items-center gap-2">
           <FlaskConical size={12} className="text-muted-foreground" />
-          <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Trading</span>
+          <span className="text-xs uppercase tracking-widest text-muted-foreground">Trading</span>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <h2 className="font-display text-3xl font-black tracking-tight">Paper Trading</h2>
-          <span className="rounded-full border border-amber-400/40 bg-amber-400/10 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-widest text-amber-400">
+          <span className="rounded-full border border-amber-400/40 bg-amber-400/10 px-3 py-1 text-xs font-bold uppercase tracking-widest text-amber-400">
             Simulated — No Real Money
           </span>
         </div>
         {isDemoMode && (
-          <p className="font-mono text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             Viewing demo data. Sign in to track your own paper trades.
           </p>
         )}
@@ -256,7 +256,7 @@ export default function PaperTrading() {
           },
         ].map((s) => (
           <div key={s.label} className="rounded-lg border border-border bg-card p-4">
-            <span className="block font-mono text-[10px] uppercase tracking-widest text-muted-foreground">{s.label}</span>
+            <span className="block text-xs uppercase tracking-widest text-muted-foreground">{s.label}</span>
             <span className={`mt-1 block font-mono text-lg font-bold ${s.color}`}>{s.val}</span>
           </div>
         ))}
@@ -329,13 +329,13 @@ export default function PaperTrading() {
                             <div>
                               <span className="font-mono font-bold text-foreground">{trade.ticker}</span>
                               {trade.company_name && (
-                                <span className="block font-mono text-[10px] text-muted-foreground">{trade.company_name}</span>
+                                <span className="block text-xs text-muted-foreground">{trade.company_name}</span>
                               )}
                             </div>
                           </td>
                           <td className="px-4 py-3">
                             <span
-                              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[10px] font-bold uppercase ${
+                              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold uppercase ${
                                 trade.direction === "long"
                                   ? "bg-bullish/10 text-bullish"
                                   : "bg-bearish/10 text-bearish"
@@ -361,7 +361,7 @@ export default function PaperTrading() {
                           </td>
                           <td className="px-4 py-3">
                             {isDemoMode ? (
-                              <span className="font-mono text-[10px] text-muted-foreground">Demo</span>
+                              <span className="text-xs text-muted-foreground">Demo</span>
                             ) : (
                               <button
                                 onClick={() => {
@@ -391,7 +391,7 @@ export default function PaperTrading() {
                             <td colSpan={9} className="px-4 py-3">
                               <div className="flex flex-wrap items-end gap-3">
                                 <div>
-                                  <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                                  <label className="text-xs uppercase tracking-widest text-muted-foreground">
                                     Close Price ($)
                                   </label>
                                   <div className="mt-1 flex items-center gap-1 rounded-lg border border-border bg-background px-3 py-2">
@@ -409,7 +409,7 @@ export default function PaperTrading() {
                                   </div>
                                 </div>
                                 <div>
-                                  <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                                  <label className="text-xs uppercase tracking-widest text-muted-foreground">
                                     Close Date
                                   </label>
                                   <input
@@ -421,7 +421,7 @@ export default function PaperTrading() {
                                 </div>
                                 {closePrice && (
                                   <div className="rounded-lg border border-border bg-card px-3 py-2">
-                                    <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                                    <span className="text-xs uppercase tracking-widest text-muted-foreground">
                                       Estimated P&L
                                     </span>
                                     {(() => {
@@ -493,13 +493,13 @@ export default function PaperTrading() {
                             <div>
                               <span className="font-mono font-bold text-foreground">{trade.ticker}</span>
                               {trade.company_name && (
-                                <span className="block font-mono text-[10px] text-muted-foreground">{trade.company_name}</span>
+                                <span className="block text-xs text-muted-foreground">{trade.company_name}</span>
                               )}
                             </div>
                           </td>
                           <td className="px-4 py-3">
                             <span
-                              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[10px] font-bold uppercase ${
+                              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold uppercase ${
                                 trade.direction === "long"
                                   ? "bg-bullish/10 text-bullish"
                                   : "bg-bearish/10 text-bearish"
@@ -531,7 +531,7 @@ export default function PaperTrading() {
                   const totalRealized = closedTrades.reduce((a, t) => a + t.pnl_dollars, 0);
                   return (
                     <div className="mt-3 flex items-center justify-end gap-2 rounded-lg border border-border bg-card px-4 py-3">
-                      <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                      <span className="text-xs uppercase tracking-widest text-muted-foreground">
                         Total Realized P&L
                       </span>
                       <span className={`font-mono text-base font-bold ${pnlColor(totalRealized)}`}>
@@ -570,7 +570,7 @@ export default function PaperTrading() {
                   {/* Row 1: Ticker + Company */}
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <div>
-                      <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                      <label className="text-xs uppercase tracking-widest text-muted-foreground">
                         Ticker
                       </label>
                       <input
@@ -582,7 +582,7 @@ export default function PaperTrading() {
                       />
                     </div>
                     <div>
-                      <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                      <label className="text-xs uppercase tracking-widest text-muted-foreground">
                         Company Name
                       </label>
                       <input
@@ -597,7 +597,7 @@ export default function PaperTrading() {
                   {/* Row 2: Direction + Strategy */}
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <div>
-                      <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                      <label className="text-xs uppercase tracking-widest text-muted-foreground">
                         Direction
                       </label>
                       <div className="mt-1.5 flex overflow-hidden rounded-xl border border-border">
@@ -626,7 +626,7 @@ export default function PaperTrading() {
                       </div>
                     </div>
                     <div>
-                      <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                      <label className="text-xs uppercase tracking-widest text-muted-foreground">
                         Strategy Type
                       </label>
                       <select
@@ -644,7 +644,7 @@ export default function PaperTrading() {
                   {/* Row 3: Entry Price + Quantity */}
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <div>
-                      <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                      <label className="text-xs uppercase tracking-widest text-muted-foreground">
                         Entry Price ($)
                       </label>
                       <div className="mt-1.5 flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2.5">
@@ -661,7 +661,7 @@ export default function PaperTrading() {
                       </div>
                     </div>
                     <div>
-                      <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                      <label className="text-xs uppercase tracking-widest text-muted-foreground">
                         Quantity (shares / contracts)
                       </label>
                       <input
@@ -678,7 +678,7 @@ export default function PaperTrading() {
 
                   {/* Notes */}
                   <div>
-                    <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                    <label className="text-xs uppercase tracking-widest text-muted-foreground">
                       Notes (optional)
                     </label>
                     <textarea
@@ -693,7 +693,7 @@ export default function PaperTrading() {
                   {/* Position size preview + Submit */}
                   <div className="flex items-center justify-between border-t border-border pt-4">
                     <div>
-                      <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                      <p className="text-xs uppercase tracking-widest text-muted-foreground">
                         Position Size
                       </p>
                       <p className="font-mono text-xl font-black text-foreground">

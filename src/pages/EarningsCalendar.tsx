@@ -111,7 +111,7 @@ function ImportanceBadge({ importance }: { importance: "high" | "medium" | "low"
     low:    { cls: "border-border bg-accent text-muted-foreground",    label: "LOW" },
   }[importance];
   return (
-    <span className={`rounded-full border px-2 py-0.5 font-mono text-[9px] font-black uppercase tracking-widest ${cfg.cls}`}>
+    <span className={`rounded-full border px-2 py-0.5 text-xs font-black uppercase tracking-widest ${cfg.cls}`}>
       {cfg.label}
     </span>
   );
@@ -308,7 +308,7 @@ export default function EarningsCalendar() {
           <div>
             <div className="mb-1 flex items-center gap-2">
               <CalendarDays size={12} className="text-muted-foreground" />
-              <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              <span className="text-xs uppercase tracking-widest text-muted-foreground">
                 Earnings Intelligence
               </span>
             </div>
@@ -317,7 +317,7 @@ export default function EarningsCalendar() {
           </div>
           <div className="flex shrink-0 items-center gap-2 rounded-xl border border-amber-500/20 bg-amber-500/5 px-4 py-2.5">
             <Activity size={12} className="text-amber-400" />
-            <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-amber-400">
+            <span className="text-xs font-bold uppercase tracking-widest text-amber-400">
               {earnings === MOCK_EARNINGS ? "Mock Data" : "Live"}
             </span>
           </div>
@@ -332,7 +332,7 @@ export default function EarningsCalendar() {
             { label: "Avg EPS Estimate",   value: stats.avgEps === "N/A" ? "N/A" : `$${stats.avgEps}`, color: "text-amber-400" },
           ].map(s => (
             <div key={s.label} className="rounded-xl border border-border bg-card p-4">
-              <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">{s.label}</p>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">{s.label}</p>
               <p className={`mt-1 font-mono text-2xl font-black ${s.color}`}>{s.value}</p>
             </div>
           ))}
@@ -364,12 +364,12 @@ export default function EarningsCalendar() {
                     </p>
                     <div className="flex shrink-0 gap-1.5">
                       {inPortfolio && (
-                        <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 font-mono text-[8px] font-bold uppercase text-emerald-400">
+                        <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-xs font-bold uppercase text-emerald-400">
                           In Portfolio
                         </span>
                       )}
                       {watchlistTickers.has(w.ticker) && !inPortfolio && (
-                        <span className="rounded-full border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 font-mono text-[8px] font-bold uppercase text-blue-400">
+                        <span className="rounded-full border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 text-xs font-bold uppercase text-blue-400">
                           Watchlisted
                         </span>
                       )}
@@ -418,7 +418,7 @@ export default function EarningsCalendar() {
                 {/* Week header */}
                 <div className="mb-3 flex items-center gap-3">
                   <div className="h-px flex-1 bg-border/50" />
-                  <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                  <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
                     {formatWeekLabel(weekStart)}
                   </span>
                   <div className="h-px flex-1 bg-border/50" />
@@ -460,7 +460,7 @@ export default function EarningsCalendar() {
                                 <p className="font-mono text-lg font-black text-foreground leading-none">
                                   {entry.ticker}
                                 </p>
-                                <p className="mt-0.5 font-mono text-[10px] text-muted-foreground truncate max-w-[120px]">
+                                <p className="mt-0.5 text-xs text-muted-foreground truncate max-w-[120px]">
                                   {entry.company}
                                 </p>
                               </div>
@@ -470,7 +470,7 @@ export default function EarningsCalendar() {
                                 <p className="font-mono text-xs font-bold text-foreground">
                                   {eDate.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
                                 </p>
-                                <p className="mt-0.5 flex items-center gap-1 font-mono text-[9px] text-muted-foreground">
+                                <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
                                   <Clock size={8} />
                                   {reportTimeLabel(entry.reportTime)}
                                 </p>
@@ -479,12 +479,12 @@ export default function EarningsCalendar() {
                               {/* Portfolio / Watchlist badges */}
                               <div className="flex flex-wrap gap-1">
                                 {inPortfolio && (
-                                  <span className="flex items-center gap-1 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-2 py-0.5 font-mono text-[8px] font-black uppercase text-emerald-400">
+                                  <span className="flex items-center gap-1 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-2 py-0.5 text-xs font-black uppercase text-emerald-400">
                                     <Briefcase size={7} /> In Portfolio
                                   </span>
                                 )}
                                 {isWatchlisted && (
-                                  <span className="flex items-center gap-1 rounded-full border border-blue-500/40 bg-blue-500/15 px-2 py-0.5 font-mono text-[8px] font-black uppercase text-blue-400">
+                                  <span className="flex items-center gap-1 rounded-full border border-blue-500/40 bg-blue-500/15 px-2 py-0.5 text-xs font-black uppercase text-blue-400">
                                     <Star size={7} /> Watchlisted
                                   </span>
                                 )}
@@ -495,13 +495,13 @@ export default function EarningsCalendar() {
                             <div className="flex shrink-0 items-center gap-5">
                               {/* EPS */}
                               <div className="hidden md:block text-right">
-                                <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">EPS Est.</p>
+                                <p className="text-xs uppercase tracking-widest text-muted-foreground">EPS Est.</p>
                                 <p className="font-mono text-sm font-black text-foreground">{fmtEps(entry.epsEstimate)}</p>
                               </div>
 
                               {/* Revenue */}
                               <div className="hidden md:block text-right">
-                                <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">Rev Est.</p>
+                                <p className="text-xs uppercase tracking-widest text-muted-foreground">Rev Est.</p>
                                 <p className="font-mono text-sm font-black text-foreground">{fmtRevenue(entry.revenueEstimate)}</p>
                               </div>
 
@@ -520,7 +520,7 @@ export default function EarningsCalendar() {
                                 >
                                   {daysAway === 0 ? "Today" : `${daysAway}d`}
                                 </p>
-                                <p className="font-mono text-[8px] uppercase text-muted-foreground/60">
+                                <p className="text-xs uppercase text-muted-foreground/60">
                                   {daysAway === 0 ? "reporting" : "away"}
                                 </p>
                               </div>
@@ -547,21 +547,21 @@ export default function EarningsCalendar() {
                               <div className="border-t border-border/40 px-4 pb-5 pt-4">
                                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                                   <div>
-                                    <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">Report Date</p>
+                                    <p className="text-xs uppercase tracking-widest text-muted-foreground">Report Date</p>
                                     <p className="mt-1 font-mono text-sm font-bold text-foreground">
                                       {eDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
                                     </p>
                                   </div>
                                   <div>
-                                    <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">Report Time</p>
+                                    <p className="text-xs uppercase tracking-widest text-muted-foreground">Report Time</p>
                                     <p className="mt-1 font-mono text-sm font-bold text-foreground">{reportTimeLabel(entry.reportTime)}</p>
                                   </div>
                                   <div>
-                                    <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">EPS Estimate</p>
+                                    <p className="text-xs uppercase tracking-widest text-muted-foreground">EPS Estimate</p>
                                     <p className="mt-1 font-mono text-sm font-bold text-amber-400">{fmtEps(entry.epsEstimate)}</p>
                                   </div>
                                   <div>
-                                    <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">Revenue Estimate</p>
+                                    <p className="text-xs uppercase tracking-widest text-muted-foreground">Revenue Estimate</p>
                                     <p className="mt-1 font-mono text-sm font-bold text-amber-400">{fmtRevenue(entry.revenueEstimate)}</p>
                                   </div>
                                 </div>
@@ -570,7 +570,7 @@ export default function EarningsCalendar() {
                                 <div className="mt-4 flex items-start gap-3 rounded-xl border border-border/50 bg-accent/40 px-4 py-3">
                                   <BarChart2 size={13} className="mt-0.5 shrink-0 text-muted-foreground" />
                                   <div>
-                                    <p className="font-mono text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                                       Potential Market Impact
                                     </p>
                                     <div className="mt-1.5 flex items-center gap-3">
@@ -591,7 +591,7 @@ export default function EarningsCalendar() {
                                 {inPortfolio && (
                                   <div className="mt-3 flex items-center gap-2 rounded-xl border border-amber-500/20 bg-amber-500/5 px-4 py-2.5">
                                     <AlertTriangle size={12} className="shrink-0 text-amber-400" />
-                                    <p className="font-mono text-[10px] text-amber-300">
+                                    <p className="text-xs text-amber-300">
                                       You hold <span className="font-black">{entry.ticker}</span> in your portfolio. Consider reviewing your position size and setting stop-losses before the earnings release.
                                     </p>
                                   </div>
@@ -612,7 +612,7 @@ export default function EarningsCalendar() {
         {/* ── Footer disclaimer ──────────────────────────────────────────────── */}
         <div className="flex items-start gap-3 rounded-xl border border-border/40 bg-card p-4">
           <Info size={13} className="mt-0.5 shrink-0 text-muted-foreground/60" />
-          <p className="font-mono text-[9px] uppercase tracking-wide text-muted-foreground/50">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground/50">
             Earnings dates and estimates are illustrative. Live data sourced from Alpha Vantage free tier when available. Always verify dates with official filings before making trading decisions.
           </p>
         </div>

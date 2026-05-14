@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { streamInvoke } from "@/lib/streamInvoke";
 import { useAuth } from "@/components/AuthProvider";
 import { useDemo } from "@/components/DemoProvider";
 import { sandboxPositions, sandboxSignals, sandboxPortfolio, sandboxMacro } from "@/data/sandboxData";
@@ -15,6 +16,7 @@ import {
   Cpu, Globe, Radar, Briefcase, Map, CalendarDays,
   ArrowRight, CircleDot,
 } from "lucide-react";
+import GoalEngine from "@/components/dashboard/GoalEngine";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -357,19 +359,18 @@ const REGIME_CFG: Record<string, { color: string; bg: string; border: string; ic
   UNKNOWN:  { color: "text-muted-foreground", bg: "bg-muted/20", border: "border-border", icon: Gauge, desc: "Loading market regime..." },
 };
 
-const URGENCY_STYLE: Record<Urgency, { border: string; bg: string; dot: string }> = {
-  critical: { border: "border-bearish/30", bg: "bg-bearish/5",  dot: "bg-bearish" },
-  high:     { border: "border-border",     bg: "bg-card",       dot: "bg-primary" },
-  medium:   { border: "border-border/50",  bg: "bg-card/60",    dot: "bg-muted-foreground/40" },
+const URGENCY_STYLE: Record<Urgency, { border: string; bg: string; dot: string; accent: string }> = {
+  critical: { border: "border-bearish/30", bg: "bg-bearish/5",  dot: "bg-bearish",               accent: "border-l-4 border-l-bearish" },
+  high:     { border: "border-border",     bg: "bg-card",       dot: "bg-primary",                accent: "border-l-4 border-l-primary" },
+  medium:   { border: "border-border/50",  bg: "bg-card/60",    dot: "bg-muted-foreground/40",    accent: "border-l-4 border-l-muted-foreground/30" },
 };
 
-const SIDE_LABEL: Record<Side, { text: string; color: string }> = {
-  do:    { text: "ACT",   color: "text-bullish" },
-  dont:  { text: "AVOID", color: "text-bearish" },
-  watch: { text: "WATCH", color: "text-watch" },
+const SIDE_LABEL: Record<Side, { text: string; color: string; accentOverride?: string }> = {
+  do:    { text: "ACT",   color: "text-bullish", accentOverride: "border-l-bullish" },
+  dont:  { text: "AVOID", color: "text-bearish", accentOverride: "border-l-bearish" },
+  watch: { text: "WATCH", color: "text-watch",   accentOverride: "border-l-watch" },
 };
 
-const AI_ADVISOR_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-advisor`;
 
 // ─── Stat Card ─────────────────────────────────────────────────────────────
 
@@ -383,12 +384,12 @@ function StatCard({
     <div className="rounded-xl border border-border bg-card px-4 py-4 flex flex-col gap-2">
       <div className="flex items-center gap-2">
         <Icon className={`h-3.5 w-3.5 ${accent}`} />
-        <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">{label}</span>
+        <span className="text-xs uppercase tracking-widest text-muted-foreground">{label}</span>
       </div>
       {custom ?? (
         <>
           <div className={`font-display text-[22px] font-extrabold leading-none ${accent}`}>{value}</div>
-          {sub && <div className="font-mono text-[10px] text-muted-foreground">{sub}</div>}
+          {sub && <div className="text-xs text-muted-foreground">{sub}</div>}
         </>
       )}
     </div>
@@ -406,41 +407,41 @@ function DirectiveCard({ item, index }: { item: Directive; index: number }) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.04, duration: 0.3 }}
-      className={`rounded-xl border ${u.border} ${u.bg} p-4 flex flex-col gap-3`}
+      className={`rounded-xl border ${u.border} ${u.bg} border-l-4 ${s.accentOverride ?? u.accent} p-4 flex flex-col gap-3 overflow-hidden`}
     >
       {/* Top row */}
       <div className="flex items-start gap-3">
         <div className={`mt-1 h-2 w-2 rounded-full shrink-0 ${u.dot}`} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap mb-1">
-            <span className={`font-mono text-[10px] font-black uppercase tracking-[1.5px] ${s.color}`}>
+            <span className={`text-xs font-black uppercase tracking-[1.5px] ${s.color}`}>
               {s.text}
             </span>
             <span className="font-display text-[15px] font-black text-foreground">{item.ticker}</span>
             {item.company && item.company !== item.ticker && (
-              <span className="font-mono text-[10px] text-muted-foreground truncate">{item.company}</span>
+              <span className="text-xs text-muted-foreground truncate">{item.company}</span>
             )}
-            <span className="ml-auto font-mono text-[9px] uppercase tracking-widest text-muted-foreground bg-muted/40 rounded px-1.5 py-0.5 whitespace-nowrap">
+            <span className="ml-auto text-xs uppercase tracking-widest text-muted-foreground bg-muted/40 rounded px-1.5 py-0.5 whitespace-nowrap">
               {item.tag}
             </span>
           </div>
-          <p className="font-mono text-[13px] font-semibold text-foreground leading-snug">{item.command}</p>
+          <p className="text-sm font-semibold text-foreground leading-snug">{item.command}</p>
         </div>
       </div>
 
       {/* Reasoning */}
-      <p className="font-mono text-[11px] leading-relaxed text-muted-foreground pl-5">
+      <p className="text-sm leading-relaxed text-muted-foreground pl-5">
         {item.reasoning}
       </p>
 
       {/* Footer */}
       <div className="flex items-center justify-between pl-5">
         {item.metric && (
-          <span className="font-mono text-[10px] text-muted-foreground/60">{item.metric}</span>
+          <span className="text-xs text-muted-foreground/60">{item.metric}</span>
         )}
         <NavLink
           to={item.link}
-          className="ml-auto flex items-center gap-1.5 font-mono text-[10px] font-semibold text-primary hover:underline whitespace-nowrap"
+          className="ml-auto flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline whitespace-nowrap"
         >
           {item.linkLabel} <ChevronRight className="h-3 w-3" />
         </NavLink>
@@ -557,50 +558,15 @@ Priority issues identified: ${criticalCount} critical action(s) requiring immedi
 
 Write a concise 4-5 sentence session brief that covers: (1) the single most important thing to do right now given the regime and positions, (2) whether to be adding or reducing exposure, (3) which feature or tool in the platform to use first today, and (4) the key risk to watch. Be direct and specific — no hedging, no fluff. Write as a professional, not a chatbot.`;
 
-    try {
-      const resp = await fetch(AI_ADVISOR_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({ messages: [{ role: "user", content: prompt }] }),
-      });
-
-      if (!resp.ok || !resp.body) {
-        setBriefText("Could not reach AI advisor. Check your connection.");
-        setIsBriefing(false);
-        return;
+    await streamInvoke(
+      "ai-advisor",
+      { messages: [{ role: "user", content: prompt }] },
+      {
+        onDelta: (delta) => setBriefText((prev) => prev + delta),
+        onDone: () => setIsBriefing(false),
+        onError: (msg) => { setBriefText(msg); setIsBriefing(false); },
       }
-
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-      let done = false;
-
-      while (!done) {
-        const { done: readerDone, value } = await reader.read();
-        if (readerDone) break;
-        buffer += decoder.decode(value, { stream: true });
-        let idx: number;
-        while ((idx = buffer.indexOf("\n")) !== -1) {
-          const line = buffer.slice(0, idx).trim();
-          buffer = buffer.slice(idx + 1);
-          if (!line.startsWith("data: ")) continue;
-          const payload = line.slice(6);
-          if (payload === "[DONE]") { done = true; break; }
-          try {
-            const { choices } = JSON.parse(payload);
-            const delta = choices?.[0]?.delta?.content;
-            if (delta) setBriefText((prev) => prev + delta);
-          } catch { /* skip */ }
-        }
-      }
-    } catch {
-      setBriefText("Brief generation failed. Please try again.");
-    } finally {
-      setIsBriefing(false);
-    }
+    );
   };
 
   return (
@@ -615,20 +581,20 @@ Write a concise 4-5 sentence session brief that covers: (1) the single most impo
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-bullish opacity-60" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-bullish" />
               </span>
-              <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Live intelligence feed</span>
+              <span className="text-xs uppercase tracking-widest text-muted-foreground">Live intelligence feed</span>
             </div>
             <h1 className="font-display text-[28px] font-extrabold leading-none tracking-tight">
               Decision <span className="text-primary">Hub</span>
             </h1>
-            <p className="mt-1 font-mono text-[11px] text-muted-foreground">
-              // Every decision you need to make today — ranked by urgency, backed by context.
+            <p className="mt-1 text-sm text-muted-foreground">
+              Every decision you need to make today — ranked by urgency, backed by context.
             </p>
           </div>
 
           <button
             onClick={generateBrief}
             disabled={isBriefing}
-            className={`flex items-center gap-2 rounded-xl border px-4 py-3 font-mono text-[11px] font-semibold uppercase tracking-wider transition-all ${
+            className={`flex items-center gap-2 rounded-xl border px-4 py-3 text-sm font-semibold uppercase tracking-wider transition-all ${
               isBriefing
                 ? "border-primary/30 bg-primary/5 text-primary/60 cursor-not-allowed"
                 : "border-primary/40 bg-primary/8 text-primary hover:bg-primary/15 hover:border-primary/60"
@@ -639,6 +605,9 @@ Write a concise 4-5 sentence session brief that covers: (1) the single most impo
               : <><Sparkles className="h-3.5 w-3.5" /> {briefGenerated ? "Regenerate Brief" : "Generate Session Brief"}</>}
           </button>
         </div>
+
+        {/* ── Goal Engine ────────────────────────────────────────────────── */}
+        <GoalEngine currentCapital={portfolio?.total_capital ?? 0} />
 
         {/* ── Stat Cards ─────────────────────────────────────────────────── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -651,9 +620,9 @@ Write a concise 4-5 sentence session brief that covers: (1) the single most impo
             custom={
               <div className="flex flex-col gap-1">
                 <div className={`font-display text-[20px] font-extrabold leading-none ${regimeCfg.color}`}>{regime}</div>
-                <div className="font-mono text-[9px] text-muted-foreground leading-snug">{regimeCfg.desc}</div>
+                <div className="text-xs text-muted-foreground leading-snug">{regimeCfg.desc}</div>
                 {macroData?.vix && (
-                  <div className="font-mono text-[9px] text-muted-foreground">VIX: {macroData.vix.value}</div>
+                  <div className="text-xs text-muted-foreground">VIX: {macroData.vix.value}</div>
                 )}
               </div>
             }
@@ -692,14 +661,14 @@ Write a concise 4-5 sentence session brief that covers: (1) the single most impo
             >
               <AlertTriangle className="h-5 w-5 shrink-0 text-bearish" />
               <div className="flex-1 min-w-0">
-                <p className="font-mono text-[10px] uppercase tracking-widest text-bearish/70 mb-0.5">Most Urgent Right Now</p>
-                <p className="font-mono text-[13px] font-bold text-foreground">
+                <p className="text-xs uppercase tracking-widest text-bearish/70 mb-0.5">Most Urgent Right Now</p>
+                <p className="text-sm font-bold text-foreground">
                   <span className="text-bearish">{topCritical.ticker}</span> — {topCritical.command}
                 </p>
               </div>
               <NavLink
                 to={topCritical.link}
-                className="shrink-0 flex items-center gap-1.5 rounded-lg border border-bearish/30 bg-bearish/15 px-3 py-2 font-mono text-[10px] font-semibold text-bearish hover:bg-bearish/25 transition-colors whitespace-nowrap"
+                className="shrink-0 flex items-center gap-1.5 rounded-lg border border-bearish/30 bg-bearish/15 px-3 py-2 text-xs font-semibold text-bearish hover:bg-bearish/25 transition-colors whitespace-nowrap"
               >
                 {topCritical.linkLabel} <ArrowRight className="h-3 w-3" />
               </NavLink>
@@ -720,11 +689,11 @@ Write a concise 4-5 sentence session brief that covers: (1) the single most impo
               <div className="rounded-xl border border-primary/20 bg-primary/5 p-5 flex flex-col gap-3">
                 <div className="flex items-center gap-2">
                   <Brain className="h-3.5 w-3.5 text-primary" />
-                  <span className="font-mono text-[10px] uppercase tracking-[1px] text-primary">AI Session Brief</span>
+                  <span className="text-xs uppercase tracking-[1px] text-primary">AI Session Brief</span>
                   {isBriefing && <Loader2 className="h-3 w-3 animate-spin text-muted-foreground ml-auto" />}
                 </div>
                 {briefText ? (
-                  <p className="font-mono text-[12px] leading-relaxed text-foreground">{briefText}</p>
+                  <p className="text-sm leading-relaxed text-foreground">{briefText}</p>
                 ) : (
                   <div className="flex gap-1">
                     {[0, 1, 2].map((i) => (
@@ -747,18 +716,18 @@ Write a concise 4-5 sentence session brief that covers: (1) the single most impo
           <div className="flex items-center gap-3">
             <CircleDot className="h-4 w-4 text-primary" />
             <h2 className="font-display text-[15px] font-extrabold uppercase tracking-tight text-foreground">Priority Actions</h2>
-            <span className="font-mono text-[10px] text-muted-foreground">{directives.length} total</span>
+            <span className="text-xs text-muted-foreground">{directives.length} total</span>
             <div className="ml-auto flex items-center gap-3">
-              <span className="font-mono text-[9px] text-bullish">● DO ({doItems.length})</span>
-              <span className="font-mono text-[9px] text-bearish">● AVOID ({dontItems.length})</span>
-              <span className="font-mono text-[9px] text-watch">● WATCH ({watchItems.length})</span>
+              <span className="text-xs text-bullish">● DO ({doItems.length})</span>
+              <span className="text-xs text-bearish">● AVOID ({dontItems.length})</span>
+              <span className="text-xs text-watch">● WATCH ({watchItems.length})</span>
             </div>
           </div>
 
           {directives.length === 0 ? (
             <div className="flex items-center gap-3 rounded-xl border border-dashed border-border/40 px-5 py-8 justify-center">
               <CheckCircle2 className="h-4 w-4 text-bullish" />
-              <p className="font-mono text-[11px] text-muted-foreground">No actions required. Portfolio and signals are clean.</p>
+              <p className="text-sm text-muted-foreground">No actions required. Portfolio and signals are clean.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
@@ -776,7 +745,7 @@ Write a concise 4-5 sentence session brief that covers: (1) the single most impo
               <DollarSign className="h-4 w-4 text-primary" />
               <h2 className="font-display text-[15px] font-extrabold uppercase tracking-tight text-foreground">Capital Deployment</h2>
               {portfolio && (
-                <span className="font-mono text-[10px] text-muted-foreground">
+                <span className="text-xs text-muted-foreground">
                   ${portfolio.available_capital.toLocaleString()} available · {regime} regime
                 </span>
               )}
@@ -797,12 +766,12 @@ Write a concise 4-5 sentence session brief that covers: (1) the single most impo
                       <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
                         <Icon className="h-3.5 w-3.5 text-primary" />
                       </div>
-                      <span className="font-mono text-[12px] font-bold text-foreground">{opt.title}</span>
+                      <span className="text-sm font-bold text-foreground">{opt.title}</span>
                     </div>
-                    <p className="font-mono text-[10px] leading-relaxed text-muted-foreground flex-1">{opt.detail}</p>
+                    <p className="text-xs leading-relaxed text-muted-foreground flex-1">{opt.detail}</p>
                     <NavLink
                       to={opt.link}
-                      className="flex items-center gap-1 font-mono text-[10px] font-semibold text-primary hover:underline"
+                      className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
                     >
                       Go there <ChevronRight className="h-3 w-3" />
                     </NavLink>
@@ -818,7 +787,7 @@ Write a concise 4-5 sentence session brief that covers: (1) the single most impo
           <div className="flex items-center gap-3">
             <Sparkles className="h-4 w-4 text-primary" />
             <h2 className="font-display text-[15px] font-extrabold uppercase tracking-tight text-foreground">Tools For Today</h2>
-            <span className="font-mono text-[10px] text-muted-foreground">Based on {regime} regime + your portfolio</span>
+            <span className="text-xs text-muted-foreground">Based on {regime} regime + your portfolio</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -839,8 +808,8 @@ Write a concise 4-5 sentence session brief that covers: (1) the single most impo
                       <Icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-mono text-[12px] font-bold text-foreground group-hover:text-primary transition-colors">{rec.label}</p>
-                      <p className="font-mono text-[10px] leading-relaxed text-muted-foreground mt-0.5">{rec.reason}</p>
+                      <p className="text-sm font-bold text-foreground group-hover:text-primary transition-colors">{rec.label}</p>
+                      <p className="text-xs leading-relaxed text-muted-foreground mt-0.5">{rec.reason}</p>
                     </div>
                     <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/40 group-hover:text-primary transition-colors shrink-0 mt-0.5" />
                   </NavLink>

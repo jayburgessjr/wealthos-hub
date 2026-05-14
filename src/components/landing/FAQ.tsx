@@ -4,27 +4,68 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { motion } from "framer-motion";
 
 const faqs = [
   {
+    question: "What is WealthOS and who is it for?",
+    answer:
+      "WealthOS is a personal hedge fund operating system for sophisticated individual investors. It gives you the same decision infrastructure that institutional traders use — signals, risk controls, AI advisors, allocation modeling — without needing a Bloomberg terminal or a prop desk. It's built for investors who want to run their capital with intention, not guesswork.",
+  },
+  {
     question: "How do the AI signals work?",
-    answer: "The signal engine combines market data, sentiment, and technical context to produce scored ideas with suggested actions, entries, targets, stops, and sizing context. It is designed to support decisions, not to remove judgment.",
+    answer:
+      "The signal engine combines market data, sentiment, technical context, and regime analysis to produce scored trade ideas with suggested actions, entries, targets, stops, and sizing context. Signals are ranked by urgency and filtered to your watchlist and portfolio. It's designed to support your decisions — not replace your judgment.",
+  },
+  {
+    question: "What is the Decision Hub?",
+    answer:
+      "The Decision Hub is your daily command center. It shows every decision you need to make today, ranked by urgency: what to enter, what to exit, what to watch, how to deploy capital, and which strategies to run given the current market regime. It's the first page you open, every session.",
   },
   {
     question: "What is the Compound Engine?",
-    answer: "The Compound Engine is a planning tool for modeling long-term wealth growth. It accounts for contributions, reinvestment, and strategy assumptions so you can pressure-test portfolio policy before changing how you deploy capital.",
+    answer:
+      "The Compound Engine is a long-term capital planning tool. You set a starting balance, contribution schedule, return assumption, and target number — it models how consistent execution compounds into 7-figure outcomes. Pressure-test your portfolio policy before you change how you deploy capital.",
   },
   {
-    question: "Is my data secure?",
-    answer: "Yes. We use secure authentication and storage via Supabase. WealthOS is a decision and analysis layer, not a broker, and it does not require direct custody of your assets to deliver portfolio intelligence.",
+    question: "What markets and asset classes are supported?",
+    answer:
+      "Stocks, ETFs, options, crypto, forex, commodities, fixed income, Kalshi prediction contracts, Polymarket, sports betting EV analysis, lottery EV, real estate holdings, and cash — all tracked in one place. 10+ asset classes across 15+ data sources.",
   },
   {
-    question: "What does WealthOS actually help me decide?",
-    answer: "The current product is built around entry, exit, sizing, risk, and portfolio management. It helps you review opportunities, open and close tracked positions, compare allocations, understand market regime, and evaluate performance over time.",
+    question: "What are prediction markets and why are they on a financial platform?",
+    answer:
+      "Prediction markets like Kalshi and Polymarket price the probability of real-world events — Fed rate decisions, election outcomes, economic data releases. Those probabilities are directly relevant to how you position your portfolio. WealthOS integrates them so your trading thesis and your macro bets are informed by the same probability data.",
   },
   {
-    question: "Do I need trading experience?",
-    answer: "Basic market familiarity helps. WealthOS is not an autopilot hedge fund manager; it is a decision-intelligence layer that helps you think more clearly about what to buy, sell, hold, size, and monitor.",
+    question: "Can I input my real portfolio from other brokers?",
+    answer:
+      "Yes. The My Portfolio page lets you manually input all your real holdings — stocks, crypto, options, real estate, Kalshi contracts, bonds, cash — across any broker or exchange. Once entered, WealthOS uses that data to personalize every signal, risk calculation, and allocation recommendation to your actual positions.",
+  },
+  {
+    question: "Is my financial data secure?",
+    answer:
+      "Yes. All data is stored securely via Supabase with Row Level Security — your holdings, portfolio, and decisions are only accessible to your authenticated account. WealthOS is a decision and analysis layer, not a broker. We do not connect to or have access to your brokerage accounts.",
+  },
+  {
+    question: "What is the AI Financial Advisor?",
+    answer:
+      "The AI Financial Advisor is a sophisticated AI model trained on financial strategy, portfolio theory, risk management, and market psychology. You can ask it anything — position sizing for a specific setup, whether a trade aligns with your mission, how to structure a hedge, what historical data says about a pattern. It responds with your full portfolio context in mind.",
+  },
+  {
+    question: "Do I need trading experience to use WealthOS?",
+    answer:
+      "Basic market familiarity helps. WealthOS is not an autopilot system — it's a decision-intelligence layer that helps you think more clearly about what to buy, sell, hold, size, and monitor. The more context you bring, the more valuable the platform becomes.",
+  },
+  {
+    question: "What's included in the Weekly Briefing?",
+    answer:
+      "The Weekly Briefing is an AI-generated intelligence report covering market regime, top signals, macro events to watch, insider activity trends, and your portfolio's current risk exposure — delivered fresh each week so you start every trading week with full situational awareness.",
+  },
+  {
+    question: "Can I try it before paying?",
+    answer:
+      "Yes. The Free tier includes portfolio tracking, live charts, basic watchlist, performance metrics, and holdings input at no cost, with no credit card required. The Live Demo button on the landing page also lets you explore the full interface with demo data before creating an account.",
   },
 ];
 
@@ -32,28 +73,47 @@ export default function FAQ() {
   return (
     <section id="faq" className="py-20 md:py-32">
       <div className="container px-4">
-        <div className="mx-auto max-w-3xl">
-          <div className="mb-12 text-center">
+        <div className="mx-auto max-w-4xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-14 text-center"
+          >
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
+              Got Questions?
+            </div>
             <h2 className="font-display text-3xl font-bold tracking-tight sm:text-5xl">
-              Frequently Asked Questions
+              Frequently Asked <span className="text-primary">Questions</span>
             </h2>
-            <p className="mt-4 text-muted-foreground">
-              What the product does today, and how to think about it accurately.
+            <p className="mt-4 text-muted-foreground text-lg">
+              What the platform does, how it works, and what to expect.
             </p>
-          </div>
-          
-          <Accordion type="single" collapsible className="w-full">
-            {faqs.map((faq, i) => (
-              <AccordionItem key={i} value={`item-${i}`} className="border-border/50">
-                <AccordionTrigger className="font-display text-left text-lg font-bold py-6 hover:text-primary transition-colors">
-                  {faq.question}
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground text-base pb-6 leading-relaxed">
-                  {faq.answer}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+          >
+            <Accordion type="single" collapsible className="w-full space-y-2">
+              {faqs.map((faq, i) => (
+                <AccordionItem
+                  key={i}
+                  value={`item-${i}`}
+                  className="rounded-xl border border-border/50 bg-card px-6 data-[state=open]:border-primary/30 data-[state=open]:bg-primary/5 transition-colors"
+                >
+                  <AccordionTrigger className="font-display text-left text-base font-bold py-5 hover:text-primary transition-colors hover:no-underline">
+                    {faq.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground text-sm pb-5 leading-relaxed">
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </motion.div>
         </div>
       </div>
     </section>

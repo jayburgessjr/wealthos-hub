@@ -96,7 +96,7 @@ export default function AllocationDonut() {
     <div className="rounded-lg border border-border bg-card p-4">
       <div className="mb-3 flex items-center justify-between">
         <h3 className="font-display text-sm font-semibold text-foreground">Portfolio Allocation</h3>
-        <Link to="/positions" className="flex items-center gap-1 font-mono text-[10px] text-muted-foreground hover:text-foreground transition-colors">
+        <Link to="/positions" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
           View all <ArrowRight size={10} />
         </Link>
       </div>
@@ -107,8 +107,8 @@ export default function AllocationDonut() {
         </div>
       ) : positions.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-40 gap-2">
-          <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground/50">No open positions</p>
-          <Link to="/signals" className="font-mono text-[10px] text-primary hover:underline">Browse signals →</Link>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground/50">No open positions</p>
+          <Link to="/signals" className="text-xs text-primary hover:underline">Browse signals →</Link>
         </div>
       ) : (
         <>
@@ -135,11 +135,10 @@ export default function AllocationDonut() {
             {/* Center label */}
             {topClass && (
               <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">Top</p>
-                <p className="font-display text-sm font-black text-foreground" style={{ color: topClass.color }}>
-                  {topClass.label}
+                <p className="font-display text-2xl font-black" style={{ color: topClass.color }}>
+                  {topClass.pct.toFixed(0)}%
                 </p>
-                <p className="font-mono text-xs text-muted-foreground">{topClass.pct.toFixed(0)}%</p>
+                <p className="font-mono text-xs font-semibold text-muted-foreground">{topClass.label}</p>
               </div>
             )}
           </div>

@@ -2,14 +2,22 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
-import { Rocket, Mail, Lock, Eye, EyeOff, User, ArrowRight, Loader2, CheckCircle2 } from "lucide-react";
+import { Rocket, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, CheckCircle2, TrendingUp, Shield, Brain } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+
+const HERO_IMAGE = "https://images.pexels.com/photos/16594724/pexels-photo-16594724.jpeg";
 
 const passwordRequirements = [
   { label: "At least 8 characters", test: (p: string) => p.length >= 8 },
   { label: "Contains a number", test: (p: string) => /\d/.test(p) },
   { label: "Contains a letter", test: (p: string) => /[a-zA-Z]/.test(p) },
+];
+
+const features = [
+  { icon: TrendingUp, text: "AI-ranked signals across 10+ asset classes" },
+  { icon: Brain, text: "Two AI advisors with full portfolio context" },
+  { icon: Shield, text: "Institutional-grade risk controls built in" },
 ];
 
 export default function Signup() {
@@ -45,65 +53,147 @@ export default function Signup() {
     }
   };
 
+  // ── Verify step ──────────────────────────────────────────────────────────────
   if (verifyStep) {
     return (
-      <div className="relative flex min-h-screen flex-col items-center justify-center bg-background px-4 text-foreground">
-        <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-          <div className="absolute left-1/2 top-0 h-[700px] w-[700px] -translate-x-1/2 -translate-y-1/3 rounded-full bg-primary/8 blur-[120px]" />
-        </div>
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.4 }}
-          className="w-full max-w-md text-center"
-        >
-          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-bullish/10">
-            <CheckCircle2 className="h-10 w-10 text-bullish" />
-          </div>
-          <h1 className="font-display text-3xl font-bold">Check your email</h1>
-          <p className="mt-3 text-muted-foreground">
-            We sent a confirmation link to{" "}
-            <span className="font-semibold text-foreground">{email}</span>.
-            Click it to verify your account and get started.
-          </p>
-          <p className="mt-6 text-sm text-muted-foreground">
-            Already verified?{" "}
-            <Link to="/login" className="font-semibold text-primary hover:underline">
-              Sign in
+      <div className="flex min-h-screen bg-background text-foreground">
+        <div className="relative hidden w-1/2 lg:block">
+          <img src={HERO_IMAGE} alt="WealthOS" className="absolute inset-0 h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-background/70" />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent to-background/40" />
+          <div className="relative flex h-full items-center p-12">
+            <Link to="/" className="absolute top-12 flex items-center gap-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary">
+                <Rocket className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <span className="font-display text-2xl font-bold tracking-tight text-foreground">
+                WealthOS<span className="text-primary">.</span>
+              </span>
             </Link>
-          </p>
-        </motion.div>
+          </div>
+        </div>
+
+        <div className="flex w-full flex-col items-center justify-center px-6 lg:w-1/2">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4 }}
+            className="w-full max-w-md text-center"
+          >
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
+              <CheckCircle2 className="h-10 w-10 text-primary" />
+            </div>
+            <h1 className="font-display text-3xl font-bold">Check your email</h1>
+            <p className="mt-3 text-muted-foreground">
+              We sent a confirmation link to{" "}
+              <span className="font-semibold text-foreground">{email}</span>.
+              Click it to verify your account and get started.
+            </p>
+            <p className="mt-8 text-sm text-muted-foreground">
+              Already verified?{" "}
+              <Link to="/login" className="font-semibold text-primary hover:underline">
+                Sign in
+              </Link>
+            </p>
+          </motion.div>
+        </div>
       </div>
     );
   }
 
+  // ── Main signup ──────────────────────────────────────────────────────────────
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12 text-foreground">
-      {/* Background glow */}
-      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute left-1/2 top-0 h-[700px] w-[700px] -translate-x-1/2 -translate-y-1/3 rounded-full bg-primary/8 blur-[120px]" />
+    <div className="flex min-h-screen bg-background text-foreground">
+
+      {/* ── Left panel — image ─────────────────────────────────────── */}
+      <div className="relative hidden w-1/2 lg:block">
+        <img
+          src={HERO_IMAGE}
+          alt="WealthOS"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-background/70" />
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-background/40" />
+
+        <div className="relative flex h-full flex-col p-12">
+          {/* Logo — top */}
+          <Link to="/" className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary">
+              <Rocket className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <span className="font-display text-2xl font-bold tracking-tight text-foreground">
+              WealthOS<span className="text-primary">.</span>
+            </span>
+          </Link>
+
+          {/* Center copy — vertically centered */}
+          <div className="flex flex-1 items-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-primary">
+                Start Free Today
+              </p>
+              <h2 className="font-display text-5xl font-bold leading-tight text-foreground">
+                Run your capital<br />
+                like a hedge fund.<br />
+                <span className="text-primary">Without the fees.</span>
+              </h2>
+
+              <div className="mt-10 space-y-5">
+                {features.map(({ icon: Icon, text }, i) => (
+                  <motion.div
+                    key={text}
+                    initial={{ opacity: 0, x: -16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.4, delay: 0.4 + i * 0.1 }}
+                    className="flex items-center gap-4"
+                  >
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/20">
+                      <Icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <span className="text-base text-foreground/80">{text}</span>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Quote — bottom */}
+          <div className="rounded-2xl border border-border/40 bg-card/60 p-5 backdrop-blur-sm">
+            <p className="text-sm text-foreground/80 leading-relaxed">
+              "The goal isn't to predict the market. It's to have better decision infrastructure than everyone else."
+            </p>
+            <p className="mt-2 text-xs font-semibold text-primary">— WealthOS Philosophy</p>
+          </div>
+        </div>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="w-full max-w-md"
-      >
-        {/* Logo */}
-        <Link to="/" className="mb-10 flex items-center justify-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary">
-            <Rocket className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <span className="font-display text-2xl font-bold tracking-tight">
-            WealthOS<span className="text-primary">.</span>
-          </span>
-        </Link>
+      {/* ── Right panel — form ─────────────────────────────────────── */}
+      <div className="flex w-full flex-col items-center justify-center px-6 py-12 lg:w-1/2">
+        {/* Mobile logo */}
+        <div className="mb-10 lg:hidden">
+          <Link to="/" className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary">
+              <Rocket className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <span className="font-display text-2xl font-bold tracking-tight">
+              WealthOS<span className="text-primary">.</span>
+            </span>
+          </Link>
+        </div>
 
-        <div className="rounded-2xl border border-border bg-card p-8 shadow-2xl shadow-black/30">
-          <div className="mb-8 text-center">
-            <h1 className="font-display text-2xl font-bold">Create your account</h1>
-            <p className="mt-1.5 text-sm text-muted-foreground">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="w-full max-w-md"
+        >
+          <div className="mb-8">
+            <h1 className="font-display text-3xl font-bold">Create your account</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
               Start running your portfolio with decision intelligence
             </p>
           </div>
@@ -122,7 +212,7 @@ export default function Signup() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   required
-                  className="w-full rounded-xl border border-border bg-background py-3 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none transition-colors"
+                  className="w-full rounded-xl border border-border bg-card py-3 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none transition-colors"
                 />
               </div>
             </div>
@@ -140,7 +230,7 @@ export default function Signup() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  className="w-full rounded-xl border border-border bg-background py-3 pl-10 pr-11 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none transition-colors"
+                  className="w-full rounded-xl border border-border bg-card py-3 pl-10 pr-11 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none transition-colors"
                 />
                 <button
                   type="button"
@@ -151,21 +241,12 @@ export default function Signup() {
                 </button>
               </div>
 
-              {/* Password strength hints */}
               {password.length > 0 && (
                 <div className="mt-2 space-y-1">
                   {passwordRequirements.map((req) => (
                     <div key={req.label} className="flex items-center gap-1.5">
-                      <div
-                        className={`h-1.5 w-1.5 rounded-full transition-colors ${
-                          req.test(password) ? "bg-bullish" : "bg-muted-foreground/30"
-                        }`}
-                      />
-                      <span
-                        className={`text-xs transition-colors ${
-                          req.test(password) ? "text-bullish" : "text-muted-foreground/60"
-                        }`}
-                      >
+                      <div className={`h-1.5 w-1.5 rounded-full transition-colors ${req.test(password) ? "bg-primary" : "bg-muted-foreground/30"}`} />
+                      <span className={`text-xs transition-colors ${req.test(password) ? "text-primary" : "text-muted-foreground/60"}`}>
                         {req.label}
                       </span>
                     </div>
@@ -174,7 +255,7 @@ export default function Signup() {
               )}
             </div>
 
-            {/* Confirm Password */}
+            {/* Confirm password */}
             <div className="space-y-1.5">
               <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
                 Confirm Password
@@ -187,10 +268,10 @@ export default function Signup() {
                   onChange={(e) => setConfirm(e.target.value)}
                   placeholder="••••••••"
                   required
-                  className={`w-full rounded-xl border bg-background py-3 pl-10 pr-11 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none transition-colors ${
+                  className={`w-full rounded-xl border bg-card py-3 pl-10 pr-11 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none transition-colors ${
                     confirm.length > 0
                       ? passwordsMatch
-                        ? "border-bullish/50 focus:border-bullish"
+                        ? "border-primary/50 focus:border-primary"
                         : "border-bearish/50 focus:border-bearish"
                       : "border-border focus:border-primary"
                   }`}
@@ -216,32 +297,26 @@ export default function Signup() {
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <>
-                  Create Account <ArrowRight className="ml-2 h-4 w-4" />
-                </>
+                <>Create Account <ArrowRight className="ml-2 h-4 w-4" /></>
               )}
             </Button>
           </form>
 
-          <div className="mt-6 border-t border-border pt-6 text-center text-sm text-muted-foreground">
+          <div className="mt-8 border-t border-border pt-6 text-sm text-muted-foreground">
             Already have an account?{" "}
             <Link to="/login" className="font-semibold text-primary hover:underline">
               Sign in
             </Link>
           </div>
-        </div>
 
-        <p className="mt-6 text-center text-xs text-muted-foreground/60">
-          By creating an account you agree to our{" "}
-          <Link to="/terms" className="transition-colors hover:text-muted-foreground">
-            Terms of Service
-          </Link>
-          {" "}and{" "}
-          <Link to="/privacy" className="transition-colors hover:text-muted-foreground">
-            Privacy Policy
-          </Link>.
-        </p>
-      </motion.div>
+          <p className="mt-6 text-xs text-muted-foreground/60">
+            By creating an account you agree to our{" "}
+            <Link to="/terms" className="hover:text-muted-foreground transition-colors">Terms of Service</Link>
+            {" "}and{" "}
+            <Link to="/privacy" className="hover:text-muted-foreground transition-colors">Privacy Policy</Link>.
+          </p>
+        </motion.div>
+      </div>
     </div>
   );
 }

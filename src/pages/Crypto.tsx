@@ -154,7 +154,7 @@ export default function Crypto() {
           <div>
             <div className="mb-1 flex items-center gap-2">
               <Globe size={12} className="text-muted-foreground" />
-              <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Digital Assets</span>
+              <span className="text-xs uppercase tracking-widest text-muted-foreground">Digital Assets</span>
             </div>
             <h2 className="font-display text-3xl font-black tracking-tight">Crypto Markets</h2>
             <p className="mt-1 text-sm text-muted-foreground">Live prices, market cap, and 7-day performance.</p>
@@ -171,7 +171,7 @@ export default function Crypto() {
               <div key={stat.label} className="flex items-center gap-2.5 rounded-xl border border-border bg-card px-4 py-2.5">
                 <stat.icon size={13} className={stat.color} />
                 <div>
-                  <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">{stat.label}</p>
+                  <p className="text-xs uppercase tracking-widest text-muted-foreground">{stat.label}</p>
                   <p className={`font-mono text-sm font-black ${stat.color}`}>{value(stat.value)}</p>
                 </div>
               </div>
@@ -228,7 +228,7 @@ export default function Crypto() {
             <thead>
               <tr className="border-b border-border text-muted-foreground">
                 {["#", "Asset", "Price", "24h", "7d", "Market Cap", "Volume (24h)", "ATH %", "7-Day"].map(h => (
-                  <th key={h} className="px-4 py-3 font-mono text-[10px] font-medium uppercase tracking-wider">{h}</th>
+                  <th key={h} className="px-4 py-3 text-xs font-medium uppercase tracking-wider">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -261,7 +261,7 @@ export default function Crypto() {
                             <img src={coin.image} alt={coin.name} className="h-7 w-7 rounded-full" />
                             <div>
                               <p className="font-display text-sm font-bold text-foreground">{coin.name}</p>
-                              <p className="font-mono text-[10px] uppercase text-muted-foreground">{coin.symbol}</p>
+                              <p className="text-xs uppercase text-muted-foreground">{coin.symbol}</p>
                             </div>
                           </div>
                         </td>
@@ -297,7 +297,7 @@ export default function Crypto() {
         </div>
 
         {/* ── Footer note ── */}
-        <p className="text-center font-mono text-[10px] text-muted-foreground/40 uppercase tracking-widest">
+        <p className="text-center text-xs text-muted-foreground/40 uppercase tracking-widest">
           Data from CoinGecko · refreshes every 60 seconds · prices in USD
         </p>
       </div>

@@ -72,9 +72,9 @@ function AllocationDonut({ slices }: { slices: { pct: number; color: string; lab
 function MetricCard({ label, value, sub, color }: { label: string; value: string; sub?: string; color?: string }) {
   return (
     <div className="rounded-xl border border-border bg-card p-4">
-      <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">{label}</p>
+      <p className="text-xs uppercase tracking-widest text-muted-foreground">{label}</p>
       <p className={`font-mono text-xl font-black mt-1 ${color ?? "text-foreground"}`}>{value}</p>
-      {sub && <p className="font-mono text-[9px] text-muted-foreground/60 mt-0.5">{sub}</p>}
+      {sub && <p className="text-xs text-muted-foreground/60 mt-0.5">{sub}</p>}
     </div>
   );
 }
@@ -193,7 +193,7 @@ export default function Quantum() {
           <div>
             <div className="mb-1 flex items-center gap-2">
               <Cpu size={12} className="text-muted-foreground" />
-              <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Portfolio Optimisation</span>
+              <span className="text-xs uppercase tracking-widest text-muted-foreground">Portfolio Optimisation</span>
             </div>
             <h2 className="font-display text-3xl font-black tracking-tight">Quantum Decision Engine</h2>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -201,7 +201,7 @@ export default function Quantum() {
             </p>
           </div>
           <div className="rounded-xl border border-primary/20 bg-primary/5 px-3 py-1.5">
-            <span className="font-mono text-[9px] font-bold uppercase tracking-widest text-primary">QE v2.1</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-primary">QE v2.1</span>
           </div>
         </div>
 
@@ -217,7 +217,7 @@ export default function Quantum() {
               </h3>
 
               <div>
-                <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Capital ($)</label>
+                <label className="text-xs uppercase tracking-widest text-muted-foreground">Capital ($)</label>
                 <div className="mt-1.5 flex items-center gap-2 rounded-xl border border-border bg-background px-4 py-3">
                   <span className="font-mono text-sm text-muted-foreground">$</span>
                   <input
@@ -233,7 +233,7 @@ export default function Quantum() {
 
               <div>
                 <div className="flex items-center justify-between">
-                  <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Risk Tolerance</label>
+                  <label className="text-xs uppercase tracking-widest text-muted-foreground">Risk Tolerance</label>
                   <span className={`font-mono text-xs font-black ${riskColor(riskTolerance)}`}>
                     {riskTolerance}/10 — {riskLabel(riskTolerance)}
                   </span>
@@ -245,14 +245,14 @@ export default function Quantum() {
                   className="mt-2 w-full accent-current"
                   style={{ accentColor: riskTolerance <= 4 ? "#00cc73" : riskTolerance <= 6 ? "#F59E0B" : "#ef4444" }}
                 />
-                <div className="mt-1 flex justify-between font-mono text-[8px] text-muted-foreground/50">
+                <div className="mt-1 flex justify-between text-xs text-muted-foreground/50">
                   <span>Min Risk</span><span>Balanced</span><span>Max Risk</span>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">MC Paths</label>
+                  <label className="text-xs uppercase tracking-widest text-muted-foreground">MC Paths</label>
                   <select
                     value={mcRuns}
                     onChange={e => setMcRuns(Number(e.target.value))}
@@ -262,7 +262,7 @@ export default function Quantum() {
                   </select>
                 </div>
                 <div>
-                  <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">SA Iterations</label>
+                  <label className="text-xs uppercase tracking-widest text-muted-foreground">SA Iterations</label>
                   <select
                     value={saIter}
                     onChange={e => setSaIter(Number(e.target.value))}
@@ -382,7 +382,7 @@ export default function Quantum() {
                         className="max-h-48 overflow-y-auto p-4 space-y-0.5"
                       >
                         {logLines.map((line, i) => (
-                          <p key={i} className={`font-mono text-[10px] ${
+                          <p key={i} className={`text-xs ${
                             line.startsWith("[QE]") ? "text-primary" :
                             line.startsWith("[MC]") ? "text-watch" :
                             line.startsWith("[SA]") ? "text-bullish" :
@@ -391,7 +391,7 @@ export default function Quantum() {
                           }`}>{line}</p>
                         ))}
                         {running && (
-                          <p className="font-mono text-[10px] text-muted-foreground animate-pulse">…</p>
+                          <p className="text-xs text-muted-foreground animate-pulse">…</p>
                         )}
                       </div>
                     </motion.div>
@@ -466,7 +466,7 @@ export default function Quantum() {
                   <div className="rounded-2xl border border-primary/20 bg-primary/5 p-5">
                     <div className="flex items-center gap-2 mb-2">
                       <Zap size={13} className="text-primary" />
-                      <span className="font-mono text-[10px] uppercase tracking-widest text-primary font-bold">Agent Summary</span>
+                      <span className="text-xs uppercase tracking-widest text-primary font-bold">Agent Summary</span>
                     </div>
                     <p className="text-sm text-foreground leading-relaxed">{result.agentSummary}</p>
                   </div>
@@ -479,7 +479,7 @@ export default function Quantum() {
                       </h3>
                       <button
                         onClick={run}
-                        className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 font-mono text-[10px] font-bold text-muted-foreground transition-colors hover:text-foreground"
+                        className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-bold text-muted-foreground transition-colors hover:text-foreground"
                       >
                         <RefreshCw size={10} /> Re-run
                       </button>
@@ -514,7 +514,7 @@ export default function Quantum() {
                               <span className="font-mono text-xs font-black w-12 text-right" style={{ color }}>
                                 {slice.percentage.toFixed(1)}%
                               </span>
-                              <span className="font-mono text-[10px] text-muted-foreground w-20 text-right">
+                              <span className="text-xs text-muted-foreground w-20 text-right">
                                 ${slice.dollarAmount.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                               </span>
                             </motion.div>
@@ -530,7 +530,7 @@ export default function Quantum() {
                       <thead>
                         <tr className="border-b border-border">
                           {["Asset", "Class", "Weight", "$ Amount", "24h Chg", "Reasoning"].map(h => (
-                            <th key={h} className="px-4 py-3 font-mono text-[9px] uppercase tracking-widest text-muted-foreground">{h}</th>
+                            <th key={h} className="px-4 py-3 text-xs uppercase tracking-widest text-muted-foreground">{h}</th>
                           ))}
                         </tr>
                       </thead>
@@ -549,7 +549,7 @@ export default function Quantum() {
                             >
                               <td className="px-4 py-3 font-mono text-sm font-black text-foreground">{slice.symbol}</td>
                               <td className="px-4 py-3">
-                                <span className="rounded-full px-2 py-0.5 font-mono text-[9px] font-bold capitalize"
+                                <span className="rounded-full px-2 py-0.5 text-xs font-bold capitalize"
                                   style={{ color, background: `${color}18` }}>{slice.assetClass}</span>
                               </td>
                               <td className="px-4 py-3 font-mono text-sm font-black" style={{ color }}>
@@ -564,7 +564,7 @@ export default function Quantum() {
                                   {chg >= 0 ? "+" : ""}{chg.toFixed(2)}%
                                 </span>
                               </td>
-                              <td className="px-4 py-3 font-mono text-[10px] text-muted-foreground max-w-xs">{slice.reasoning}</td>
+                              <td className="px-4 py-3 text-xs text-muted-foreground max-w-xs">{slice.reasoning}</td>
                             </motion.tr>
                           );
                         })}
@@ -575,7 +575,7 @@ export default function Quantum() {
                   {/* Disclaimer */}
                   <div className="flex items-start gap-3 rounded-xl border border-border bg-accent/20 p-4">
                     <AlertCircle size={13} className="mt-0.5 shrink-0 text-muted-foreground" />
-                    <p className="font-mono text-[9px] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       Quantum engine uses Monte Carlo simulation and Simulated Annealing — classical algorithms, not real quantum computing.
                       Volatility is inferred from 24h price change. Feed in real historical return data for production-grade results.
                       This is not financial advice.

@@ -62,7 +62,7 @@ function riskLevel(pct: number): { label: string; color: string; icon: React.Rea
 function FormRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="font-mono text-[10px] uppercase tracking-[1px] text-muted-foreground">{label}</label>
+      <label className="text-xs uppercase tracking-[1px] text-muted-foreground">{label}</label>
       {children}
     </div>
   );
@@ -124,7 +124,7 @@ function SliderInput({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
-        <span className="font-mono text-[10px] uppercase tracking-[1px] text-muted-foreground">{label}</span>
+        <span className="text-xs uppercase tracking-[1px] text-muted-foreground">{label}</span>
         <span className="font-mono text-sm font-semibold text-primary">{value}%</span>
       </div>
       <input
@@ -136,7 +136,7 @@ function SliderInput({
         onChange={(e) => onChange(+e.target.value)}
         className="h-1 w-full cursor-pointer appearance-none rounded-full bg-border accent-primary [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:shadow-[0_0_8px_hsl(217_91%_60%/0.25)]"
       />
-      <div className="flex justify-between font-mono text-[9px] text-muted-foreground">
+      <div className="flex justify-between text-xs text-muted-foreground">
         <span>{min}%</span>
         <span>{max}%</span>
       </div>
@@ -174,7 +174,7 @@ function ResultRow({
       key={value}
       className="flex items-center justify-between border-b border-border/40 py-3 last:border-b-0"
     >
-      <span className="font-mono text-[11px] text-muted-foreground">{label}</span>
+      <span className="text-sm text-muted-foreground">{label}</span>
       <span className={`font-mono ${large ? "text-xl font-extrabold" : "text-sm font-semibold"} ${color}`}>
         {value}
       </span>
@@ -192,7 +192,7 @@ function OversizedBanner() {
       className="flex items-center gap-3 rounded-lg border border-bearish/40 bg-bearish/10 px-4 py-3"
     >
       <AlertTriangle className="h-4 w-4 flex-shrink-0 text-bearish" />
-      <span className="font-mono text-[11px] font-semibold uppercase tracking-wide text-bearish">
+      <span className="text-sm font-semibold uppercase tracking-wide text-bearish">
         OVERSIZED — This position exceeds 10% of your account
       </span>
     </motion.div>
@@ -204,7 +204,7 @@ function RiskBadge({ pctOfAccount }: { pctOfAccount: number }) {
   return (
     <div className={`flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-1.5 ${color}`}>
       {icon}
-      <span className="font-mono text-[11px] font-semibold">{label}</span>
+      <span className="text-sm font-semibold">{label}</span>
     </div>
   );
 }
@@ -274,7 +274,7 @@ function RiskBasedMode({ accountSize }: { accountSize: string }) {
       {/* Results */}
       <div className="flex flex-col gap-4 p-5 sm:p-6">
         <div className="flex items-center justify-between">
-          <span className="font-mono text-[10px] uppercase tracking-[1px] text-muted-foreground">Live Results</span>
+          <span className="text-xs uppercase tracking-[1px] text-muted-foreground">Live Results</span>
           {results.posValue > 0 && <RiskBadge pctOfAccount={results.pctOfAcct} />}
         </div>
 
@@ -301,7 +301,7 @@ function RiskBasedMode({ accountSize }: { accountSize: string }) {
         </div>
 
         <div className="mt-auto rounded-lg border border-border bg-card px-4 py-3">
-          <p className="font-mono text-[10px] leading-relaxed text-muted-foreground">
+          <p className="text-xs leading-relaxed text-muted-foreground">
             <span className="text-foreground font-semibold">Formula: </span>
             Risk Amount = Account × Risk% &nbsp;|&nbsp; Shares = Risk Amount ÷ (Entry − Stop)
           </p>
@@ -382,7 +382,7 @@ function KellyMode({ accountSize }: { accountSize: string }) {
       {/* Results */}
       <div className="flex flex-col gap-4 p-5 sm:p-6">
         <div className="flex items-center justify-between">
-          <span className="font-mono text-[10px] uppercase tracking-[1px] text-muted-foreground">Live Results</span>
+          <span className="text-xs uppercase tracking-[1px] text-muted-foreground">Live Results</span>
           {results.halfDollar > 0 && <RiskBadge pctOfAccount={pctOfAcct} />}
         </div>
 
@@ -397,7 +397,7 @@ function KellyMode({ accountSize }: { accountSize: string }) {
         </div>
 
         <div className="mt-auto rounded-lg border border-border bg-card px-4 py-3">
-          <p className="font-mono text-[10px] leading-relaxed text-muted-foreground">
+          <p className="text-xs leading-relaxed text-muted-foreground">
             <span className="text-foreground font-semibold">Formula: </span>
             K% = W − (1−W) / (W/L) &nbsp;|&nbsp; Half Kelly is the practitioner standard for risk-adjusted sizing.
           </p>
@@ -443,13 +443,13 @@ function FixedFractionalMode({ accountSize }: { accountSize: string }) {
         </FormRow>
 
         <div className="flex flex-col gap-2">
-          <label className="font-mono text-[10px] uppercase tracking-[1px] text-muted-foreground">Fraction of Account</label>
+          <label className="text-xs uppercase tracking-[1px] text-muted-foreground">Fraction of Account</label>
           <div className="flex gap-2 flex-wrap">
             {FRACTIONS.map((f) => (
               <button
                 key={f}
                 onClick={() => setFraction(f)}
-                className={`rounded-lg border px-4 py-2 font-mono text-[12px] font-semibold transition-all ${
+                className={`rounded-lg border px-4 py-2 text-sm font-semibold transition-all ${
                   fraction === f
                     ? "border-primary bg-primary/10 text-primary shadow-[0_0_12px_hsl(217_91%_60%/0.2)]"
                     : "border-border text-muted-foreground hover:border-border/80 hover:text-foreground"
@@ -469,7 +469,7 @@ function FixedFractionalMode({ accountSize }: { accountSize: string }) {
       {/* Results */}
       <div className="flex flex-col gap-4 p-5 sm:p-6">
         <div className="flex items-center justify-between">
-          <span className="font-mono text-[10px] uppercase tracking-[1px] text-muted-foreground">Live Results</span>
+          <span className="text-xs uppercase tracking-[1px] text-muted-foreground">Live Results</span>
           {results.dollar > 0 && <RiskBadge pctOfAccount={results.pctOfAcct} />}
         </div>
 
@@ -488,7 +488,7 @@ function FixedFractionalMode({ accountSize }: { accountSize: string }) {
         </div>
 
         <div className="mt-auto rounded-lg border border-border bg-card px-4 py-3">
-          <p className="font-mono text-[10px] leading-relaxed text-muted-foreground">
+          <p className="text-xs leading-relaxed text-muted-foreground">
             <span className="text-foreground font-semibold">Formula: </span>
             Deploy $ = Account × Fraction% &nbsp;|&nbsp; Shares = Deploy $ ÷ Entry Price
           </p>
@@ -543,13 +543,13 @@ export default function PositionSizer() {
             <h1 className="font-display text-xl sm:text-[28px] font-extrabold leading-none tracking-tight">
               Position <span className="text-primary">Sizer</span>
             </h1>
-            <p className="mt-1.5 font-mono text-[11px] sm:text-[13px] text-muted-foreground hidden sm:block">
+            <p className="mt-1.5 text-sm sm:text-[13px] text-muted-foreground hidden sm:block">
               // Size every trade with precision. Risk-defined, math-driven, capital-preserved.
             </p>
           </div>
           <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2">
             <TrendingUp className="h-3.5 w-3.5 text-primary" />
-            <span className="font-mono text-[11px] text-muted-foreground">
+            <span className="text-sm text-muted-foreground">
               {user ? (prefillAccount ? `Account: $${Number(prefillAccount).toLocaleString()}` : "Portfolio loaded") : "Guest mode — enter account size manually"}
             </span>
           </div>
@@ -569,7 +569,7 @@ export default function PositionSizer() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`relative flex-shrink-0 px-5 sm:px-7 py-4 font-mono text-[11px] sm:text-[12px] font-semibold uppercase tracking-[1px] transition-colors ${
+                className={`relative flex-shrink-0 px-5 sm:px-7 py-4 text-sm sm:text-[12px] font-semibold uppercase tracking-[1px] transition-colors ${
                   activeTab === tab.id
                     ? "text-primary"
                     : "text-muted-foreground hover:text-foreground"
@@ -644,14 +644,14 @@ export default function PositionSizer() {
               },
             ].map((item) => (
               <div key={item.label} className="flex flex-col gap-2.5 p-5">
-                <div className={`font-mono text-[10px] font-bold uppercase tracking-[1px] ${item.color}`}>
+                <div className={`text-xs font-bold uppercase tracking-[1px] ${item.color}`}>
                   {item.label}
                 </div>
                 <div className={`font-display text-[13px] font-extrabold ${item.color}`}>{item.pct}</div>
                 <div className={`h-1 rounded-full bg-border overflow-hidden`}>
                   <div className={`h-full rounded-full ${item.bar} ${item.width}`} />
                 </div>
-                <p className="font-mono text-[10px] leading-relaxed text-muted-foreground">{item.desc}</p>
+                <p className="text-xs leading-relaxed text-muted-foreground">{item.desc}</p>
               </div>
             ))}
           </div>

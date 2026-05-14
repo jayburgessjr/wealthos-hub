@@ -74,11 +74,11 @@ export default function MorningPulse() {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-bullish opacity-60" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-bullish" />
           </span>
-          <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+          <span className="text-xs uppercase tracking-widest text-muted-foreground">
             Morning Pulse — {pulse.date}
           </span>
         </div>
-        <Link to="/weekly-briefing" className="font-mono text-[10px] uppercase tracking-widest text-primary hover:underline">
+        <Link to="/weekly-briefing" className="text-xs uppercase tracking-widest text-primary hover:underline">
           Weekly Briefing →
         </Link>
       </div>
@@ -89,7 +89,7 @@ export default function MorningPulse() {
         <div className="flex items-start gap-2.5 rounded-lg border border-border/50 bg-card/60 px-3 py-2.5">
           <Activity className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
           <div>
-            <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">Regime</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">Regime</p>
             <p className={`font-mono text-sm font-black ${pulse.regimeColor}`}>{pulse.regime}</p>
           </div>
         </div>
@@ -98,9 +98,9 @@ export default function MorningPulse() {
         <div className="flex items-start gap-2.5 rounded-lg border border-bullish/20 bg-bullish/5 px-3 py-2.5">
           <Zap className="mt-0.5 h-3.5 w-3.5 shrink-0 text-bullish" />
           <div>
-            <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">Top Signal</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">Top Signal</p>
             <p className="font-mono text-sm font-black text-bullish">{pulse.topSignal?.ticker ?? "—"}</p>
-            <p className="font-mono text-[9px] text-bullish/70">{pulse.topSignal?.score}/100</p>
+            <p className="text-xs text-bullish/70">{pulse.topSignal?.score}/100</p>
           </div>
         </div>
 
@@ -108,7 +108,7 @@ export default function MorningPulse() {
         <div className="flex items-start gap-2.5 rounded-lg border border-border/50 bg-card/60 px-3 py-2.5 sm:col-span-1">
           <TrendingUp className="mt-0.5 h-3.5 w-3.5 shrink-0 text-bullish" />
           <div className="min-w-0">
-            <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">Do This</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">Do This</p>
             <p className="text-[11px] font-semibold text-foreground leading-snug line-clamp-2">{pulse.doThis}</p>
           </div>
         </div>
@@ -117,7 +117,7 @@ export default function MorningPulse() {
         <div className="flex items-start gap-2.5 rounded-lg border border-border/50 bg-card/60 px-3 py-2.5 sm:col-span-1">
           <TrendingDown className="mt-0.5 h-3.5 w-3.5 shrink-0 text-bearish" />
           <div className="min-w-0">
-            <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">Avoid</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">Avoid</p>
             <p className="text-[11px] font-semibold text-foreground leading-snug line-clamp-2">{pulse.avoidThis}</p>
           </div>
         </div>

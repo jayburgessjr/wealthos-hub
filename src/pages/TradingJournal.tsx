@@ -334,7 +334,7 @@ export default function TradingJournal() {
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <BookOpen size={12} className="text-muted-foreground" />
-            <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+            <span className="text-xs uppercase tracking-widest text-muted-foreground">
               Analysis
             </span>
           </div>
@@ -378,7 +378,7 @@ export default function TradingJournal() {
                 { label: "Followed Plan", val: stats.followedPlanPct.toFixed(0), suffix: "%", color: stats.followedPlanPct >= 70 ? "text-bullish" : "text-watch" },
               ].map((s) => (
                 <div key={s.label} className="rounded-xl border border-border bg-card p-4">
-                  <span className="block font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                  <span className="block text-xs uppercase tracking-widest text-muted-foreground">
                     {s.label}
                   </span>
                   <span className={`font-mono text-2xl font-black ${s.color}`}>
@@ -393,7 +393,7 @@ export default function TradingJournal() {
             <div className="mb-5 rounded-xl border border-border bg-card p-4">
               <div className="mb-3 flex items-center gap-2">
                 <Filter size={12} className="text-muted-foreground" />
-                <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                <span className="text-xs uppercase tracking-widest text-muted-foreground">
                   Filters
                 </span>
                 {hasFilters && (
@@ -404,7 +404,7 @@ export default function TradingJournal() {
                       setFilterDateFrom("");
                       setFilterDateTo("");
                     }}
-                    className="ml-auto font-mono text-[10px] uppercase text-primary hover:underline"
+                    className="ml-auto text-xs uppercase text-primary hover:underline"
                   >
                     Clear all
                   </button>
@@ -412,7 +412,7 @@ export default function TradingJournal() {
               </div>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <div>
-                  <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                  <label className="text-xs uppercase tracking-widest text-muted-foreground">
                     Ticker
                   </label>
                   <input
@@ -423,7 +423,7 @@ export default function TradingJournal() {
                   />
                 </div>
                 <div>
-                  <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                  <label className="text-xs uppercase tracking-widest text-muted-foreground">
                     Emotion
                   </label>
                   <select
@@ -440,7 +440,7 @@ export default function TradingJournal() {
                   </select>
                 </div>
                 <div>
-                  <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                  <label className="text-xs uppercase tracking-widest text-muted-foreground">
                     From Date
                   </label>
                   <div className="relative mt-1.5">
@@ -454,7 +454,7 @@ export default function TradingJournal() {
                   </div>
                 </div>
                 <div>
-                  <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                  <label className="text-xs uppercase tracking-widest text-muted-foreground">
                     To Date
                   </label>
                   <div className="relative mt-1.5">
@@ -520,7 +520,7 @@ export default function TradingJournal() {
                                 {entry.ticker}
                               </span>
                               <span
-                                className={`rounded-md px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase ${
+                                className={`rounded-md px-1.5 py-0.5 text-xs font-bold uppercase ${
                                   entry.direction === "long"
                                     ? "bg-bullish/10 text-bullish"
                                     : "bg-bearish/10 text-bearish"
@@ -529,7 +529,7 @@ export default function TradingJournal() {
                                 {entry.direction}
                               </span>
                             </div>
-                            <span className="font-mono text-[10px] text-muted-foreground">
+                            <span className="text-xs text-muted-foreground">
                               {entry.trade_date}
                             </span>
                           </div>
@@ -555,7 +555,7 @@ export default function TradingJournal() {
                       <div className="mt-3 flex flex-wrap items-center gap-2">
                         {emotion && (
                           <span
-                            className={`rounded-full border px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase ${emotion.bg} ${emotion.color}`}
+                            className={`rounded-full border px-2.5 py-0.5 text-xs font-bold uppercase ${emotion.bg} ${emotion.color}`}
                           >
                             {emotion.icon} {emotion.label}
                           </span>
@@ -566,7 +566,7 @@ export default function TradingJournal() {
                         </div>
 
                         <span
-                          className={`flex items-center gap-1 rounded-full border px-2.5 py-0.5 font-mono text-[10px] font-bold ${
+                          className={`flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-bold ${
                             entry.followed_plan
                               ? "border-bullish/30 bg-bullish/10 text-bullish"
                               : "border-bearish/30 bg-bearish/10 text-bearish"
@@ -586,7 +586,7 @@ export default function TradingJournal() {
                         <div className="mt-3 grid gap-2 sm:grid-cols-2">
                           {entry.notes && (
                             <div className="rounded-lg bg-background/50 px-3 py-2">
-                              <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">
+                              <p className="text-xs uppercase tracking-widest text-muted-foreground">
                                 Notes
                               </p>
                               <p className="mt-0.5 text-xs text-foreground/80 line-clamp-2">
@@ -597,7 +597,7 @@ export default function TradingJournal() {
                           )}
                           {entry.lessons && (
                             <div className="rounded-lg bg-background/50 px-3 py-2">
-                              <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">
+                              <p className="text-xs uppercase tracking-widest text-muted-foreground">
                                 Lessons
                               </p>
                               <p className="mt-0.5 text-xs text-foreground/80 line-clamp-2">
@@ -638,7 +638,7 @@ export default function TradingJournal() {
               {/* Row 1: Date + Ticker + Direction */}
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div>
-                  <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                  <label className="text-xs uppercase tracking-widest text-muted-foreground">
                     Trade Date
                   </label>
                   <input
@@ -650,7 +650,7 @@ export default function TradingJournal() {
                 </div>
 
                 <div>
-                  <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                  <label className="text-xs uppercase tracking-widest text-muted-foreground">
                     Ticker
                   </label>
                   <input
@@ -662,7 +662,7 @@ export default function TradingJournal() {
                 </div>
 
                 <div>
-                  <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                  <label className="text-xs uppercase tracking-widest text-muted-foreground">
                     Direction
                   </label>
                   <div className="mt-1.5 flex overflow-hidden rounded-xl border border-border">
@@ -695,7 +695,7 @@ export default function TradingJournal() {
               {/* Row 2: Entry / Exit / P&L */}
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                 <div>
-                  <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                  <label className="text-xs uppercase tracking-widest text-muted-foreground">
                     Entry Price ($)
                   </label>
                   <div className="mt-1.5 flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2.5">
@@ -716,7 +716,7 @@ export default function TradingJournal() {
                 </div>
 
                 <div>
-                  <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                  <label className="text-xs uppercase tracking-widest text-muted-foreground">
                     Exit Price ($)
                   </label>
                   <div className="mt-1.5 flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2.5">
@@ -737,7 +737,7 @@ export default function TradingJournal() {
                 </div>
 
                 <div>
-                  <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                  <label className="text-xs uppercase tracking-widest text-muted-foreground">
                     P&L ($)
                   </label>
                   <div className="mt-1.5 flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2.5">
@@ -756,7 +756,7 @@ export default function TradingJournal() {
                 </div>
 
                 <div>
-                  <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                  <label className="text-xs uppercase tracking-widest text-muted-foreground">
                     P&L (%)
                   </label>
                   <div className="mt-1.5 flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2.5">
@@ -777,7 +777,7 @@ export default function TradingJournal() {
 
               {/* Emotion Tag */}
               <div>
-                <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                <label className="text-xs uppercase tracking-widest text-muted-foreground">
                   Emotion Tag
                 </label>
                 <div className="mt-2 flex flex-wrap gap-2">
@@ -787,7 +787,7 @@ export default function TradingJournal() {
                         key={key}
                         type="button"
                         onClick={() => setFormEmotion(formEmotion === key ? "" : key)}
-                        className={`rounded-full border px-3 py-1.5 font-mono text-[10px] font-bold uppercase transition-all ${
+                        className={`rounded-full border px-3 py-1.5 text-xs font-bold uppercase transition-all ${
                           formEmotion === key
                             ? `${cfg.bg} ${cfg.color} scale-105`
                             : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"
@@ -803,7 +803,7 @@ export default function TradingJournal() {
               {/* Setup Quality + Followed Plan */}
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                  <label className="text-xs uppercase tracking-widest text-muted-foreground">
                     Setup Quality
                   </label>
                   <div className="mt-2 flex items-center gap-3">
@@ -813,7 +813,7 @@ export default function TradingJournal() {
                 </div>
 
                 <div>
-                  <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                  <label className="text-xs uppercase tracking-widest text-muted-foreground">
                     Followed Plan?
                   </label>
                   <div className="mt-1.5 flex overflow-hidden rounded-xl border border-border w-fit">
@@ -845,7 +845,7 @@ export default function TradingJournal() {
 
               {/* Notes */}
               <div>
-                <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                <label className="text-xs uppercase tracking-widest text-muted-foreground">
                   Notes
                 </label>
                 <textarea
@@ -859,7 +859,7 @@ export default function TradingJournal() {
 
               {/* Lessons */}
               <div>
-                <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                <label className="text-xs uppercase tracking-widest text-muted-foreground">
                   Lessons
                 </label>
                 <textarea

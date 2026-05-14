@@ -3,6 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { useDemo } from "@/components/DemoProvider";
 import { sandboxPositions } from "@/data/sandboxData";
+import { Link } from "react-router-dom";
+import { Briefcase, ArrowRight } from "lucide-react";
 
 export default function PositionsTable() {
   const { user } = useAuth();
@@ -34,7 +36,21 @@ export default function PositionsTable() {
           ))}
         </div>
       ) : positions.length === 0 ? (
-        <p className="py-4 text-center text-xs text-muted-foreground">No open positions</p>
+        <div className="flex flex-col items-center justify-center py-8 gap-3 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent/40">
+            <Briefcase className="h-5 w-5 text-muted-foreground/50" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-foreground">No open positions</p>
+            <p className="mt-1 text-xs text-muted-foreground">Execute a signal to start tracking performance</p>
+          </div>
+          <Link
+            to="/signals"
+            className="flex items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors"
+          >
+            Browse Signals <ArrowRight className="h-3 w-3" />
+          </Link>
+        </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">

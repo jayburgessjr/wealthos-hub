@@ -43,6 +43,23 @@ import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Disclaimer from "./pages/Disclaimer";
 import Strategy123 from "./pages/Strategy123";
+import Playbook from "./pages/Playbook";
+import Alerts from "./pages/Alerts";
+import Chart from "./pages/Chart";
+import Screener from "./pages/Screener";
+import InsiderActivity from "./pages/InsiderActivity";
+import Community from "./pages/Community";
+import Profile from "./pages/Profile";
+import Bots from "./pages/Bots";
+import Forex from "./pages/Forex";
+import Commodities from "./pages/Commodities";
+import FixedIncome from "./pages/FixedIncome";
+import Kalshi from "./pages/Kalshi";
+import Polymarket from "./pages/Polymarket";
+import SportsTrading from "./pages/SportsTrading";
+import LotteryEV from "./pages/LotteryEV";
+import FinancialNews from "./pages/FinancialNews";
+import MyPortfolio from "./pages/MyPortfolio";
 
 const queryClient = new QueryClient();
 
@@ -90,6 +107,23 @@ const AppRoutes = () => (
     <Route path="/heat-map" element={<HeatMap />} />
     <Route path="/paper-trading" element={<PaperTrading />} />
     <Route path="/strategy-123" element={<Strategy123 />} />
+    <Route path="/playbook" element={<Playbook />} />
+    <Route path="/alerts" element={<Alerts />} />
+    <Route path="/chart" element={<Chart />} />
+    <Route path="/screener" element={<Screener />} />
+    <Route path="/insider-activity" element={<InsiderActivity />} />
+    <Route path="/community" element={<Community />} />
+    <Route path="/profile/:userId" element={<Profile />} />
+    <Route path="/bots" element={<Bots />} />
+    <Route path="/forex" element={<Forex />} />
+    <Route path="/commodities" element={<Commodities />} />
+    <Route path="/fixed-income" element={<FixedIncome />} />
+    <Route path="/kalshi" element={<Kalshi />} />
+    <Route path="/polymarket" element={<Polymarket />} />
+    <Route path="/sports-trading" element={<SportsTrading />} />
+    <Route path="/lottery-ev" element={<LotteryEV />} />
+    <Route path="/financial-news" element={<FinancialNews />} />
+    <Route path="/my-portfolio" element={<MyPortfolio />} />
     <Route path="*" element={<NotFound />} />
   </Routes>
 );

@@ -24,7 +24,7 @@ export default function TopRecommendation() {
   const [shares, setShares] = useState("1");
 
   const { data: signals = [] } = useQuery({
-    queryKey: ['signals'],
+    queryKey: ['signals', 'top-recommendation'],
     queryFn: async () => {
       const { data } = await supabase
         .from('signals')
@@ -116,6 +116,9 @@ export default function TopRecommendation() {
 
   const reasons = (top.reasoning as string[] | null) ?? [];
   const estimatedValue = (top.entry_price ?? 0) * (parseFloat(shares) || 1);
+  const rrRatio = top.entry_price && top.target_price && top.stop_price
+    ? ((top.target_price - top.entry_price) / (top.entry_price - top.stop_price)).toFixed(1)
+    : null;
 
   return (
     <>
@@ -130,15 +133,16 @@ export default function TopRecommendation() {
         <span className="mt-0.5 inline-block rounded bg-bullish/10 px-2 py-0.5 font-mono text-xs font-semibold text-bullish">
           {ACTION_LABELS[top.action ?? ''] ?? top.action}
         </span>
-        <div className="mt-4 grid grid-cols-3 gap-2">
+        <div className="mt-4 grid grid-cols-4 gap-2">
           {[
-            { label: "Entry", val: top.entry_price ? `$${top.entry_price}` : "—" },
-            { label: "Target", val: top.target_price ? `$${top.target_price}` : "—" },
-            { label: "Stop", val: top.stop_price ? `$${top.stop_price}` : "—" },
+            { label: "Entry",  val: top.entry_price  ? `$${top.entry_price}`  : "—" },
+            { label: "Target", val: top.target_price ? `$${top.target_price}` : "—", color: "text-bullish" },
+            { label: "Stop",   val: top.stop_price   ? `$${top.stop_price}`   : "—", color: "text-bearish" },
+            { label: "R/R",    val: rrRatio ? `${rrRatio}:1` : "—", color: parseFloat(rrRatio ?? "0") >= 2 ? "text-bullish" : "text-watch" },
           ].map((i) => (
             <div key={i.label} className="rounded-md bg-background p-2 text-center">
               <span className="block text-[10px] uppercase text-muted-foreground">{i.label}</span>
-              <span className="font-mono text-sm font-semibold text-foreground">{i.val}</span>
+              <span className={`font-mono text-sm font-semibold ${i.color ?? "text-foreground"}`}>{i.val}</span>
             </div>
           ))}
         </div>

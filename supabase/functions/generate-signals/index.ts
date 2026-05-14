@@ -312,6 +312,14 @@ async function getMacroData(fredKey: string | undefined, polygonKey: string) {
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  // ── Auth guard ──────────────────────────────────────────────────────────────
+  const authHeader = req.headers.get("authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   try {
     const body = await req.json().catch(() => ({}));
     const { tickers, mode } = body;

@@ -10,6 +10,7 @@ import CompoundPanel from "@/components/dashboard/CompoundPanel";
 import WatchlistSentiment from "@/components/dashboard/WatchlistSentiment";
 import AllocationDonut from "@/components/dashboard/AllocationDonut";
 import MorningPulse from "@/components/dashboard/MorningPulse";
+import PredictionMarket from "@/components/dashboard/PredictionMarket";
 
 export default function Dashboard() {
   const [selectedTicker, setSelectedTicker] = useState<string>("SPY");
@@ -55,9 +56,12 @@ export default function Dashboard() {
           <WatchlistSentiment />
         </div>
 
-        {/* Row 4 — Portfolio Allocation */}
+        {/* Row 4 — Portfolio Allocation + Prediction Market */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <AllocationDonut />
+          <div className="lg:col-span-2">
+            <PredictionMarket />
+          </div>
         </div>
       </div>
     </DashboardLayout>

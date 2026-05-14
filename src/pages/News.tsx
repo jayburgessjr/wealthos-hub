@@ -229,7 +229,7 @@ function SentimentBadge({ s }: { s: Sentiment }) {
   }[s];
   const Icon = cfg.icon;
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 font-mono text-[9px] font-bold uppercase ${cfg.cls}`}>
+    <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-bold uppercase ${cfg.cls}`}>
       <Icon size={8} /> {cfg.label}
     </span>
   );
@@ -328,7 +328,7 @@ export default function News() {
           <div>
             <div className="mb-1 flex items-center gap-2">
               <Newspaper size={12} className="text-muted-foreground" />
-              <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Market Intelligence</span>
+              <span className="text-xs uppercase tracking-widest text-muted-foreground">Market Intelligence</span>
             </div>
             <h2 className="font-display text-3xl font-black tracking-tight">News & Intelligence</h2>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -340,7 +340,7 @@ export default function News() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-bullish opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-bullish" />
             </span>
-            <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-bullish">Live</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-bullish">Live</span>
           </div>
         </div>
 
@@ -357,7 +357,7 @@ export default function News() {
             },
           ].map(s => (
             <div key={s.label} className="rounded-xl border border-border bg-card p-4">
-              <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">{s.label}</p>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">{s.label}</p>
               <p className={`font-mono text-xl font-black ${s.color}`}>{s.value}</p>
             </div>
           ))}
@@ -423,7 +423,7 @@ export default function News() {
               {filtered.length === 0 ? (
                 <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border py-16">
                   <Globe size={28} className="text-muted-foreground/20" />
-                  <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground/50">No stories match your filter</p>
+                  <p className="text-xs uppercase tracking-widest text-muted-foreground/50">No stories match your filter</p>
                 </div>
               ) : filtered.map((article, i) => {
                 const isExpanded = expandedId === article.id;
@@ -449,14 +449,14 @@ export default function News() {
                         <div className="flex-1 min-w-0">
                           {/* Meta row */}
                           <div className="mb-1.5 flex flex-wrap items-center gap-2">
-                            <span className="font-mono text-[9px] font-bold uppercase tracking-widest text-muted-foreground">{article.source}</span>
+                            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{article.source}</span>
                             <span className="text-muted-foreground/30">·</span>
-                            <span className="flex items-center gap-1 font-mono text-[9px] text-muted-foreground/60">
+                            <span className="flex items-center gap-1 text-xs text-muted-foreground/60">
                               <Clock size={8} />{timeAgo(article.publishedAt)}
                             </span>
                             <span className="text-muted-foreground/30">·</span>
                             <span
-                              className="rounded-full px-2 py-0.5 font-mono text-[9px] font-bold capitalize"
+                              className="rounded-full px-2 py-0.5 text-xs font-bold capitalize"
                               style={{ color: cat?.color, background: `${cat?.color}15` }}
                             >
                               {article.category}
@@ -471,7 +471,7 @@ export default function News() {
                           {article.tickers.length > 0 && (
                             <div className="mt-2 flex flex-wrap gap-1">
                               {article.tickers.map(t => (
-                                <span key={t} className="rounded-md border border-border bg-accent px-1.5 py-0.5 font-mono text-[9px] font-bold text-muted-foreground">
+                                <span key={t} className="rounded-md border border-border bg-accent px-1.5 py-0.5 text-xs font-bold text-muted-foreground">
                                   {t}
                                 </span>
                               ))}
@@ -506,18 +506,18 @@ export default function News() {
                             <div className="mt-3 flex items-center justify-between">
                               <div className="flex items-center gap-4">
                                 <div>
-                                  <p className="font-mono text-[9px] uppercase text-muted-foreground">AI Sentiment Score</p>
+                                  <p className="text-xs uppercase text-muted-foreground">AI Sentiment Score</p>
                                   <div className="mt-1 w-48">
                                     <SentimentBar score={article.sentimentScore} />
                                   </div>
-                                  <div className="mt-0.5 flex justify-between font-mono text-[8px] text-muted-foreground/50">
+                                  <div className="mt-0.5 flex justify-between text-xs text-muted-foreground/50">
                                     <span>Bearish</span><span>Neutral</span><span>Bullish</span>
                                   </div>
                                 </div>
                               </div>
                               {article.url && (
                                 <a href={article.url} target="_blank" rel="noopener noreferrer"
-                                  className="flex items-center gap-1.5 rounded-lg border border-border bg-accent px-3 py-1.5 font-mono text-[10px] font-bold text-muted-foreground transition-colors hover:text-foreground">
+                                  className="flex items-center gap-1.5 rounded-lg border border-border bg-accent px-3 py-1.5 text-xs font-bold text-muted-foreground transition-colors hover:text-foreground">
                                   Read Full Story <ExternalLink size={10} />
                                 </a>
                               )}
@@ -531,7 +531,7 @@ export default function News() {
               })}
             </div>
 
-            <p className="text-right font-mono text-[9px] uppercase tracking-widest text-muted-foreground/40">
+            <p className="text-right text-xs uppercase tracking-widest text-muted-foreground/40">
               AI sentiment scores computed from headline + summary NLP · Powered by WealthOS Intelligence
             </p>
           </motion.div>
@@ -544,7 +544,7 @@ export default function News() {
             {/* Importance filter */}
             <div className="flex items-center gap-2">
               <Filter size={13} className="text-muted-foreground" />
-              <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Impact:</span>
+              <span className="text-xs uppercase tracking-widest text-muted-foreground">Impact:</span>
               {(["all", "high", "medium", "low"] as const).map(level => (
                 <button
                   key={level}
@@ -595,13 +595,13 @@ export default function News() {
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
                             <span className="font-display text-sm font-bold text-foreground">{event.name}</span>
-                            <span className={`rounded-full border px-2 py-0.5 font-mono text-[9px] font-bold uppercase ${importanceColor}`}>
+                            <span className={`rounded-full border px-2 py-0.5 text-xs font-bold uppercase ${importanceColor}`}>
                               {event.importance} impact
                             </span>
-                            {isToday && <span className="rounded-full bg-bullish/10 px-2 py-0.5 font-mono text-[9px] font-bold uppercase text-bullish">Today</span>}
-                            {isPast && <span className="rounded-full bg-accent px-2 py-0.5 font-mono text-[9px] font-bold uppercase text-muted-foreground">Past</span>}
+                            {isToday && <span className="rounded-full bg-bullish/10 px-2 py-0.5 text-xs font-bold uppercase text-bullish">Today</span>}
+                            {isPast && <span className="rounded-full bg-accent px-2 py-0.5 text-xs font-bold uppercase text-muted-foreground">Past</span>}
                           </div>
-                          <p className="mt-0.5 font-mono text-[10px] text-muted-foreground">
+                          <p className="mt-0.5 text-xs text-muted-foreground">
                             {event.date.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })} · {event.time}
                           </p>
                           <p className="mt-2 text-xs text-muted-foreground leading-relaxed">{event.description}</p>
@@ -612,19 +612,19 @@ export default function News() {
                         <div className="flex shrink-0 gap-4">
                           {event.previous && (
                             <div className="text-right">
-                              <p className="font-mono text-[9px] uppercase text-muted-foreground">Prev</p>
+                              <p className="text-xs uppercase text-muted-foreground">Prev</p>
                               <p className="font-mono text-sm font-bold text-muted-foreground">{event.previous}</p>
                             </div>
                           )}
                           {event.forecast && (
                             <div className="text-right">
-                              <p className="font-mono text-[9px] uppercase text-muted-foreground">Forecast</p>
+                              <p className="text-xs uppercase text-muted-foreground">Forecast</p>
                               <p className="font-mono text-sm font-bold text-foreground">{event.forecast}</p>
                             </div>
                           )}
                           {event.actual && (
                             <div className="text-right">
-                              <p className="font-mono text-[9px] uppercase text-muted-foreground">Actual</p>
+                              <p className="text-xs uppercase text-muted-foreground">Actual</p>
                               <p className="font-mono text-sm font-bold text-bullish">{event.actual}</p>
                             </div>
                           )}
@@ -655,7 +655,7 @@ export default function News() {
               : overallSentiment === "bearish" ? "border-bearish/30 bg-bearish/5"
               : "border-border bg-card"
             }`}>
-              <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Aggregate Market Sentiment</p>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">Aggregate Market Sentiment</p>
               <p className={`font-display text-5xl font-black mt-2 ${
                 overallSentiment === "bullish" ? "text-bullish"
                 : overallSentiment === "bearish" ? "text-bearish"
@@ -663,12 +663,12 @@ export default function News() {
               }`}>
                 {overallSentiment.toUpperCase()}
               </p>
-              <p className="mt-1 font-mono text-sm text-muted-foreground">
+              <p className="mt-1 text-sm text-muted-foreground">
                 Score: {sentimentCounts.avgScore > 0 ? "+" : ""}{sentimentCounts.avgScore.toFixed(3)} · Based on {ARTICLES.length} articles
               </p>
               <div className="mx-auto mt-4 max-w-xs">
                 <SentimentBar score={sentimentCounts.avgScore} />
-                <div className="mt-1 flex justify-between font-mono text-[9px] text-muted-foreground/50">
+                <div className="mt-1 flex justify-between text-xs text-muted-foreground/50">
                   <span>-1.0 Max Bearish</span>
                   <span>+1.0 Max Bullish</span>
                 </div>
@@ -687,7 +687,7 @@ export default function News() {
                   <div key={s.label} className="rounded-2xl border border-border bg-card p-5 text-center">
                     <Icon size={24} className="mx-auto mb-2" style={{ color: s.color }} />
                     <p className="font-mono text-3xl font-black" style={{ color: s.color }}>{s.pct}%</p>
-                    <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">{s.label}</p>
+                    <p className="text-xs uppercase tracking-widest text-muted-foreground">{s.label}</p>
                     <p className="mt-1 font-mono text-xs text-muted-foreground/60">{s.count} stories</p>
                   </div>
                 );
@@ -706,7 +706,7 @@ export default function News() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span className="font-mono text-xs font-bold" style={{ color: cat.color }}>{cat.label}</span>
-                        <span className="font-mono text-[9px] text-muted-foreground/60">{cat.count} articles</span>
+                        <span className="text-xs text-muted-foreground/60">{cat.count} articles</span>
                       </div>
                       <span className={`font-mono text-xs font-black ${cat.avgScore > 0.1 ? "text-bullish" : cat.avgScore < -0.1 ? "text-bearish" : "text-muted-foreground"}`}>
                         {cat.avgScore > 0 ? "+" : ""}{cat.avgScore.toFixed(2)}
@@ -736,7 +736,7 @@ export default function News() {
                     >
                       <Icon size={10} style={{ color }} />
                       <span className="font-mono text-sm font-black" style={{ color }}>{t.ticker}</span>
-                      <span className="font-mono text-[9px] text-muted-foreground/60">{t.count}×</span>
+                      <span className="text-xs text-muted-foreground/60">{t.count}×</span>
                     </div>
                   );
                 })}

@@ -271,11 +271,11 @@ export default function StrategyAllocator() {
                         <div className="flex flex-col items-center gap-1.5 px-6 py-3 rounded-xl"
                           style={{ background: `${stage.color}10`, border: `1px solid ${stage.color}30` }}>
                           <Icon size={16} style={{ color: stage.color }} />
-                          <span className="font-mono text-[10px] font-bold uppercase tracking-widest" style={{ color: stage.color }}>
+                          <span className="text-xs font-bold uppercase tracking-widest" style={{ color: stage.color }}>
                             {stage.label}
                           </span>
                           <span className="font-mono text-xl font-black text-foreground">{count}</span>
-                          <span className="font-mono text-[8px] text-muted-foreground/60">{count === 1 ? "strategy" : "strategies"}</span>
+                          <span className="text-xs text-muted-foreground/60">{count === 1 ? "strategy" : "strategies"}</span>
                         </div>
                         {i < LIFECYCLE_STAGES.length - 1 && (
                           <ChevronRight size={16} className="mx-2 text-muted-foreground/30 shrink-0" />
@@ -315,17 +315,17 @@ export default function StrategyAllocator() {
                         style={{ borderColor: `${stage.color}30` }}>
                         <div className="flex items-center gap-2 border-b px-4 py-3" style={{ borderColor: `${stage.color}20` }}>
                           <Icon size={13} style={{ color: stage.color }} />
-                          <span className="font-mono text-xs font-bold uppercase tracking-widest" style={{ color: stage.color }}>
+                          <span className="text-xs font-bold uppercase tracking-widest" style={{ color: stage.color }}>
                             {stage.label}
                           </span>
-                          <span className="ml-auto rounded-full px-2 py-0.5 font-mono text-[9px] font-bold"
+                          <span className="ml-auto rounded-full px-2 py-0.5 text-xs font-bold"
                             style={{ background: `${stage.color}15`, color: stage.color }}>
                             {stratInStage.length}
                           </span>
                         </div>
                         <div className="space-y-2 p-3">
                           {stratInStage.length === 0 && (
-                            <p className="py-4 text-center font-mono text-[10px] uppercase tracking-widest text-muted-foreground/40">
+                            <p className="py-4 text-center text-xs uppercase tracking-widest text-muted-foreground/40">
                               No strategies in this stage
                             </p>
                           )}
@@ -347,15 +347,15 @@ export default function StrategyAllocator() {
                               >
                                 <div className="flex items-center justify-between">
                                   <div>
-                                    <p className="font-mono text-xs font-bold text-foreground">{strat.name}</p>
-                                    <p className="font-mono text-[9px] text-muted-foreground capitalize">{strat.assetClass} · Target {strat.targetReturn}%/yr</p>
+                                    <p className="text-xs font-bold text-foreground">{strat.name}</p>
+                                    <p className="text-xs text-muted-foreground capitalize">{strat.assetClass} · Target {strat.targetReturn}%/yr</p>
                                   </div>
                                   <div className="flex items-center gap-1.5">
                                     {next && (
                                       <button
                                         onClick={e => { e.stopPropagation(); advanceStage(strat.id); }}
                                         disabled={isRunning}
-                                        className="flex items-center gap-1 rounded-lg border px-2 py-1 font-mono text-[9px] font-bold transition-all hover:brightness-110 disabled:opacity-50"
+                                        className="flex items-center gap-1 rounded-lg border px-2 py-1 text-xs font-bold transition-all hover:brightness-110 disabled:opacity-50"
                                         style={{ borderColor: `${nextStageInfo?.color}40`, color: nextStageInfo?.color, background: `${nextStageInfo?.color}10` }}
                                         title={`Advance to ${nextStageInfo?.label}`}
                                       >
@@ -373,9 +373,9 @@ export default function StrategyAllocator() {
 
                                 {strat.monteCarloResult && (
                                   <div className="mt-2 flex gap-3 border-t border-border/40 pt-2">
-                                    <span className="font-mono text-[9px] text-bullish">+{strat.monteCarloResult.expectedReturn.toFixed(1)}%</span>
-                                    <span className="font-mono text-[9px] text-muted-foreground">Sharpe {strat.monteCarloResult.sharpeRatio.toFixed(2)}</span>
-                                    <span className="font-mono text-[9px] text-bearish">VaR {strat.monteCarloResult.var95.toFixed(1)}%</span>
+                                    <span className="text-xs text-bullish">+{strat.monteCarloResult.expectedReturn.toFixed(1)}%</span>
+                                    <span className="text-xs text-muted-foreground">Sharpe {strat.monteCarloResult.sharpeRatio.toFixed(2)}</span>
+                                    <span className="text-xs text-bearish">VaR {strat.monteCarloResult.var95.toFixed(1)}%</span>
                                   </div>
                                 )}
                               </motion.div>
@@ -404,7 +404,7 @@ export default function StrategyAllocator() {
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
                                 <StageIcon size={14} style={{ color: stageInfo.color }} />
-                                <span className="font-mono text-[9px] font-bold uppercase tracking-widest" style={{ color: stageInfo.color }}>
+                                <span className="text-xs font-bold uppercase tracking-widest" style={{ color: stageInfo.color }}>
                                   {stageInfo.label}
                                 </span>
                               </div>
@@ -424,7 +424,7 @@ export default function StrategyAllocator() {
                                 { label: "Capital", value: `$${selectedStrat.capital.toLocaleString()}`, cls: "" },
                               ].map(m => (
                                 <div key={m.label} className="rounded-lg border border-border bg-accent/30 p-2.5">
-                                  <p className="font-mono text-[8px] uppercase tracking-widest text-muted-foreground">{m.label}</p>
+                                  <p className="text-xs uppercase tracking-widest text-muted-foreground">{m.label}</p>
                                   <p className={`font-mono text-xs font-black mt-0.5 ${m.cls}`}>{m.value}</p>
                                 </div>
                               ))}
@@ -432,14 +432,14 @@ export default function StrategyAllocator() {
 
                             {selectedStrat.monteCarloResult && (
                               <div className="space-y-2 rounded-xl border border-purple-500/20 bg-purple-500/5 p-3">
-                                <p className="font-mono text-[9px] font-bold uppercase tracking-widest text-purple-400">Monte Carlo Results</p>
+                                <p className="text-xs font-bold uppercase tracking-widest text-purple-400">Monte Carlo Results</p>
                                 {[
                                   { label: "Expected Return", value: `+${selectedStrat.monteCarloResult.expectedReturn.toFixed(2)}%`, color: "text-bullish" },
                                   { label: "VaR 95%", value: `${selectedStrat.monteCarloResult.var95.toFixed(2)}%`, color: "text-bearish" },
                                   { label: "Sharpe Ratio", value: selectedStrat.monteCarloResult.sharpeRatio.toFixed(3), color: selectedStrat.monteCarloResult.sharpeRatio > 1 ? "text-bullish" : "text-watch" },
                                 ].map(m => (
                                   <div key={m.label} className="flex items-center justify-between">
-                                    <span className="font-mono text-[9px] text-muted-foreground">{m.label}</span>
+                                    <span className="text-xs text-muted-foreground">{m.label}</span>
                                     <span className={`font-mono text-xs font-black ${m.color}`}>{m.value}</span>
                                   </div>
                                 ))}
@@ -448,14 +448,14 @@ export default function StrategyAllocator() {
 
                             {selectedStrat.sharpe && (
                               <div className="space-y-2 rounded-xl border border-border bg-accent/20 p-3">
-                                <p className="font-mono text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Backtest Metrics</p>
+                                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Backtest Metrics</p>
                                 {[
                                   { label: "Sharpe Ratio", value: selectedStrat.sharpe.toFixed(2) },
                                   { label: "Max Drawdown", value: `-${selectedStrat.maxDrawdown?.toFixed(1)}%` },
                                   { label: "Win Rate", value: `${selectedStrat.winRate}%` },
                                 ].map(m => (
                                   <div key={m.label} className="flex items-center justify-between">
-                                    <span className="font-mono text-[9px] text-muted-foreground">{m.label}</span>
+                                    <span className="text-xs text-muted-foreground">{m.label}</span>
                                     <span className="font-mono text-xs font-black text-foreground">{m.value}</span>
                                   </div>
                                 ))}
@@ -465,7 +465,7 @@ export default function StrategyAllocator() {
                             {selectedStrat.notes && (
                               <div className="flex items-start gap-2 rounded-xl border border-watch/20 bg-watch/5 p-3">
                                 <AlertCircle size={11} className="mt-0.5 shrink-0 text-watch" />
-                                <p className="font-mono text-[9px] text-muted-foreground leading-relaxed">{selectedStrat.notes}</p>
+                                <p className="text-xs text-muted-foreground leading-relaxed">{selectedStrat.notes}</p>
                               </div>
                             )}
 
@@ -474,7 +474,7 @@ export default function StrategyAllocator() {
                               {prevStage(selectedStrat.stage) && (
                                 <button
                                   onClick={() => regressStage(selectedStrat.id)}
-                                  className="flex-1 rounded-xl border border-border py-2 font-mono text-[10px] font-bold text-muted-foreground transition-colors hover:text-foreground"
+                                  className="flex-1 rounded-xl border border-border py-2 text-xs font-bold text-muted-foreground transition-colors hover:text-foreground"
                                 >
                                   ← Regress
                                 </button>
@@ -483,7 +483,7 @@ export default function StrategyAllocator() {
                                 <button
                                   onClick={() => advanceStage(selectedStrat.id)}
                                   disabled={runningMC === selectedStrat.id}
-                                  className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2 font-mono text-[10px] font-bold text-background transition-all hover:brightness-110 disabled:opacity-50"
+                                  className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-bold text-background transition-all hover:brightness-110 disabled:opacity-50"
                                   style={{ background: LIFECYCLE_STAGES.find(l => l.id === nextStage(selectedStrat.stage))?.color ?? "#00cc73" }}
                                 >
                                   {runningMC === selectedStrat.id ? "Running…" : <>Advance → {LIFECYCLE_STAGES.find(l => l.id === nextStage(selectedStrat.stage))?.label}</>}
@@ -497,7 +497,7 @@ export default function StrategyAllocator() {
                   ) : (
                     <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border py-16 text-center">
                       <GitBranch size={28} className="text-muted-foreground/20" />
-                      <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground/50">Select a strategy<br/>to view details</p>
+                      <p className="text-xs uppercase tracking-widest text-muted-foreground/50">Select a strategy<br/>to view details</p>
                     </div>
                   )}
                 </div>

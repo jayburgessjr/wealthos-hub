@@ -870,7 +870,7 @@ export default function RightBar() {
                   key={t.id}
                   onClick={() => setTab(t.id)}
                   title={t.label}
-                  className={`flex flex-1 flex-col items-center gap-0.5 py-3 font-mono text-[9px] font-bold uppercase tracking-widest transition-colors ${
+                  className={`flex flex-1 flex-col items-center gap-0.5 py-3 text-xs font-bold uppercase tracking-widest transition-colors ${
                     tab === t.id
                       ? "border-b-2 border-primary text-primary"
                       : "text-muted-foreground hover:text-foreground"
@@ -888,7 +888,7 @@ export default function RightBar() {
                 {/* Page context badge */}
                 <div className="flex shrink-0 items-center gap-2 border-b border-border/50 px-3 py-2">
                   <PageIcon size={11} className="text-primary" />
-                  <span className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">{pageCtx.label} context</span>
+                  <span className="text-xs uppercase tracking-widest text-muted-foreground">{pageCtx.label} context</span>
                 </div>
 
                 {/* Messages */}
@@ -922,14 +922,14 @@ export default function RightBar() {
 
                 {/* Quick prompts */}
                 <div className="shrink-0 border-t border-border/50 px-3 py-2">
-                  <p className="mb-1.5 font-mono text-[8px] uppercase tracking-widest text-muted-foreground">Quick prompts</p>
+                  <p className="mb-1.5 text-xs uppercase tracking-widest text-muted-foreground">Quick prompts</p>
                   <div className="flex flex-wrap gap-1">
                     {pageCtx.prompts.map(p => (
                       <button
                         key={p}
                         onClick={() => sendMessage(p)}
                         disabled={streaming}
-                        className="rounded-md border border-border bg-background px-2 py-1 font-mono text-[9px] text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground disabled:opacity-40"
+                        className="rounded-md border border-border bg-background px-2 py-1 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground disabled:opacity-40"
                       >
                         {p}
                       </button>
@@ -966,20 +966,20 @@ export default function RightBar() {
                 {/* Page context badge */}
                 <div className="flex shrink-0 items-center gap-2 border-b border-border/50 px-3 py-2">
                   <Brain size={11} className="text-primary" />
-                  <span className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">{pageCtx.label} · Decisions</span>
+                  <span className="text-xs uppercase tracking-widest text-muted-foreground">{pageCtx.label} · Decisions</span>
                 </div>
 
                 <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3">
                   {/* Brief */}
                   <div className="rounded-xl border border-primary/20 bg-primary/5 px-3 py-2.5">
-                    <p className="font-mono text-[10px] leading-relaxed text-foreground">{pageDec.brief}</p>
+                    <p className="text-xs leading-relaxed text-foreground">{pageDec.brief}</p>
                   </div>
 
                   {/* Checklist */}
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
-                      <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">Decision Checkpoints</p>
-                      <span className={`font-mono text-[9px] font-bold ${decAllChecked ? "text-bullish" : "text-muted-foreground"}`}>
+                      <p className="text-xs uppercase tracking-widest text-muted-foreground">Decision Checkpoints</p>
+                      <span className={`text-xs font-bold ${decAllChecked ? "text-bullish" : "text-muted-foreground"}`}>
                         {decCheckedCount}/{pageDec.checkpoints.length}
                       </span>
                     </div>
@@ -1002,7 +1002,7 @@ export default function RightBar() {
                           {decChecked[i]
                             ? <CheckCircle2 size={11} className="text-bullish shrink-0 mt-0.5" />
                             : <Circle size={11} className={`shrink-0 mt-0.5 ${cp.critical ? "text-bearish/50" : "text-border"}`} />}
-                          <span className={`font-mono text-[10px] leading-snug ${
+                          <span className={`text-xs leading-snug ${
                             decChecked[i] ? "text-foreground" : cp.critical ? "text-foreground/80" : "text-muted-foreground"
                           }`}>
                             {cp.text}
@@ -1020,9 +1020,9 @@ export default function RightBar() {
                     : "border-border/50 bg-card/60"
                   }`}>
                     {decAllChecked ? (
-                      <p className="font-mono text-[10px] text-bullish font-semibold">All checkpoints cleared. Ready to act.</p>
+                      <p className="text-xs text-bullish font-semibold">All checkpoints cleared. Ready to act.</p>
                     ) : (
-                      <p className="font-mono text-[10px] text-muted-foreground leading-snug">
+                      <p className="text-xs text-muted-foreground leading-snug">
                         {pageDec.checkpoints.some(c => c.critical)
                           ? "Items marked * are critical — resolve before acting."
                           : "Work through the checklist before committing capital."}
@@ -1036,7 +1036,7 @@ export default function RightBar() {
                     className="w-full flex items-start gap-2 rounded-xl border border-primary/30 bg-primary/8 px-3 py-2.5 text-left hover:bg-primary/15 transition-colors"
                   >
                     <Zap size={11} className="text-primary shrink-0 mt-0.5" />
-                    <span className="font-mono text-[10px] text-primary flex-1 leading-snug">{pageDec.aiPrompt}</span>
+                    <span className="text-xs text-primary flex-1 leading-snug">{pageDec.aiPrompt}</span>
                     <ArrowRight size={10} className="text-primary/60 shrink-0 mt-0.5" />
                   </button>
 
@@ -1046,7 +1046,7 @@ export default function RightBar() {
                       to={pageDec.link.to}
                       className="flex items-center justify-between rounded-xl border border-border px-3 py-2.5 hover:border-primary/40 hover:bg-accent transition-colors"
                     >
-                      <span className="font-mono text-[10px] text-foreground">{pageDec.link.label}</span>
+                      <span className="text-xs text-foreground">{pageDec.link.label}</span>
                       <ChevronRight size={11} className="text-muted-foreground" />
                     </NavLink>
                   )}
@@ -1056,7 +1056,7 @@ export default function RightBar() {
                       to="/decisions"
                       className="flex items-center justify-between rounded-xl border border-border px-3 py-2.5 hover:border-primary/40 hover:bg-accent transition-colors"
                     >
-                      <span className="font-mono text-[10px] text-foreground">Full Decision Hub</span>
+                      <span className="text-xs text-foreground">Full Decision Hub</span>
                       <ChevronRight size={11} className="text-muted-foreground" />
                     </NavLink>
                   )}
@@ -1071,24 +1071,24 @@ export default function RightBar() {
                 <div className="flex flex-1 flex-col overflow-hidden">
                   <div className="flex shrink-0 items-center gap-2 border-b border-border/50 px-3 py-2">
                     <HelpCircle size={11} className="text-primary" />
-                    <span className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">{pageCtx.label} · How-To Guide</span>
+                    <span className="text-xs uppercase tracking-widest text-muted-foreground">{pageCtx.label} · How-To Guide</span>
                   </div>
 
                   <div className="flex-1 overflow-y-auto px-3 py-3 space-y-4">
                     {/* Tagline */}
-                    <p className="font-mono text-[11px] leading-relaxed text-foreground">{guide.tagline}</p>
+                    <p className="text-sm leading-relaxed text-foreground">{guide.tagline}</p>
 
                     {/* Steps */}
                     <div className="space-y-2">
-                      <p className="font-mono text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Step by Step</p>
+                      <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Step by Step</p>
                       {guide.steps.map((step, i) => (
                         <div key={i} className="flex gap-2.5">
                           <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/15 mt-0.5">
-                            <span className="font-mono text-[9px] font-black text-primary">{i + 1}</span>
+                            <span className="text-xs font-black text-primary">{i + 1}</span>
                           </div>
                           <div className="flex flex-col gap-0.5 pb-2 border-b border-border/30 last:border-0 flex-1">
-                            <span className="font-mono text-[10px] font-bold text-foreground">{step.title}</span>
-                            <span className="font-mono text-[10px] leading-relaxed text-muted-foreground">{step.body}</span>
+                            <span className="text-xs font-bold text-foreground">{step.title}</span>
+                            <span className="text-xs leading-relaxed text-muted-foreground">{step.body}</span>
                           </div>
                         </div>
                       ))}
@@ -1097,11 +1097,11 @@ export default function RightBar() {
                     {/* Key Concepts */}
                     {guide.concepts && guide.concepts.length > 0 && (
                       <div className="space-y-1.5">
-                        <p className="font-mono text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Key Concepts</p>
+                        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Key Concepts</p>
                         {guide.concepts.map((c, i) => (
                           <div key={i} className="rounded-lg border border-border bg-background px-2.5 py-2">
-                            <span className="font-mono text-[10px] font-black text-primary">{c.term}</span>
-                            <p className="font-mono text-[10px] leading-relaxed text-muted-foreground mt-0.5">{c.def}</p>
+                            <span className="text-xs font-black text-primary">{c.term}</span>
+                            <p className="text-xs leading-relaxed text-muted-foreground mt-0.5">{c.def}</p>
                           </div>
                         ))}
                       </div>
@@ -1110,11 +1110,11 @@ export default function RightBar() {
                     {/* Pro Tips */}
                     {guide.tips && guide.tips.length > 0 && (
                       <div className="space-y-1.5">
-                        <p className="font-mono text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Pro Tips</p>
+                        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Pro Tips</p>
                         {guide.tips.map((tip, i) => (
                           <div key={i} className="flex gap-2 rounded-lg border border-watch/20 bg-watch/5 px-2.5 py-2">
                             <Lightbulb size={10} className="text-watch shrink-0 mt-0.5" />
-                            <p className="font-mono text-[10px] leading-relaxed text-muted-foreground">{tip}</p>
+                            <p className="text-xs leading-relaxed text-muted-foreground">{tip}</p>
                           </div>
                         ))}
                       </div>
@@ -1126,7 +1126,7 @@ export default function RightBar() {
                       className="w-full flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/8 px-3 py-2.5 text-left hover:bg-primary/15 transition-colors"
                     >
                       <MessageSquare size={11} className="text-primary shrink-0" />
-                      <span className="font-mono text-[10px] text-primary">Ask AI for more detail</span>
+                      <span className="text-xs text-primary">Ask AI for more detail</span>
                       <ArrowRight size={10} className="text-primary/60 ml-auto" />
                     </button>
                   </div>
@@ -1157,7 +1157,7 @@ export default function RightBar() {
                   <button
                     onClick={submitResearch}
                     disabled={!researchQuery.trim()}
-                    className="mt-2 w-full rounded-xl bg-primary py-2 font-mono text-xs font-bold text-primary-foreground disabled:opacity-40"
+                    className="mt-2 w-full rounded-xl bg-primary py-2 text-xs font-bold text-primary-foreground disabled:opacity-40"
                   >
                     Research {researchQuery ? researchQuery.toUpperCase() : "…"}
                   </button>
@@ -1168,7 +1168,7 @@ export default function RightBar() {
                     <>
                       {/* Ticker quick-links */}
                       <div>
-                        <p className="mb-2 font-mono text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
+                        <p className="mb-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">
                           {submitted} — Open In
                         </p>
                         <div className="space-y-1.5">
@@ -1191,7 +1191,7 @@ export default function RightBar() {
                       </div>
 
                       <div className="border-t border-border pt-3">
-                        <p className="mb-2 font-mono text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
+                        <p className="mb-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">
                           Macro & Tools
                         </p>
                         <div className="space-y-1.5">
@@ -1217,7 +1217,7 @@ export default function RightBar() {
                     <>
                       {/* Default state — macro links */}
                       <div>
-                        <p className="mb-2 font-mono text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
+                        <p className="mb-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">
                           Macro & Research
                         </p>
                         <div className="space-y-1.5">
@@ -1242,9 +1242,9 @@ export default function RightBar() {
                       <div className="rounded-xl border border-border bg-background p-3">
                         <div className="flex items-center gap-2 mb-1">
                           <Lightbulb size={11} className="text-watch" />
-                          <span className="font-mono text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Tip</span>
+                          <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Tip</span>
                         </div>
-                        <p className="font-mono text-[10px] text-muted-foreground leading-relaxed">
+                        <p className="text-xs text-muted-foreground leading-relaxed">
                           Enter a ticker (e.g. AAPL, BTC) or a topic (e.g. "yield curve") to open it in Yahoo Finance, TradingView, Finviz, and more in one click.
                         </p>
                       </div>
@@ -1294,7 +1294,7 @@ export default function RightBar() {
                     <button
                       onClick={addEntry}
                       disabled={!noteText.trim()}
-                      className="flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 font-mono text-[10px] font-bold text-primary-foreground disabled:opacity-40"
+                      className="flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground disabled:opacity-40"
                     >
                       <Plus size={11} /> Log
                     </button>
@@ -1306,7 +1306,7 @@ export default function RightBar() {
                   {entries.length === 0 ? (
                     <div className="flex flex-col items-center justify-center gap-2 py-12">
                       <BookOpen size={24} className="text-muted-foreground/20" />
-                      <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground/40">No entries yet</p>
+                      <p className="text-xs uppercase tracking-widest text-muted-foreground/40">No entries yet</p>
                     </div>
                   ) : entries.map((entry, i) => {
                     const cfg = SENTIMENT_CFG[entry.sentiment];
@@ -1324,9 +1324,9 @@ export default function RightBar() {
                           <div className="flex items-center gap-2">
                             <Icon size={10} className={cfg.color} />
                             {entry.ticker && (
-                              <span className={`font-mono text-[10px] font-black ${cfg.color}`}>{entry.ticker}</span>
+                              <span className={`text-xs font-black ${cfg.color}`}>{entry.ticker}</span>
                             )}
-                            <span className={`rounded-full px-1.5 py-0.5 font-mono text-[8px] font-bold ${cfg.bg} ${cfg.color}`}>
+                            <span className={`rounded-full px-1.5 py-0.5 text-xs font-bold ${cfg.bg} ${cfg.color}`}>
                               {cfg.label}
                             </span>
                           </div>
@@ -1334,12 +1334,12 @@ export default function RightBar() {
                             <Trash2 size={10} />
                           </button>
                         </div>
-                        <p className="font-mono text-[10px] leading-relaxed text-foreground">{entry.text}</p>
+                        <p className="text-xs leading-relaxed text-foreground">{entry.text}</p>
                         <div className="mt-2 flex items-center gap-2 text-muted-foreground/50">
                           <Clock size={8} />
-                          <span className="font-mono text-[8px]">{timeAgo(entry.createdAt)}</span>
+                          <span className="text-xs">{timeAgo(entry.createdAt)}</span>
                           <Tag size={8} className="ml-1" />
-                          <span className="font-mono text-[8px]">{pageLabel}</span>
+                          <span className="text-xs">{pageLabel}</span>
                         </div>
                       </motion.div>
                     );

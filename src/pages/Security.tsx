@@ -154,7 +154,7 @@ export default function Security() {
           <div>
             <div className="mb-1 flex items-center gap-2">
               <Shield size={12} className="text-muted-foreground" />
-              <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Account Security</span>
+              <span className="text-xs uppercase tracking-widest text-muted-foreground">Account Security</span>
             </div>
             <h2 className="font-display text-3xl font-black tracking-tight">Security & Audit</h2>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -184,7 +184,7 @@ export default function Security() {
               </svg>
               <div className="absolute flex flex-col items-center">
                 <span className={`font-mono text-xl font-black ${scoreColor}`}>{score}</span>
-                <span className="font-mono text-[8px] uppercase text-muted-foreground">/ 100</span>
+                <span className="text-xs uppercase text-muted-foreground">/ 100</span>
               </div>
             </div>
 
@@ -207,7 +207,7 @@ export default function Security() {
                 ).map(([status, count]) => {
                   const cfg = STATUS_CFG[status as RiskLevel];
                   return (
-                    <span key={status} className={`flex items-center gap-1 rounded-full px-2.5 py-1 font-mono text-[9px] font-bold ${cfg.bg}`} style={{ color: cfg.color }}>
+                    <span key={status} className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${cfg.bg}`} style={{ color: cfg.color }}>
                       {count}× {cfg.label}
                     </span>
                   );
@@ -244,7 +244,7 @@ export default function Security() {
                   <div className="mb-3 flex items-center gap-3">
                     <h3 className="font-display text-sm font-bold text-foreground">{category}</h3>
                     {catIssues > 0 && (
-                      <span className="rounded-full bg-bearish/10 px-2 py-0.5 font-mono text-[9px] font-bold text-bearish">
+                      <span className="rounded-full bg-bearish/10 px-2 py-0.5 text-xs font-bold text-bearish">
                         {catIssues} issue{catIssues > 1 ? "s" : ""}
                       </span>
                     )}
@@ -267,7 +267,7 @@ export default function Security() {
                               <div className="flex items-center gap-2 flex-wrap">
                                 <span className="font-mono text-xs font-bold text-foreground">{check.label}</span>
                                 <span
-                                  className={`rounded-full px-2 py-0.5 font-mono text-[9px] font-bold ${cfg.bg}`}
+                                  className={`rounded-full px-2 py-0.5 text-xs font-bold ${cfg.bg}`}
                                   style={{ color: cfg.color }}
                                 >
                                   {cfg.label}
@@ -277,7 +277,7 @@ export default function Security() {
                               {check.recommendation && (
                                 <div className="mt-2 flex items-start gap-2 rounded-lg border border-current/20 bg-current/5 p-2" style={{ borderColor: `${cfg.color}30`, background: `${cfg.color}08` }}>
                                   <AlertTriangle size={10} className="mt-0.5 shrink-0" style={{ color: cfg.color }} />
-                                  <p className="font-mono text-[9px] leading-relaxed" style={{ color: cfg.color }}>{check.recommendation}</p>
+                                  <p className="text-xs leading-relaxed" style={{ color: cfg.color }}>{check.recommendation}</p>
                                 </div>
                               )}
                             </div>
@@ -303,7 +303,7 @@ export default function Security() {
 
             {/* Filters */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Filter:</span>
+              <span className="text-xs uppercase tracking-widest text-muted-foreground">Filter:</span>
 
               {(["all", "login", "trade", "settings", "api", "auth", "alert"] as const).map(f => (
                 <button
@@ -341,7 +341,7 @@ export default function Security() {
                 <thead>
                   <tr className="border-b border-border">
                     {["Time", "Type", "Action", "Detail", "IP Address", "Device", "Status"].map(h => (
-                      <th key={h} className="px-4 py-3 font-mono text-[9px] uppercase tracking-widest text-muted-foreground">{h}</th>
+                      <th key={h} className="px-4 py-3 text-xs uppercase tracking-widest text-muted-foreground">{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -363,7 +363,7 @@ export default function Security() {
                         className={`border-b border-border/40 transition-colors hover:bg-accent/20 ${!event.success ? "bg-bearish/5" : ""}`}
                       >
                         <td className="px-4 py-3">
-                          <div className="flex items-center gap-1.5 font-mono text-[10px] text-muted-foreground">
+                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                             <Clock size={10} /> {timeAgo(event.timestamp)}
                           </div>
                         </td>
@@ -375,14 +375,14 @@ export default function Security() {
                               event.type === "trade" ? "text-bullish" :
                               "text-muted-foreground"
                             }`} />
-                            <span className="font-mono text-[10px] capitalize text-muted-foreground">{event.type}</span>
+                            <span className="text-xs capitalize text-muted-foreground">{event.type}</span>
                           </div>
                         </td>
                         <td className="px-4 py-3 font-mono text-xs font-bold text-foreground">{event.action}</td>
-                        <td className="px-4 py-3 font-mono text-[10px] text-muted-foreground max-w-xs truncate">{event.detail}</td>
-                        <td className="px-4 py-3 font-mono text-[10px] text-muted-foreground">{event.ip}</td>
+                        <td className="px-4 py-3 text-xs text-muted-foreground max-w-xs truncate">{event.detail}</td>
+                        <td className="px-4 py-3 text-xs text-muted-foreground">{event.ip}</td>
                         <td className="px-4 py-3">
-                          <div className="flex items-center gap-1 font-mono text-[10px] text-muted-foreground">
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
                             {event.device.includes("iOS") || event.device.includes("Android")
                               ? <Smartphone size={10} />
                               : <Monitor size={10} />}
@@ -390,7 +390,7 @@ export default function Security() {
                           </div>
                         </td>
                         <td className="px-4 py-3">
-                          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[9px] font-bold ${
+                          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold ${
                             event.success ? "bg-bullish/10 text-bullish" : "bg-bearish/10 text-bearish"
                           }`}>
                             {event.success ? <CheckCircle2 size={8} /> : <XCircle size={8} />}
@@ -404,7 +404,7 @@ export default function Security() {
               </table>
             </div>
 
-            <p className="text-right font-mono text-[9px] uppercase tracking-widest text-muted-foreground/40">
+            <p className="text-right text-xs uppercase tracking-widest text-muted-foreground/40">
               Audit log is illustrative · Connect to a live logging provider for production-grade audit trails
             </p>
           </motion.div>

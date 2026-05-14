@@ -1,4 +1,5 @@
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { streamInvoke } from "@/lib/streamInvoke";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
@@ -22,7 +23,10 @@ import {
   ChevronDown,
   Copy,
   XCircle,
+  ChevronRight,
+  ArrowRight,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 // ─── Animation variants ────────────────────────────────────────────────────
 
@@ -148,8 +152,8 @@ function FormRow({ label, sublabel, children }: { label: string; sublabel?: stri
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex items-baseline gap-2">
-        <label className="font-mono text-[10px] uppercase tracking-[1px] text-muted-foreground">{label}</label>
-        {sublabel && <span className="font-mono text-[9px] text-muted-foreground/60">{sublabel}</span>}
+        <label className="text-xs uppercase tracking-[1px] text-muted-foreground">{label}</label>
+        {sublabel && <span className="text-xs text-muted-foreground/60">{sublabel}</span>}
       </div>
       {children}
     </div>
@@ -205,7 +209,7 @@ function ResultRow({
   };
   return (
     <div className="flex items-center justify-between border-b border-border/40 py-3 last:border-b-0">
-      <span className="font-mono text-[11px] text-muted-foreground">{label}</span>
+      <span className="text-sm text-muted-foreground">{label}</span>
       <span className={`font-mono ${large ? "text-lg font-extrabold" : "text-sm font-semibold"} ${colorMap[accent ?? "blue"]}`}>
         {value}
       </span>
@@ -218,7 +222,7 @@ function DirectionToggle({ value, onChange }: { value: Direction; onChange: (d: 
     <div className="flex rounded-lg border border-border overflow-hidden">
       <button
         onClick={() => onChange("call")}
-        className={`flex-1 flex items-center justify-center gap-2 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-wider transition-all border-r ${
+        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-semibold uppercase tracking-wider transition-all border-r ${
           value === "call"
             ? "bg-bullish/15 text-bullish border-bullish/30"
             : "text-muted-foreground hover:text-foreground border-border"
@@ -229,7 +233,7 @@ function DirectionToggle({ value, onChange }: { value: Direction; onChange: (d: 
       </button>
       <button
         onClick={() => onChange("put")}
-        className={`flex-1 flex items-center justify-center gap-2 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-wider transition-all ${
+        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-semibold uppercase tracking-wider transition-all ${
           value === "put"
             ? "bg-bearish/15 text-bearish"
             : "text-muted-foreground hover:text-foreground"
@@ -354,119 +358,158 @@ function TradeDiagram({
 
 // ─── Tab: Reference ────────────────────────────────────────────────────────
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 16 },
+  show: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.07, duration: 0.4 } }),
+};
+
 function ReferenceTab() {
   return (
-    <div className="space-y-6 p-5 sm:p-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Bullish */}
-        <div className="rounded-xl border border-bullish/20 bg-bullish/5 overflow-hidden">
-          <div className="bg-bullish/15 px-4 py-3 border-b border-bullish/20">
-            <p className="font-display text-[11px] font-extrabold uppercase tracking-[1.5px] text-bullish">
-              Going UP — Failure To Go Lower (FTGL)
-            </p>
-          </div>
-          <div className="px-4 py-3 border-b border-bullish/10">
-            <p className="font-mono text-[11px] leading-relaxed text-muted-foreground">
-              The market tried to go <span className="text-bearish font-semibold">LOWER</span> but{" "}
-              <span className="text-bullish font-semibold">FAILED</span>. Buyers stepped in. When you
-              see any of these 3 terms, the market wants to go{" "}
-              <span className="text-bullish font-semibold">UP</span>.
-            </p>
-          </div>
-          <div className="divide-y divide-border/30">
-            {bullishTerms.map((t) => (
-              <div key={t.term} className="px-4 py-3 flex flex-col gap-1">
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-[12px] font-bold text-bullish">{t.term}</span>
-                  <span className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground bg-muted/40 rounded px-1.5 py-0.5">
-                    {t.direction}
-                  </span>
-                </div>
-                <p className="font-mono text-[10px] leading-relaxed text-muted-foreground">{t.desc}</p>
-                <p className="font-mono text-[10px] text-bullish/80 italic">→ {t.action}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+    <div className="mx-auto max-w-4xl space-y-10 p-5 sm:p-8 pb-12">
 
-        {/* Bearish */}
-        <div className="rounded-xl border border-bearish/20 bg-bearish/5 overflow-hidden">
-          <div className="bg-bearish/15 px-4 py-3 border-b border-bearish/20">
-            <p className="font-display text-[11px] font-extrabold uppercase tracking-[1.5px] text-bearish">
-              Going DOWN — Failure To Go Higher (FTGH)
-            </p>
+      {/* P1 → P2 → P3 → Entry flow */}
+      <div className="space-y-3">
+        <h2 className="text-xl font-bold text-foreground">The Setup Flow</h2>
+        <div className="flex items-center gap-2 flex-wrap">
+          {["P1 — Mark the reversal", "P2 — Confirm the swing", "P3 — Higher Low / Lower High", "Entry — Break past P2"].map((step, i) => (
+            <div key={step} className="flex items-center gap-2">
+              <span className={`rounded-lg border px-3 py-1.5 text-sm font-semibold ${
+                i === 3
+                  ? "border-bullish/40 bg-bullish/10 text-bullish"
+                  : "border-border bg-card text-foreground"
+              }`}>
+                {step}
+              </span>
+              {i < 3 && <ChevronRight className="h-4 w-4 text-muted-foreground/40 shrink-0" />}
+            </div>
+          ))}
+        </div>
+        <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">
+          The market must prove itself <span className="text-foreground font-medium">three times</span> before you risk a dollar.
+          You mark P1, wait for P2 to form the swing, watch for P3 to confirm the structure holds,
+          then enter only when price breaks past P2. No break = no trade.
+        </p>
+      </div>
+
+      {/* Going UP */}
+      <div className="space-y-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-bullish" />
+            <h2 className="text-xl font-bold text-foreground">Going UP — Failure To Go Lower (FTGL)</h2>
           </div>
-          <div className="px-4 py-3 border-b border-bearish/10">
-            <p className="font-mono text-[11px] leading-relaxed text-muted-foreground">
-              The market tried to go <span className="text-bullish font-semibold">HIGHER</span> but{" "}
-              <span className="text-bearish font-semibold">FAILED</span>. Sellers stepped in. When you
-              see any of these 3 terms, the market wants to go{" "}
-              <span className="text-bearish font-semibold">DOWN</span>.
-            </p>
-          </div>
-          <div className="divide-y divide-border/30">
-            {bearishTerms.map((t) => (
-              <div key={t.term} className="px-4 py-3 flex flex-col gap-1">
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-[12px] font-bold text-bearish">{t.term}</span>
-                  <span className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground bg-muted/40 rounded px-1.5 py-0.5">
-                    {t.direction}
-                  </span>
-                </div>
-                <p className="font-mono text-[10px] leading-relaxed text-muted-foreground">{t.desc}</p>
-                <p className="font-mono text-[10px] text-bearish/80 italic">→ {t.action}</p>
+          <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">
+            The market tried to go <span className="text-bearish font-semibold">LOWER</span> but <span className="text-bullish font-semibold">FAILED</span>. Buyers stepped in.
+            When you see any of these 3 terms, the market wants to go <span className="text-bullish font-semibold">UP</span>.
+          </p>
+        </div>
+        <div className="space-y-3">
+          {bullishTerms.map((t, i) => (
+            <motion.div
+              key={t.term}
+              custom={i}
+              initial="hidden"
+              animate="show"
+              variants={fadeUp}
+              className="rounded-xl border border-bullish/20 bg-bullish/5 p-5 space-y-2"
+            >
+              <div className="flex items-center gap-3 flex-wrap">
+                <span className="text-base font-bold text-bullish">{t.term}</span>
+                <span className="rounded border border-bullish/20 bg-bullish/10 px-2 py-0.5 text-xs font-medium text-bullish">{t.direction}</span>
               </div>
-            ))}
+              <p className="text-sm text-muted-foreground leading-relaxed">{t.desc}</p>
+              <p className="text-sm font-medium text-bullish">→ {t.action}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Going DOWN */}
+      <div className="space-y-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <TrendingDown className="h-5 w-5 text-bearish" />
+            <h2 className="text-xl font-bold text-foreground">Going DOWN — Failure To Go Higher (FTGH)</h2>
           </div>
+          <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">
+            The market tried to go <span className="text-bullish font-semibold">HIGHER</span> but <span className="text-bearish font-semibold">FAILED</span>. Sellers stepped in.
+            When you see any of these 3 terms, the market wants to go <span className="text-bearish font-semibold">DOWN</span>.
+          </p>
+        </div>
+        <div className="space-y-3">
+          {bearishTerms.map((t, i) => (
+            <motion.div
+              key={t.term}
+              custom={i}
+              initial="hidden"
+              animate="show"
+              variants={fadeUp}
+              className="rounded-xl border border-bearish/20 bg-bearish/5 p-5 space-y-2"
+            >
+              <div className="flex items-center gap-3 flex-wrap">
+                <span className="text-base font-bold text-bearish">{t.term}</span>
+                <span className="rounded border border-bearish/20 bg-bearish/10 px-2 py-0.5 text-xs font-medium text-bearish">{t.direction}</span>
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed">{t.desc}</p>
+              <p className="text-sm font-medium text-bearish">→ {t.action}</p>
+            </motion.div>
+          ))}
         </div>
       </div>
 
       {/* Quick reference table */}
-      <div className="rounded-xl border border-border overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-card">
-          <span className="font-display text-[11px] font-bold uppercase tracking-[1.2px] text-muted-foreground">
-            All 6 Terms — Quick Reference
-          </span>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-border bg-muted/20">
-                {["Term", "Direction", "What It Tells You", "Action In Your Trade"].map((h) => (
-                  <th key={h} className="px-4 py-2.5 text-left font-mono text-[10px] uppercase tracking-widest text-muted-foreground whitespace-nowrap">
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/40">
-              {quickRefRows.map((row) => (
-                <tr key={row.term} className="hover:bg-accent/30 transition-colors">
-                  <td className={`px-4 py-3 font-mono text-[11px] font-bold whitespace-nowrap ${row.color}`}>{row.term}</td>
-                  <td className="px-4 py-3 font-mono text-[10px] text-muted-foreground whitespace-nowrap">{row.dir}</td>
-                  <td className="px-4 py-3 font-mono text-[10px] text-muted-foreground">{row.signal}</td>
-                  <td className="px-4 py-3 font-mono text-[10px] text-foreground">{row.action}</td>
+      <div className="space-y-3">
+        <h2 className="text-xl font-bold text-foreground">All 6 Terms — Quick Reference</h2>
+        <div className="rounded-xl border border-border overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-border bg-muted/20">
+                  {["Term", "Direction", "What It Tells You", "Action In Your Trade"].map((h) => (
+                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground whitespace-nowrap">
+                      {h}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-border/40">
+                {quickRefRows.map((row) => (
+                  <tr key={row.term} className="hover:bg-accent/30 transition-colors">
+                    <td className={`px-4 py-3.5 text-sm font-bold whitespace-nowrap ${row.color}`}>{row.term}</td>
+                    <td className="px-4 py-3.5 text-sm text-muted-foreground whitespace-nowrap">{row.dir}</td>
+                    <td className="px-4 py-3.5 text-sm text-muted-foreground">{row.signal}</td>
+                    <td className="px-4 py-3.5 text-sm text-foreground">{row.action}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      <div className="rounded-xl border border-primary/20 bg-primary/5 px-5 py-4 text-center">
-        <p className="font-mono text-[11px] leading-relaxed text-muted-foreground">
-          <span className="font-bold text-foreground">THE CORE RULE: </span>
-          See all 3 points. Confirm P3 is between P1 and P2. Enter ONLY when price breaks past P2.
-          Until then — you wait. That patience is the edge.
-        </p>
+      {/* Core Rule */}
+      <div className="rounded-xl border border-primary/20 bg-primary/5 p-6 space-y-3">
+        <div className="flex items-start gap-4">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/15">
+            <Target className="h-5 w-5 text-primary" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-base font-semibold text-foreground">THE CORE RULE</h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              See all 3 points. Confirm P3 is between P1 and P2. Enter{" "}
+              <span className="text-foreground font-semibold">ONLY</span> when price breaks past P2.
+              Until then — you wait. That patience is the edge.
+            </p>
+          </div>
+        </div>
       </div>
+
     </div>
   );
 }
 
 // ─── Tab: Setup Tracker ────────────────────────────────────────────────────
 
-const AI_ADVISOR_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-advisor`;
 
 function SetupTrackerTab() {
   const { user } = useAuth();
@@ -693,50 +736,15 @@ ${headlines}
 
 Give a concise 3-4 sentence assessment of this 1-2-3 setup. Cover: (1) structure validity and quality, (2) whether the news aligns with or contradicts the ${isCall ? "bullish" : "bearish"} direction, (3) any regime or macro risk factors, (4) your overall confidence rating — HIGH, MODERATE, or LOW — and why.`;
 
-    try {
-      const resp = await fetch(AI_ADVISOR_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({ messages: [{ role: "user", content: prompt }] }),
-      });
-
-      if (!resp.ok || !resp.body) {
-        setAiAnalysis("Could not reach AI advisor. Check your API connection.");
-        setIsAnalyzing(false);
-        return;
+    await streamInvoke(
+      "ai-advisor",
+      { messages: [{ role: "user", content: prompt }] },
+      {
+        onDelta: (delta) => setAiAnalysis((prev) => prev + delta),
+        onDone: () => setIsAnalyzing(false),
+        onError: (msg) => { setAiAnalysis(msg); setIsAnalyzing(false); },
       }
-
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-      let done = false;
-
-      while (!done) {
-        const { done: readerDone, value } = await reader.read();
-        if (readerDone) break;
-        buffer += decoder.decode(value, { stream: true });
-        let idx: number;
-        while ((idx = buffer.indexOf("\n")) !== -1) {
-          const line = buffer.slice(0, idx).trim();
-          buffer = buffer.slice(idx + 1);
-          if (!line.startsWith("data: ")) continue;
-          const payload = line.slice(6);
-          if (payload === "[DONE]") { done = true; break; }
-          try {
-            const { choices } = JSON.parse(payload);
-            const delta = choices?.[0]?.delta?.content;
-            if (delta) setAiAnalysis((prev) => prev + delta);
-          } catch { /* skip malformed chunks */ }
-        }
-      }
-    } catch {
-      setAiAnalysis("Analysis failed. Please try again.");
-    } finally {
-      setIsAnalyzing(false);
-    }
+    );
   };
 
   const resetAll = () => {
@@ -790,7 +798,7 @@ Give a concise 3-4 sentence assessment of this 1-2-3 setup. Cover: (1) structure
                 <div className="relative" ref={watchlistRef}>
                   <button
                     onClick={() => setShowWatchlist((v) => !v)}
-                    className="flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2.5 font-mono text-[11px] text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors whitespace-nowrap"
+                    className="flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors whitespace-nowrap"
                   >
                     Watchlist <ChevronDown className="h-3 w-3" />
                   </button>
@@ -814,9 +822,9 @@ Give a concise 3-4 sentence assessment of this 1-2-3 setup. Cover: (1) structure
                               }}
                               className="w-full flex items-center gap-2 px-3 py-2.5 text-left hover:bg-accent/50 transition-colors"
                             >
-                              <span className="font-mono text-[12px] font-bold text-foreground">{item.ticker}</span>
+                              <span className="text-sm font-bold text-foreground">{item.ticker}</span>
                               {item.company_name && (
-                                <span className="font-mono text-[10px] text-muted-foreground truncate">{item.company_name}</span>
+                                <span className="text-xs text-muted-foreground truncate">{item.company_name}</span>
                               )}
                             </button>
                           ))}
@@ -839,14 +847,14 @@ Give a concise 3-4 sentence assessment of this 1-2-3 setup. Cover: (1) structure
                 className="rounded-lg border border-border bg-surface/60 px-4 py-3 flex items-center justify-between"
               >
                 <div>
-                  <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">{debouncedTicker} — Prev Close</span>
+                  <span className="text-xs uppercase tracking-widest text-muted-foreground">{debouncedTicker} — Prev Close</span>
                   <div className="font-display text-[20px] font-extrabold text-foreground">
                     ${tickerCtx.quote.price.toFixed(2)}
                   </div>
                 </div>
-                <div className={`text-right font-mono text-[13px] font-bold ${tickerCtx.quote.change_pct >= 0 ? "text-bullish" : "text-bearish"}`}>
+                <div className={`text-right text-sm font-bold ${tickerCtx.quote.change_pct >= 0 ? "text-bullish" : "text-bearish"}`}>
                   {tickerCtx.quote.change_pct >= 0 ? "+" : ""}{tickerCtx.quote.change_pct.toFixed(2)}%
-                  <div className="font-mono text-[9px] text-muted-foreground font-normal">day change</div>
+                  <div className="text-xs text-muted-foreground font-normal">day change</div>
                 </div>
               </motion.div>
             )}
@@ -867,13 +875,13 @@ Give a concise 3-4 sentence assessment of this 1-2-3 setup. Cover: (1) structure
                       : "border-border text-muted-foreground hover:text-foreground hover:border-foreground/30"
                   }`}
                 >
-                  <span className="font-mono text-[10px] font-bold uppercase tracking-wide">{TIMEFRAME_GUIDANCE[tf].label.split(" ")[0]}</span>
-                  <span className="font-mono text-[8px] opacity-70">{TIMEFRAME_GUIDANCE[tf].short}</span>
+                  <span className="text-xs font-bold uppercase tracking-wide">{TIMEFRAME_GUIDANCE[tf].label.split(" ")[0]}</span>
+                  <span className="text-xs opacity-70">{TIMEFRAME_GUIDANCE[tf].short}</span>
                 </button>
               ))}
             </div>
             {timeframe && (
-              <p className="font-mono text-[10px] text-muted-foreground/70 mt-0.5">{TIMEFRAME_GUIDANCE[timeframe].guidance}</p>
+              <p className="text-xs text-muted-foreground/70 mt-0.5">{TIMEFRAME_GUIDANCE[timeframe].guidance}</p>
             )}
           </FormRow>
 
@@ -918,7 +926,7 @@ Give a concise 3-4 sentence assessment of this 1-2-3 setup. Cover: (1) structure
                 <button
                   key={pct}
                   onClick={() => setRiskPct(pct)}
-                  className={`flex-1 rounded-lg border py-2.5 font-mono text-[12px] font-bold transition-all ${
+                  className={`flex-1 rounded-lg border py-2.5 text-sm font-bold transition-all ${
                     riskPct === pct
                       ? "border-primary/50 bg-primary/10 text-primary"
                       : "border-border text-muted-foreground hover:text-foreground"
@@ -934,7 +942,7 @@ Give a concise 3-4 sentence assessment of this 1-2-3 setup. Cover: (1) structure
             <div className="flex rounded-lg border border-border overflow-hidden">
               <button
                 onClick={() => setVehicle("stock")}
-                className={`flex-1 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-wider transition-all border-r border-border ${
+                className={`flex-1 py-2.5 text-sm font-semibold uppercase tracking-wider transition-all border-r border-border ${
                   vehicle === "stock" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -942,7 +950,7 @@ Give a concise 3-4 sentence assessment of this 1-2-3 setup. Cover: (1) structure
               </button>
               <button
                 onClick={() => setVehicle("option")}
-                className={`flex-1 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-wider transition-all ${
+                className={`flex-1 py-2.5 text-sm font-semibold uppercase tracking-wider transition-all ${
                   vehicle === "option" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -968,10 +976,10 @@ Give a concise 3-4 sentence assessment of this 1-2-3 setup. Cover: (1) structure
                regimeLabel === "BEAR" ? <TrendingDown className={`h-3.5 w-3.5 ${regimeAlign.color}`} /> :
                regimeLabel === "VOLATILE" ? <Activity className={`h-3.5 w-3.5 ${regimeAlign.color}`} /> :
                <Gauge className={`h-3.5 w-3.5 ${regimeAlign.color}`} />}
-              <span className={`font-mono text-[11px] font-semibold ${regimeAlign.color}`}>
+              <span className={`text-sm font-semibold ${regimeAlign.color}`}>
                 Regime: {regimeLabel}
               </span>
-              <span className="ml-auto font-mono text-[10px] text-muted-foreground">{regimeAlign.label}</span>
+              <span className="ml-auto text-xs text-muted-foreground">{regimeAlign.label}</span>
             </div>
           )}
 
@@ -989,8 +997,8 @@ Give a concise 3-4 sentence assessment of this 1-2-3 setup. Cover: (1) structure
                   {vc.label}
                 </div>
                 <div className="flex flex-col gap-0.5">
-                  <span className={`font-mono text-[11px] font-bold ${vc.text}`}>Trade Verdict</span>
-                  <span className="font-mono text-[10px] text-muted-foreground leading-snug">{vc.sub}</span>
+                  <span className={`text-sm font-bold ${vc.text}`}>Trade Verdict</span>
+                  <span className="text-xs text-muted-foreground leading-snug">{vc.sub}</span>
                 </div>
               </motion.div>
             )}
@@ -1011,7 +1019,7 @@ Give a concise 3-4 sentence assessment of this 1-2-3 setup. Cover: (1) structure
                 {results.valid
                   ? <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-bullish mt-0.5" />
                   : <AlertTriangle className="h-4 w-4 flex-shrink-0 text-bearish mt-0.5" />}
-                <p className={`font-mono text-[11px] leading-relaxed font-semibold ${results.valid ? "text-bullish" : "text-bearish"}`}>
+                <p className={`text-sm leading-relaxed font-semibold ${results.valid ? "text-bullish" : "text-bearish"}`}>
                   {results.reason}
                 </p>
               </motion.div>
@@ -1026,7 +1034,7 @@ Give a concise 3-4 sentence assessment of this 1-2-3 setup. Cover: (1) structure
                 animate={{ opacity: 1 }}
                 className="rounded-xl border border-border bg-surface/50 p-3 overflow-hidden"
               >
-                <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground mb-2">Trade Diagram</p>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Trade Diagram</p>
                 <TradeDiagram
                   p1={parseFloat(p1)}
                   p2={parseFloat(p2)}
@@ -1093,7 +1101,7 @@ Give a concise 3-4 sentence assessment of this 1-2-3 setup. Cover: (1) structure
               animate={{ opacity: 1, y: 0 }}
               onClick={analyzeSetup}
               disabled={isAnalyzing}
-              className={`flex items-center justify-center gap-2 rounded-lg border px-4 py-3 font-mono text-[12px] font-semibold uppercase tracking-wider transition-all ${
+              className={`flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-sm font-semibold uppercase tracking-wider transition-all ${
                 isAnalyzing
                   ? "border-primary/30 bg-primary/5 text-primary/60 cursor-not-allowed"
                   : "border-primary/40 bg-primary/8 text-primary hover:bg-primary/15 hover:border-primary/60"
@@ -1109,10 +1117,10 @@ Give a concise 3-4 sentence assessment of this 1-2-3 setup. Cover: (1) structure
           {operationsBrief && (
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <span className="font-mono text-[10px] uppercase tracking-[1px] text-muted-foreground">Operations Brief</span>
+                <span className="text-xs uppercase tracking-[1px] text-muted-foreground">Operations Brief</span>
                 <button
                   onClick={copyBrief}
-                  className={`flex items-center gap-1.5 rounded border px-2.5 py-1.5 font-mono text-[10px] transition-all ${
+                  className={`flex items-center gap-1.5 rounded border px-2.5 py-1.5 text-xs transition-all ${
                     copied
                       ? "border-bullish/40 bg-bullish/10 text-bullish"
                       : "border-border text-muted-foreground hover:text-foreground hover:border-foreground/40"
@@ -1122,14 +1130,14 @@ Give a concise 3-4 sentence assessment of this 1-2-3 setup. Cover: (1) structure
                   {copied ? "Copied!" : "Copy"}
                 </button>
               </div>
-              <pre className="rounded-lg border border-border bg-surface/60 px-4 py-3 font-mono text-[10px] leading-relaxed text-muted-foreground whitespace-pre-wrap overflow-x-auto">
+              <pre className="rounded-lg border border-border bg-surface/60 px-4 py-3 text-xs leading-relaxed text-muted-foreground whitespace-pre-wrap overflow-x-auto">
                 {operationsBrief}
               </pre>
             </div>
           )}
 
           <div className="mt-auto rounded-lg border border-border bg-card px-4 py-3">
-            <p className="font-mono text-[10px] leading-relaxed text-muted-foreground">
+            <p className="text-xs leading-relaxed text-muted-foreground">
               <span className="text-foreground font-semibold">Rule: </span>
               Set stop loss the MOMENT you enter. Before anything else. Never skip it.
             </p>
@@ -1149,7 +1157,7 @@ Give a concise 3-4 sentence assessment of this 1-2-3 setup. Cover: (1) structure
             <div className="p-5 sm:p-6 flex flex-col gap-3">
               <div className="flex items-center gap-2">
                 <Newspaper className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="font-mono text-[10px] uppercase tracking-[1px] text-muted-foreground">
+                <span className="text-xs uppercase tracking-[1px] text-muted-foreground">
                   Recent News — {debouncedTicker}
                 </span>
               </div>
@@ -1166,16 +1174,16 @@ Give a concise 3-4 sentence assessment of this 1-2-3 setup. Cover: (1) structure
                     className="group flex flex-col gap-1.5 rounded-lg border border-border bg-surface/60 p-3 hover:bg-accent/40 hover:border-border/80 transition-all"
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <p className="font-mono text-[11px] font-semibold text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+                      <p className="text-sm font-semibold text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors">
                         {article.title}
                       </p>
                       <ExternalLink className="h-3 w-3 shrink-0 text-muted-foreground/40 group-hover:text-primary transition-colors mt-0.5" />
                     </div>
                     <div className="flex items-center gap-2 mt-auto">
                       {article.source && (
-                        <span className="font-mono text-[9px] text-muted-foreground/60 truncate">{article.source}</span>
+                        <span className="text-xs text-muted-foreground/60 truncate">{article.source}</span>
                       )}
-                      <span className="ml-auto font-mono text-[9px] text-muted-foreground/60 whitespace-nowrap">
+                      <span className="ml-auto text-xs text-muted-foreground/60 whitespace-nowrap">
                         {timeAgo(article.published_utc)}
                       </span>
                     </div>
@@ -1199,14 +1207,14 @@ Give a concise 3-4 sentence assessment of this 1-2-3 setup. Cover: (1) structure
             <div className="p-5 sm:p-6 flex flex-col gap-3">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-3.5 w-3.5 text-primary" />
-                <span className="font-mono text-[10px] uppercase tracking-[1px] text-primary">
+                <span className="text-xs uppercase tracking-[1px] text-primary">
                   AI Setup Analysis
                 </span>
                 {isAnalyzing && <Loader2 className="h-3 w-3 animate-spin text-muted-foreground ml-auto" />}
               </div>
               <div className="rounded-xl border border-primary/20 bg-primary/5 px-5 py-4">
                 {aiAnalysis ? (
-                  <p className="font-mono text-[12px] leading-relaxed text-foreground whitespace-pre-wrap">
+                  <p className="text-sm leading-relaxed text-foreground whitespace-pre-wrap">
                     {aiAnalysis}
                   </p>
                 ) : (
@@ -1305,7 +1313,7 @@ function ChecklistTab() {
         </div>
         <button
           onClick={() => { setChecked(Array(9).fill(false)); setTechChecked(Array(6).fill(false)); }}
-          className="shrink-0 rounded-lg border border-border px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
+          className="shrink-0 rounded-lg border border-border px-4 py-2.5 text-sm font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
         >
           Reset
         </button>
@@ -1314,10 +1322,10 @@ function ChecklistTab() {
       {/* Combined progress bar */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+          <span className="text-xs uppercase tracking-widest text-muted-foreground">
             Overall Progress
           </span>
-          <span className={`font-mono text-[11px] font-bold ${totalCount === totalItems ? (isCall ? "text-bullish" : "text-bearish") : "text-muted-foreground"}`}>
+          <span className={`text-sm font-bold ${totalCount === totalItems ? (isCall ? "text-bullish" : "text-bearish") : "text-muted-foreground"}`}>
             {totalCount} / {totalItems}
           </span>
         </div>
@@ -1333,10 +1341,10 @@ function ChecklistTab() {
       {/* Pre-Trade Checklist */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+          <span className="text-xs uppercase tracking-widest text-muted-foreground">
             Pre-Trade Checklist
           </span>
-          <span className="font-mono text-[10px] text-muted-foreground">{checkedCount} / {items.length}</span>
+          <span className="text-xs text-muted-foreground">{checkedCount} / {items.length}</span>
         </div>
         <div className="rounded-xl border border-border overflow-hidden">
           <AnimatePresence mode="wait">
@@ -1357,7 +1365,7 @@ function ChecklistTab() {
                   {checked[i]
                     ? <CheckCircle2 className={`h-4 w-4 flex-shrink-0 mt-0.5 ${isCall ? "text-bullish" : "text-bearish"}`} />
                     : <Circle className="h-4 w-4 flex-shrink-0 mt-0.5 text-border" />}
-                  <span className={`font-mono text-[11px] leading-relaxed ${checked[i] ? "text-foreground" : "text-muted-foreground"}`}>
+                  <span className={`text-sm leading-relaxed ${checked[i] ? "text-foreground" : "text-muted-foreground"}`}>
                     {item}
                   </span>
                 </motion.button>
@@ -1370,12 +1378,12 @@ function ChecklistTab() {
       {/* Technical Confirmation */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+          <span className="text-xs uppercase tracking-widest text-muted-foreground">
             Technical Confirmation
           </span>
-          <span className="font-mono text-[10px] text-muted-foreground">{techCheckedCount} / {techItems.length}</span>
+          <span className="text-xs text-muted-foreground">{techCheckedCount} / {techItems.length}</span>
         </div>
-        <p className="font-mono text-[10px] text-muted-foreground/60">Check any that apply. More checks = higher conviction.</p>
+        <p className="text-xs text-muted-foreground/60">Check any that apply. More checks = higher conviction.</p>
         <div className="rounded-xl border border-border overflow-hidden">
           <AnimatePresence mode="wait">
             <motion.div key={direction + "-tech"} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -1395,7 +1403,7 @@ function ChecklistTab() {
                   {techChecked[i]
                     ? <CheckCircle2 className="h-4 w-4 flex-shrink-0 mt-0.5 text-primary" />
                     : <Circle className="h-4 w-4 flex-shrink-0 mt-0.5 text-border" />}
-                  <span className={`font-mono text-[11px] leading-relaxed ${techChecked[i] ? "text-foreground" : "text-muted-foreground"}`}>
+                  <span className={`text-sm leading-relaxed ${techChecked[i] ? "text-foreground" : "text-muted-foreground"}`}>
                     {item}
                   </span>
                 </motion.button>
@@ -1405,7 +1413,7 @@ function ChecklistTab() {
         </div>
         {/* Conviction meter */}
         {techCheckedCount > 0 && (
-          <div className={`rounded-lg border px-3 py-2 font-mono text-[10px] ${
+          <div className={`rounded-lg border px-3 py-2 text-xs ${
             techCheckedCount >= 5 ? "border-bullish/30 bg-bullish/8 text-bullish" :
             techCheckedCount >= 3 ? "border-primary/30 bg-primary/8 text-primary" :
             "border-watch/30 bg-watch/8 text-watch"
@@ -1430,10 +1438,10 @@ function ChecklistTab() {
           >
             <CheckCheck className={`h-5 w-5 flex-shrink-0 ${isCall ? "text-bullish" : "text-bearish"}`} />
             <div>
-              <p className={`font-mono text-[12px] font-extrabold uppercase tracking-wide ${isCall ? "text-bullish" : "text-bearish"}`}>
+              <p className={`text-sm font-extrabold uppercase tracking-wide ${isCall ? "text-bullish" : "text-bearish"}`}>
                 Setup confirmed — {isCall ? "Buy your CALL now." : "Buy your PUT now."}
               </p>
-              <p className="font-mono text-[10px] text-muted-foreground mt-0.5">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 Set your stop loss immediately after entry. Then wait for the market to do the work.
               </p>
             </div>
@@ -1446,7 +1454,7 @@ function ChecklistTab() {
             exit={{ opacity: 0 }}
             className="rounded-xl border border-border bg-card px-5 py-4"
           >
-            <p className="font-mono text-[10px] leading-relaxed text-muted-foreground text-center">
+            <p className="text-xs leading-relaxed text-muted-foreground text-center">
               If you cannot check every single pre-trade box —{" "}
               <span className="text-foreground font-semibold">do NOT enter the trade</span>. Wait for a cleaner setup.
             </p>
@@ -1481,13 +1489,13 @@ export default function Strategy123() {
             <h1 className="font-display text-xl sm:text-[28px] font-extrabold leading-none tracking-tight">
               1-2-3 <span className="text-primary">Strategy</span>
             </h1>
-            <p className="mt-1.5 font-mono text-[11px] sm:text-[13px] text-muted-foreground hidden sm:block">
+            <p className="mt-1.5 text-sm sm:text-[13px] text-muted-foreground hidden sm:block">
               // Mark. Confirm. Enter. The market proves itself 3 times before you risk a dollar.
             </p>
           </div>
           <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2">
             <Target className="h-3.5 w-3.5 text-primary" />
-            <span className="font-mono text-[11px] text-muted-foreground">P1 → P2 → P3 → Entry</span>
+            <span className="text-sm text-muted-foreground">P1 → P2 → P3 → Entry</span>
           </div>
         </motion.div>
 
@@ -1503,7 +1511,7 @@ export default function Strategy123() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`relative flex-shrink-0 px-5 sm:px-7 py-4 font-mono text-[11px] sm:text-[12px] font-semibold uppercase tracking-[1px] transition-colors ${
+                className={`relative flex-shrink-0 px-5 sm:px-7 py-4 text-sm sm:text-[12px] font-semibold uppercase tracking-[1px] transition-colors ${
                   activeTab === tab.id ? "text-primary" : "text-muted-foreground hover:text-foreground"
                 }`}
               >

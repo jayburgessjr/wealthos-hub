@@ -153,7 +153,7 @@ export default function Positions() {
       <div className="space-y-1">
         <div className="flex items-center gap-2">
           <Briefcase size={12} className="text-muted-foreground" />
-          <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Trading</span>
+          <span className="text-xs uppercase tracking-widest text-muted-foreground">Trading</span>
         </div>
         <h2 className="font-display text-3xl font-black tracking-tight">Positions</h2>
       </div>
@@ -167,7 +167,7 @@ export default function Positions() {
           <div className="flex items-center gap-3">
             <Send size={14} className="text-primary" />
             <span className="font-display text-sm font-bold text-foreground">Order Ticket</span>
-            <span className="rounded-full bg-primary/10 px-2 py-0.5 font-mono text-[9px] font-bold uppercase text-primary">
+            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold uppercase text-primary">
               Simulated
             </span>
           </div>
@@ -189,7 +189,7 @@ export default function Positions() {
                 {/* Row 1: Symbol + Direction */}
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                   <div>
-                    <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Symbol</label>
+                    <label className="text-xs uppercase tracking-widest text-muted-foreground">Symbol</label>
                     <input
                       value={ticker}
                       onChange={e => setTicker(e.target.value.toUpperCase())}
@@ -199,7 +199,7 @@ export default function Positions() {
                   </div>
 
                   <div>
-                    <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Direction</label>
+                    <label className="text-xs uppercase tracking-widest text-muted-foreground">Direction</label>
                     <div className="mt-1.5 flex overflow-hidden rounded-xl border border-border">
                       <button
                         onClick={() => setDirection("long")}
@@ -221,7 +221,7 @@ export default function Positions() {
                   </div>
 
                   <div>
-                    <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Order Type</label>
+                    <label className="text-xs uppercase tracking-widest text-muted-foreground">Order Type</label>
                     <select
                       value={orderType}
                       onChange={e => setOrderType(e.target.value as OrderType)}
@@ -232,7 +232,7 @@ export default function Positions() {
                   </div>
 
                   <div>
-                    <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Strategy</label>
+                    <label className="text-xs uppercase tracking-widest text-muted-foreground">Strategy</label>
                     <select
                       value={strategyType}
                       onChange={e => setStrategyType(e.target.value)}
@@ -246,7 +246,7 @@ export default function Positions() {
                 {/* Row 2: Price + Quantity + Leverage + Signal */}
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                   <div>
-                    <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                    <label className="text-xs uppercase tracking-widest text-muted-foreground">
                       {orderType === "Market" ? "Last Price ($)" : "Limit Price ($)"}
                     </label>
                     <div className="mt-1.5 flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2.5">
@@ -264,7 +264,7 @@ export default function Positions() {
                   </div>
 
                   <div>
-                    <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Quantity</label>
+                    <label className="text-xs uppercase tracking-widest text-muted-foreground">Quantity</label>
                     <input
                       type="number"
                       value={quantity}
@@ -278,7 +278,7 @@ export default function Positions() {
 
                   <div>
                     <div className="flex items-center justify-between">
-                      <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Leverage</label>
+                      <label className="text-xs uppercase tracking-widest text-muted-foreground">Leverage</label>
                       <span className="font-mono text-xs font-black text-watch">{leverage}×</span>
                     </div>
                     <input
@@ -291,7 +291,7 @@ export default function Positions() {
                   </div>
 
                   <div>
-                    <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Signal Score</label>
+                    <label className="text-xs uppercase tracking-widest text-muted-foreground">Signal Score</label>
                     <div className="mt-1.5 flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2.5">
                       <input
                         type="number"
@@ -308,12 +308,12 @@ export default function Positions() {
                 {/* Summary + Submit */}
                 <div className="flex items-center justify-between border-t border-border pt-4">
                   <div className="space-y-0.5">
-                    <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Position Value</p>
+                    <p className="text-xs uppercase tracking-widest text-muted-foreground">Position Value</p>
                     <p className="font-mono text-xl font-black text-foreground">
                       ${estimatedValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                     </p>
                     {leverage > 1 && (
-                      <p className="font-mono text-[9px] text-watch">{leverage}× leverage applied</p>
+                      <p className="text-xs text-watch">{leverage}× leverage applied</p>
                     )}
                   </div>
 
@@ -321,7 +321,7 @@ export default function Positions() {
                     {leverage >= 5 && (
                       <div className="flex items-center gap-1.5 rounded-lg border border-bearish/30 bg-bearish/5 px-3 py-2">
                         <AlertCircle size={11} className="text-bearish" />
-                        <span className="font-mono text-[9px] text-bearish">High leverage</span>
+                        <span className="text-xs text-bearish">High leverage</span>
                       </div>
                     )}
                     <button

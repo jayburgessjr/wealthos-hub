@@ -150,7 +150,7 @@ export default function Compound() {
             <h1 className="font-display text-xl sm:text-[28px] font-extrabold leading-none tracking-tight">
               Compound <span className="text-bullish">Engine</span>
             </h1>
-            <p className="mt-1.5 font-mono text-[11px] sm:text-[13px] text-muted-foreground hidden sm:block">
+            <p className="mt-1.5 text-sm sm:text-[13px] text-muted-foreground hidden sm:block">
               // Every dollar assigned. Every return reinvested. Wealth compounded systematically.
             </p>
           </div>
@@ -168,7 +168,7 @@ export default function Compound() {
         <motion.div variants={cardVariants} initial="hidden" animate="visible" custom={0} className="rounded-xl border border-border bg-card overflow-hidden">
           <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
             <span className="font-display text-[11px] font-bold uppercase tracking-[1.2px] text-muted-foreground">Projection Parameters</span>
-            <span className="rounded bg-bullish/10 px-2 py-0.5 font-mono text-[10px] font-medium text-bullish">LIVE MODEL</span>
+            <span className="rounded bg-bullish/10 px-2 py-0.5 text-xs font-medium text-bullish">LIVE MODEL</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
             {/* Starting Capital */}
@@ -179,13 +179,13 @@ export default function Compound() {
             <InputCell label="Time Horizon" suffix="mo" value={months} onChange={setMonths} />
             {/* Risk Tier */}
             <div className="flex flex-col gap-2.5 border-b sm:border-b-0 sm:border-r border-border p-5">
-              <span className="font-mono text-[9px] uppercase tracking-[1px] text-muted-foreground">Risk Tier</span>
+              <span className="text-xs uppercase tracking-[1px] text-muted-foreground">Risk Tier</span>
               <div className="flex gap-1">
                 {(["conservative", "moderate", "aggressive"] as const).map((t) => (
                   <button
                     key={t}
                     onClick={() => setRiskTier(t)}
-                    className={`flex-1 rounded-md px-1 py-2 font-mono text-[10px] tracking-wide border transition-all ${
+                    className={`flex-1 rounded-md px-1 py-2 text-xs tracking-wide border transition-all ${
                       riskTier === t
                         ? t === "conservative" ? "bg-neutral/10 border-neutral/30 text-neutral"
                           : t === "moderate" ? "bg-bullish/10 border-bullish/30 text-bullish"
@@ -200,7 +200,7 @@ export default function Compound() {
             </div>
             {/* Reinvestment Rate */}
             <div className="flex flex-col gap-2.5 p-5">
-              <span className="font-mono text-[9px] uppercase tracking-[1px] text-muted-foreground">Reinvestment Rate</span>
+              <span className="text-xs uppercase tracking-[1px] text-muted-foreground">Reinvestment Rate</span>
               <span className="font-mono text-lg font-semibold text-bullish">{reinvestPct}%</span>
               <input
                 type="range"
@@ -297,7 +297,7 @@ export default function Compound() {
               <span className="font-display text-[11px] font-bold uppercase tracking-[1.2px] text-muted-foreground">Monte Carlo (500 runs)</span>
             </div>
             <div className="flex flex-col gap-4 p-5">
-              <span className="font-mono text-[9px] uppercase tracking-[1px] text-muted-foreground">Outcome Distribution</span>
+              <span className="text-xs uppercase tracking-[1px] text-muted-foreground">Outcome Distribution</span>
               <div className="space-y-3">
                 {[
                   { label: "P10 Bear", value: mc.p10, color: "bg-bearish" },
@@ -307,11 +307,11 @@ export default function Compound() {
                   { label: "P90 Bull", value: mc.p90, color: "bg-neutral" },
                 ].map((s) => (
                   <div key={s.label} className="flex items-center gap-2.5">
-                    <span className="w-14 flex-shrink-0 font-mono text-[10px] text-muted-foreground">{s.label}</span>
+                    <span className="w-14 flex-shrink-0 text-xs text-muted-foreground">{s.label}</span>
                     <div className="flex-1 h-1.5 rounded-full bg-border overflow-hidden">
                       <div className={`h-full rounded-full ${s.color}`} style={{ width: `${mcMax > 0 ? (s.value / mcMax) * 100 : 0}%`, transition: "width 0.8s ease" }} />
                     </div>
-                    <span className="w-[72px] flex-shrink-0 text-right font-mono text-[11px] font-medium text-foreground">{fmtFull(s.value)}</span>
+                    <span className="w-[72px] flex-shrink-0 text-right text-sm font-medium text-foreground">{fmtFull(s.value)}</span>
                   </div>
                 ))}
               </div>
@@ -323,11 +323,11 @@ export default function Compound() {
               </div>
 
               <div className="border-t border-border pt-3">
-                <span className="font-mono text-[9px] uppercase tracking-[1px] text-muted-foreground">Time to $100K</span>
+                <span className="text-xs uppercase tracking-[1px] text-muted-foreground">Time to $100K</span>
                 <div className="mt-1 font-display text-xl font-extrabold text-foreground">
                   {timeToGoal({ startingCapital: starting, monthlyContribution: monthly, targetCapital: 100000, riskTier }).label}
                 </div>
-                <span className="font-mono text-[10px] text-muted-foreground">at current settings</span>
+                <span className="text-xs text-muted-foreground">at current settings</span>
               </div>
             </div>
           </div>
@@ -337,7 +337,7 @@ export default function Compound() {
         <motion.div variants={cardVariants} initial="hidden" animate="visible" custom={3} className="rounded-xl border border-border bg-card overflow-hidden">
           <div className="border-b border-border px-5 py-3.5">
             <span className="font-display text-[11px] font-bold uppercase tracking-[1.2px] text-muted-foreground">Strategy Unlock Timeline</span>
-            <p className="mt-0.5 font-mono text-[10px] text-muted-foreground">Capital milestones that unlock new wealth strategies</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">Capital milestones that unlock new wealth strategies</p>
           </div>
           <div className="px-4 sm:px-6 py-6 overflow-x-auto">
             {/* Timeline nodes */}
@@ -346,7 +346,7 @@ export default function Compound() {
                 <div key={tier.label} className="flex flex-1 items-center">
                   <div className="flex flex-col items-center">
                     <div
-                      className={`flex h-9 w-9 items-center justify-center rounded-full border-2 font-mono text-[10px] font-semibold transition-all ${
+                      className={`flex h-9 w-9 items-center justify-center rounded-full border-2 text-xs font-semibold transition-all ${
                         tier.isCurrent
                           ? "border-bullish bg-bullish text-primary-foreground shadow-[0_0_20px_hsl(160_100%_45%/0.4)]"
                           : tier.unlocked
@@ -358,10 +358,10 @@ export default function Compound() {
                     </div>
                     <div className="mt-2.5 text-center">
                       <div className="font-display text-xs font-bold" style={{ color: tier.color }}>{tier.label}</div>
-                      <div className="font-mono text-[9px] text-muted-foreground">
+                      <div className="text-xs text-muted-foreground">
                         ${tier.min_capital.toLocaleString()}
                       </div>
-                      <span className={`mt-1 inline-block rounded px-1.5 py-0.5 font-mono text-[9px] ${
+                      <span className={`mt-1 inline-block rounded px-1.5 py-0.5 text-xs ${
                         tier.unlocked ? "bg-bullish/10 text-bullish" : "bg-border text-muted-foreground"
                       }`}>
                         {tier.unlocked ? "Reached" : "Locked"}
@@ -394,7 +394,7 @@ export default function Compound() {
                 >
                   <div className="flex items-center justify-between border-b border-border px-4 py-3">
                     <span className="font-display text-[13px] font-bold" style={{ color: tier.color }}>{tier.label}</span>
-                    <span className="font-mono text-[10px] text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       ${tier.min_capital.toLocaleString()}{tier.max_capital < Infinity ? `–$${tier.max_capital.toLocaleString()}` : "+"}
                     </span>
                     {!unlocked && <Lock className="ml-1 h-3 w-3 text-muted-foreground opacity-50" />}
@@ -403,7 +403,7 @@ export default function Compound() {
                     {tier.strategies.map((s) => (
                       <div key={s.name} className="flex items-center justify-between gap-2">
                         <span className="text-xs text-muted-foreground">{s.name}</span>
-                        <span className="font-mono text-[11px] text-bullish">{(s.avg_monthly_return * 100).toFixed(1)}%</span>
+                        <span className="text-sm text-bullish">{(s.avg_monthly_return * 100).toFixed(1)}%</span>
                       </div>
                     ))}
                   </div>
@@ -421,14 +421,14 @@ export default function Compound() {
           <div className="grid grid-cols-1 md:grid-cols-2">
             {/* Time to Goal */}
             <div className="border-b md:border-b-0 md:border-r border-border p-4 sm:p-6">
-              <span className="font-mono text-[9px] uppercase tracking-[1px] text-muted-foreground">→ Time to Goal</span>
+              <span className="text-xs uppercase tracking-[1px] text-muted-foreground">→ Time to Goal</span>
               <div className="mt-4 space-y-3">
                 <GoalInput label="Target Capital ($)" value={goalTarget} onChange={setGoalTarget} />
                 <GoalInput label="Monthly Add ($)" value={goalMonthlyAdd} onChange={setGoalMonthlyAdd} />
               </div>
               <div className="mt-4 rounded-lg border border-border bg-surface p-4">
                 <div className="font-display text-[26px] font-extrabold text-bullish">{ttg.label}</div>
-                <div className="mt-1 font-mono text-[10px] text-muted-foreground">to reach target</div>
+                <div className="mt-1 text-xs text-muted-foreground">to reach target</div>
                 <p className="mt-2.5 text-xs leading-relaxed text-muted-foreground">
                   {ttg.achievable
                     ? `Final value: ${fmtFull(ttg.final_capital)} at current compound rate.`
@@ -439,14 +439,14 @@ export default function Compound() {
 
             {/* Required Return Rate */}
             <div className="p-4 sm:p-6">
-              <span className="font-mono text-[9px] uppercase tracking-[1px] text-muted-foreground">→ Required Return Rate</span>
+              <span className="text-xs uppercase tracking-[1px] text-muted-foreground">→ Required Return Rate</span>
               <div className="mt-4 space-y-3">
                 <GoalInput label="Target Capital ($)" value={goalTarget} onChange={setGoalTarget} />
                 <GoalInput label="Months to Get There" value={goalMonths} onChange={setGoalMonths} />
               </div>
               <div className="mt-4 rounded-lg border border-border bg-surface p-4">
                 <div className="font-display text-[26px] font-extrabold text-bullish">{reverse.required_monthly_pct}%/mo</div>
-                <div className="mt-1 font-mono text-[10px] text-muted-foreground">required monthly return</div>
+                <div className="mt-1 text-xs text-muted-foreground">required monthly return</div>
                 <p className={`mt-2.5 text-xs leading-relaxed ${reverse.is_achievable ? "text-muted-foreground" : "text-bearish"}`}>
                   {reverse.verdict}
                 </p>
@@ -459,33 +459,33 @@ export default function Compound() {
         <motion.div variants={cardVariants} initial="hidden" animate="visible" custom={5} className="rounded-xl border border-border bg-card overflow-hidden">
           <div className="border-b border-border px-5 py-3.5 flex items-center justify-between">
             <span className="font-display text-[11px] font-bold uppercase tracking-[1.2px] text-muted-foreground">Month-by-Month Projection</span>
-            <span className="font-mono text-[10px] text-muted-foreground">Scroll to explore</span>
+            <span className="text-xs text-muted-foreground">Scroll to explore</span>
           </div>
           <div className="max-h-80 overflow-auto">
             <table className="w-full min-w-[800px]">
               <thead>
                 <tr>
                   {["Month", "Capital", "Monthly Return", "Return %", "Cumulative Gain", "All-Time %", "Tier", "Strategies", "Next Unlock"].map((h) => (
-                    <th key={h} className="sticky top-0 bg-surface px-4 py-3 text-left font-mono text-[9px] font-normal uppercase tracking-[1px] text-muted-foreground whitespace-nowrap border-b border-border">{h}</th>
+                    <th key={h} className="sticky top-0 bg-surface px-4 py-3 text-left text-xs font-normal uppercase tracking-[1px] text-muted-foreground whitespace-nowrap border-b border-border">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {projection.map((r) => (
                   <tr key={r.month} className="border-b border-border/30 transition-colors hover:bg-accent/30">
-                    <td className="px-4 py-2.5 font-mono text-[11px] text-muted-foreground">{r.month}</td>
+                    <td className="px-4 py-2.5 text-sm text-muted-foreground">{r.month}</td>
                     <td className="px-4 py-2.5 font-mono text-xs font-medium text-foreground">{fmtFull(r.capital)}</td>
                     <td className="px-4 py-2.5 font-mono text-xs text-bullish">{fmtFull(r.monthly_return_dollars)}</td>
                     <td className="px-4 py-2.5 font-mono text-xs text-muted-foreground">{r.monthly_return_pct}%</td>
                     <td className="px-4 py-2.5 font-mono text-xs text-bullish">{fmtFull(r.cumulative_return)}</td>
                     <td className="px-4 py-2.5 font-mono text-xs text-muted-foreground">{r.cumulative_return_pct}%</td>
                     <td className="px-4 py-2.5">
-                      <span className="inline-flex items-center rounded px-2 py-0.5 font-mono text-[9px] font-semibold tracking-wide" style={{ backgroundColor: r.tier_color + "20", color: r.tier_color }}>
+                      <span className="inline-flex items-center rounded px-2 py-0.5 text-xs font-semibold tracking-wide" style={{ backgroundColor: r.tier_color + "20", color: r.tier_color }}>
                         {r.tier_label}
                       </span>
                     </td>
                     <td className="px-4 py-2.5 font-mono text-xs text-neutral">{r.strategies_available}</td>
-                    <td className="px-4 py-2.5 font-mono text-[11px] text-muted-foreground">{r.next_unlock}</td>
+                    <td className="px-4 py-2.5 text-sm text-muted-foreground">{r.next_unlock}</td>
                   </tr>
                 ))}
               </tbody>
@@ -504,7 +504,7 @@ function InputCell({ label, prefix, suffix, value, onChange }: {
 }) {
   return (
     <div className="flex flex-col gap-2.5 border-b sm:border-b-0 sm:border-r border-border p-4 sm:p-5 last:border-b-0 last:border-r-0">
-      <span className="font-mono text-[9px] uppercase tracking-[1px] text-muted-foreground">{label}</span>
+      <span className="text-xs uppercase tracking-[1px] text-muted-foreground">{label}</span>
       <div className="relative flex items-center">
         {prefix && <span className="mr-1 font-mono text-sm text-muted-foreground">{prefix}</span>}
         <input
@@ -533,16 +533,16 @@ function SummaryStat({ label, value, sub, accent, last }: {
   return (
     <div className={`relative overflow-hidden p-4 sm:p-5 ${!last ? "border-b sm:border-b lg:border-b-0 border-r-0 sm:border-r lg:border-r border-border" : ""}`}>
       <div className={`absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r ${accentColors[accent] || ""} to-transparent`} />
-      <div className="font-mono text-[9px] uppercase tracking-[1px] text-muted-foreground mb-1.5">{label}</div>
+      <div className="text-xs uppercase tracking-[1px] text-muted-foreground mb-1.5">{label}</div>
       <div className="font-display text-lg sm:text-[22px] font-extrabold leading-none mb-1">{value}</div>
-      <div className="font-mono text-[10px] text-muted-foreground">{sub}</div>
+      <div className="text-xs text-muted-foreground">{sub}</div>
     </div>
   );
 }
 
 function LegendItem({ color, label }: { color: string; label: string }) {
   return (
-    <div className="flex items-center gap-1.5 font-mono text-[10px] text-muted-foreground">
+    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
       <div className={`h-0.5 w-5 rounded-full ${color}`} />
       {label}
     </div>
@@ -553,7 +553,7 @@ function ProbItem({ value, label, green }: { value: string; label: string; green
   return (
     <div className="text-center">
       <div className={`font-display text-xl font-extrabold ${green ? "text-bullish" : "text-bearish"}`}>{value}</div>
-      <div className="mt-0.5 font-mono text-[9px] text-muted-foreground">{label}</div>
+      <div className="mt-0.5 text-xs text-muted-foreground">{label}</div>
     </div>
   );
 }
@@ -566,7 +566,7 @@ function GoalInput({ label, value, onChange }: { label: string; value: number; o
         type="number"
         value={value}
         onChange={(e) => onChange(+e.target.value)}
-        className="w-full sm:w-36 rounded-md border border-border bg-surface px-3 py-1.5 font-mono text-[13px] text-foreground outline-none transition-all focus:border-bullish"
+        className="w-full sm:w-36 rounded-md border border-border bg-surface px-3 py-1.5 text-sm text-foreground outline-none transition-all focus:border-bullish"
       />
     </div>
   );

@@ -136,7 +136,7 @@ export default function Watchlist() {
                   <td className="px-4 py-4 font-mono font-bold text-foreground">{w.ticker}</td>
                   <td className="px-4 py-4 text-muted-foreground">{w.company_name ?? '—'}</td>
                   <td className="px-4 py-4">
-                    <span className="rounded-full border border-border bg-accent px-2 py-0.5 font-mono text-[10px] capitalize text-muted-foreground">
+                    <span className="rounded-full border border-border bg-accent px-2 py-0.5 text-xs capitalize text-muted-foreground">
                       {w.asset_class ?? 'equity'}
                     </span>
                   </td>
