@@ -71,7 +71,9 @@ export default function LegalDisclosureGate() {
     },
   });
 
+  // Disclosure gate temporarily disabled — re-enable once legal_acceptances table is stable in prod
   if (!user || isDemoMode || loading) return null;
+  return null;
 
   const isChecking = acceptanceQuery.isLoading;
   const isAccepted = !!acceptanceQuery.data;
