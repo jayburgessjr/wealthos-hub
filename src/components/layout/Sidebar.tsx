@@ -5,7 +5,8 @@ import {
   Bitcoin, TrendingUp, Newspaper, Cpu, Shield, Brain,
   CalendarDays, BookOpen, Calculator, Map, FlaskConical, Leaf, Megaphone, Crosshair,
   Bell, ScanSearch, CandlestickChart, Workflow, Users, Landmark, BookMarked,
-  DollarSign, Wheat, LineChart, Vote, Activity, Trophy, Ticket, Rss, Layers
+  DollarSign, Wheat, LineChart, Vote, Activity, Trophy, Ticket, Rss, Layers,
+  Building2, GitMerge
 } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useAuth } from "@/components/AuthProvider";
@@ -42,7 +43,9 @@ const navSections = [
       { to: "/crypto",       icon: Bitcoin,          label: "Crypto" },
       { to: "/forex",        icon: DollarSign,       label: "Forex" },
       { to: "/commodities",  icon: Wheat,            label: "Commodities" },
-      { to: "/fixed-income", icon: LineChart,        label: "Fixed Income" },
+      { to: "/fixed-income",         icon: LineChart,   label: "Fixed Income" },
+      { to: "/private-equity",       icon: Building2,   label: "Private Equity" },
+      { to: "/mergers-acquisitions", icon: GitMerge,    label: "M&A" },
     ],
   },
   {

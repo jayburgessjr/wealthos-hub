@@ -54,6 +54,8 @@ import Bots from "./pages/Bots";
 import Forex from "./pages/Forex";
 import Commodities from "./pages/Commodities";
 import FixedIncome from "./pages/FixedIncome";
+import PrivateEquity from "./pages/PrivateEquity";
+import MergersAcquisitions from "./pages/MergersAcquisitions";
 import Kalshi from "./pages/Kalshi";
 import Polymarket from "./pages/Polymarket";
 import SportsTrading from "./pages/SportsTrading";
@@ -118,6 +120,8 @@ const AppRoutes = () => (
     <Route path="/forex" element={<Forex />} />
     <Route path="/commodities" element={<Commodities />} />
     <Route path="/fixed-income" element={<FixedIncome />} />
+    <Route path="/private-equity" element={<PrivateEquity />} />
+    <Route path="/mergers-acquisitions" element={<MergersAcquisitions />} />
     <Route path="/kalshi" element={<Kalshi />} />
     <Route path="/polymarket" element={<Polymarket />} />
     <Route path="/sports-trading" element={<SportsTrading />} />
