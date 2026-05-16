@@ -2,134 +2,129 @@ import { NavLink as RouterNavLink, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Radar, Briefcase, Zap, PieChart, ShieldAlert,
   Bot, Globe, BarChart3, Eye, ShieldCheck, FileText,
-  Bitcoin, Newspaper, Cpu, Shield, Brain,
-  CalendarDays, BookOpen, Calculator, Map, FlaskConical, Leaf, Megaphone, Crosshair,
+  Bitcoin, Newspaper, Cpu, Brain,
+  CalendarDays, BookOpen, Calculator, Map, FlaskConical, Leaf, Crosshair,
   Bell, ScanSearch, CandlestickChart, Workflow, Users, Landmark, BookMarked,
   DollarSign, Wheat, LineChart, Vote, Activity, Trophy, Ticket, Rss, Layers,
   Building2, GitMerge, CreditCard, PiggyBank, Wallet, Repeat,
-  Home, Package, BarChart2, Network, Scale, HandCoins,
-  ListOrdered, Flame
+  Home, Package, BarChart2, Network, Scale, HandCoins, Flame,
+  Rocket, TrendingUp, Infinity, Umbrella, ScrollText, CircleDot, CalendarRange,
 } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { toast } from "sonner";
 
 const navSections = [
   {
-    label: "Core",
+    label: "Daily",
     items: [
-      { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-      { to: "/decisions", icon: Zap, label: "Decision Hub" },
-      { to: "/financial-news", icon: Rss, label: "News Feed" },
-      { to: "/signals", icon: Radar, label: "Signals" },
-      { to: "/positions", icon: Briefcase, label: "Positions" },
-      { to: "/my-portfolio", icon: Layers, label: "My Portfolio" },
-      { to: "/watchlist", icon: Eye, label: "Watchlist" },
-      { to: "/alerts", icon: Bell, label: "Alert Engine" },
+      { to: "/dashboard",  icon: LayoutDashboard, label: "Dashboard" },
+      { to: "/decisions",  icon: Zap,             label: "Decision Hub" },
+      { to: "/signals",    icon: Radar,           label: "Signals" },
+      { to: "/alerts",     icon: Bell,            label: "Alert Engine" },
     ],
   },
   {
-    label: "Capital",
+    label: "Portfolio",
     items: [
-      { to: "/compound", icon: Zap, label: "Compound Engine" },
-      { to: "/strategy-allocator", icon: PieChart, label: "Strategy Allocator" },
-      { to: "/quantum", icon: Cpu, label: "Quantum Engine" },
-      { to: "/settings", icon: ShieldAlert, label: "Risk Controls" },
+      { to: "/my-portfolio", icon: Layers,   label: "My Portfolio" },
+      { to: "/positions",    icon: Briefcase, label: "Positions" },
+      { to: "/watchlist",    icon: Eye,       label: "Watchlist" },
+      { to: "/performance",  icon: BarChart3, label: "Performance" },
     ],
   },
   {
-    label: "Wealth Planning",
+    label: "Trade",
     items: [
-      { to: "/net-worth",         icon: BarChart2,   label: "Net Worth" },
-      { to: "/debt-manager",      icon: CreditCard,  label: "Debt Manager" },
-      { to: "/retirement",        icon: PiggyBank,   label: "Retirement" },
-      { to: "/cash-flow-planner", icon: Wallet,      label: "Cash Flow" },
-      { to: "/dividend-tracker",  icon: Repeat,      label: "Dividends" },
-      { to: "/real-estate",       icon: Home,        label: "Real Estate" },
-      { to: "/collectibles",      icon: Package,     label: "Collectibles" },
-      { to: "/insurance",         icon: Shield,      label: "Insurance" },
-      { to: "/estate-planning",   icon: Scale,       label: "Estate Planning" },
-      { to: "/entity-structure",  icon: Network,     label: "Entity Structure" },
-      { to: "/fundraising",       icon: HandCoins,   label: "Fundraising" },
-    ],
-  },
-  {
-    label: "Market Intel",
-    items: [
-      { to: "/options-flow",  icon: Flame,       label: "Options Flow" },
-      { to: "/macro",         icon: Globe,       label: "Macro" },
-      { to: "/ipo-tracker",   icon: ListOrdered, label: "IPO Tracker" },
+      { to: "/chart",          icon: CandlestickChart, label: "Chart" },
+      { to: "/screener",       icon: ScanSearch,       label: "Asset Screener" },
+      { to: "/paper-trading",  icon: FlaskConical,     label: "Paper Trading" },
+      { to: "/position-sizer", icon: Calculator,       label: "Position Sizer" },
+      { to: "/trading-journal",icon: BookOpen,         label: "Trading Journal" },
+      { to: "/bots",           icon: Workflow,         label: "Trading Bots" },
     ],
   },
   {
     label: "Markets",
     items: [
-      { to: "/chart",        icon: CandlestickChart, label: "Chart" },
-      { to: "/crypto",       icon: Bitcoin,          label: "Crypto" },
-      { to: "/forex",        icon: DollarSign,       label: "Forex" },
-      { to: "/commodities",  icon: Wheat,            label: "Commodities" },
-      { to: "/fixed-income",         icon: LineChart,   label: "Fixed Income" },
-      { to: "/private-equity",       icon: Building2,   label: "Private Equity" },
-      { to: "/mergers-acquisitions", icon: GitMerge,    label: "M&A" },
-    ],
-  },
-  {
-    label: "Prediction Markets",
-    items: [
-      { to: "/kalshi",        icon: Vote,     label: "Kalshi" },
-      { to: "/polymarket",    icon: Activity, label: "Polymarket" },
-      { to: "/sports-trading",icon: Trophy,   label: "Sports Trading" },
-      { to: "/lottery-ev",    icon: Ticket,   label: "Lottery / EV" },
-    ],
-  },
-  {
-    label: "AI",
-    items: [
-      { to: "/financial-advisor", icon: Brain, label: "Financial Advisor" },
-      { to: "/ai-advisor", icon: Bot, label: "AI Advisor" },
+      { to: "/markets",               icon: Globe,           label: "Overview" },
+      { to: "/crypto",                icon: Bitcoin,         label: "Crypto" },
+      { to: "/forex",                 icon: DollarSign,      label: "Forex" },
+      { to: "/commodities",           icon: Wheat,           label: "Commodities" },
+      { to: "/fixed-income",          icon: LineChart,       label: "Fixed Income" },
+      { to: "/private-equity",        icon: Building2,       label: "Private Equity" },
+      { to: "/mergers-acquisitions",  icon: GitMerge,        label: "M&A" },
     ],
   },
   {
     label: "Intelligence",
     items: [
-      { to: "/market-regime",    icon: Globe,     label: "Market Regime" },
-      { to: "/news",             icon: Newspaper,  label: "News & Intel" },
-      { to: "/insider-activity", icon: Landmark,   label: "Insider Activity" },
+      { to: "/financial-news",   icon: Rss,          label: "News Feed" },
+      { to: "/news",             icon: Newspaper,    label: "Market Intel" },
+      { to: "/macro",            icon: TrendingUp,   label: "Macro" },
+      { to: "/market-regime",    icon: Activity,     label: "Market Regime" },
+      { to: "/options-flow",     icon: Flame,        label: "Options Flow" },
+      { to: "/ipo-tracker",      icon: Rocket,       label: "IPO Tracker" },
+      { to: "/insider-activity", icon: Landmark,     label: "Insider Activity" },
+      { to: "/earnings-calendar",icon: CalendarDays, label: "Earnings Calendar" },
+      { to: "/heat-map",         icon: Map,          label: "Heat Map" },
     ],
   },
   {
-    label: "Analytics",
+    label: "Prediction Markets",
     items: [
-      { to: "/performance", icon: BarChart3, label: "Performance" },
-      { to: "/pnl-calendar", icon: CalendarDays, label: "P&L Calendar" },
-      { to: "/heat-map", icon: Map, label: "Heat Map" },
-      { to: "/earnings-calendar", icon: Megaphone, label: "Earnings Calendar" },
-      { to: "/documents", icon: FileText, label: "Documents" },
-      { to: "/security", icon: Shield, label: "Security & Audit" },
+      { to: "/kalshi",         icon: Vote,       label: "Kalshi" },
+      { to: "/polymarket",     icon: CircleDot,  label: "Polymarket" },
+      { to: "/sports-trading", icon: Trophy,     label: "Sports Trading" },
+      { to: "/lottery-ev",     icon: Ticket,     label: "Lottery / EV" },
     ],
   },
   {
-    label: "Tools",
+    label: "AI",
     items: [
-      { to: "/screener",      icon: ScanSearch,  label: "Asset Screener" },
-      { to: "/bots",          icon: Workflow,     label: "Trading Bots" },
-      { to: "/strategy-123",  icon: Crosshair,   label: "1-2-3 Strategy" },
-      { to: "/position-sizer",icon: Calculator,  label: "Position Sizer" },
-      { to: "/paper-trading", icon: FlaskConical, label: "Paper Trading" },
-      { to: "/trading-journal",icon: BookOpen,   label: "Trading Journal" },
-      { to: "/tax-harvesting",icon: Leaf,        label: "Tax Harvesting" },
+      { to: "/ai-advisor",        icon: Bot,      label: "Trading AI" },
+      { to: "/financial-advisor", icon: Brain,    label: "Wealth AI" },
+      { to: "/compound",          icon: Infinity, label: "Compound Engine" },
+      { to: "/strategy-allocator",icon: PieChart, label: "Strategy Allocator" },
+      { to: "/quantum",           icon: Cpu,      label: "Quantum Engine" },
+      { to: "/strategy-123",      icon: Crosshair,label: "1-2-3 Strategy" },
     ],
   },
   {
-    label: "Social",
+    label: "Wealth Planning",
     items: [
-      { to: "/community", icon: Users, label: "Community" },
+      { to: "/net-worth",         icon: Scale,      label: "Net Worth" },
+      { to: "/cash-flow-planner", icon: Wallet,     label: "Cash Flow" },
+      { to: "/debt-manager",      icon: CreditCard, label: "Debt Manager" },
+      { to: "/retirement",        icon: PiggyBank,  label: "Retirement" },
+      { to: "/dividend-tracker",  icon: Repeat,     label: "Dividends" },
+      { to: "/real-estate",       icon: Home,       label: "Real Estate" },
+      { to: "/collectibles",      icon: Package,    label: "Collectibles" },
+      { to: "/insurance",         icon: Umbrella,   label: "Insurance" },
+      { to: "/tax-harvesting",    icon: Leaf,       label: "Tax Harvesting" },
+      { to: "/estate-planning",   icon: ScrollText, label: "Estate Planning" },
+    ],
+  },
+  {
+    label: "Business",
+    items: [
+      { to: "/entity-structure", icon: Network,    label: "Entity Structure" },
+      { to: "/fundraising",      icon: HandCoins,  label: "Fundraising" },
     ],
   },
   {
     label: "Reports",
     items: [
-      { to: "/playbook",       icon: BookMarked, label: "The Playbook" },
-      { to: "/weekly-briefing", icon: Newspaper, label: "Weekly Briefing" },
+      { to: "/pnl-calendar",    icon: BarChart2,     label: "P&L Calendar" },
+      { to: "/playbook",        icon: BookMarked,    label: "The Playbook" },
+      { to: "/weekly-briefing", icon: CalendarRange, label: "Weekly Briefing" },
+      { to: "/documents",       icon: FileText,      label: "Documents" },
+    ],
+  },
+  {
+    label: "Account",
+    items: [
+      { to: "/security", icon: ShieldAlert, label: "Security & Audit" },
+      { to: "/community",icon: Users,       label: "Community" },
     ],
   },
   {
@@ -148,7 +143,6 @@ export default function Sidebar() {
     <aside className="hidden w-[220px] shrink-0 border-r border-border bg-background lg:flex lg:flex-col overflow-y-auto">
       <nav className="flex flex-col gap-1 p-3">
         {navSections.map((section) => {
-          // Force items to be visible if they are in the Admin section for testing
           const visibleItems = section.items;
 
           return (
@@ -187,7 +181,6 @@ export default function Sidebar() {
             </div>
           );
         })}
-
       </nav>
     </aside>
   );
