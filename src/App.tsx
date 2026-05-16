@@ -49,6 +49,7 @@ import Chart from "./pages/Chart";
 import Screener from "./pages/Screener";
 import InsiderActivity from "./pages/InsiderActivity";
 import Community from "./pages/Community";
+import About from "./pages/About";
 import Profile from "./pages/Profile";
 import Bots from "./pages/Bots";
 import Forex from "./pages/Forex";
@@ -62,6 +63,20 @@ import SportsTrading from "./pages/SportsTrading";
 import LotteryEV from "./pages/LotteryEV";
 import FinancialNews from "./pages/FinancialNews";
 import MyPortfolio from "./pages/MyPortfolio";
+import NetWorth from "./pages/NetWorth";
+import DebtManager from "./pages/DebtManager";
+import Retirement from "./pages/Retirement";
+import CashFlowPlanner from "./pages/CashFlowPlanner";
+import DividendTracker from "./pages/DividendTracker";
+import RealEstate from "./pages/RealEstate";
+import Collectibles from "./pages/Collectibles";
+import OptionsFlow from "./pages/OptionsFlow";
+import Macro from "./pages/Macro";
+import IpoTracker from "./pages/IpoTracker";
+import EstatePlanning from "./pages/EstatePlanning";
+import Insurance from "./pages/Insurance";
+import EntityStructure from "./pages/EntityStructure";
+import Fundraising from "./pages/Fundraising";
 
 const queryClient = new QueryClient();
 
@@ -97,6 +112,7 @@ const AppRoutes = () => (
     <Route path="/financial-advisor" element={<FinancialAdvisor />} />
     <Route path="/login" element={<Login />} />
     <Route path="/signup" element={<Signup />} />
+    <Route path="/about" element={<About />} />
     <Route path="/terms" element={<TermsOfService />} />
     <Route path="/privacy" element={<PrivacyPolicy />} />
     <Route path="/disclaimer" element={<Disclaimer />} />
@@ -128,6 +144,20 @@ const AppRoutes = () => (
     <Route path="/lottery-ev" element={<LotteryEV />} />
     <Route path="/financial-news" element={<FinancialNews />} />
     <Route path="/my-portfolio" element={<MyPortfolio />} />
+    <Route path="/net-worth" element={<NetWorth />} />
+    <Route path="/debt-manager" element={<DebtManager />} />
+    <Route path="/retirement" element={<Retirement />} />
+    <Route path="/cash-flow-planner" element={<CashFlowPlanner />} />
+    <Route path="/dividend-tracker" element={<DividendTracker />} />
+    <Route path="/real-estate" element={<RealEstate />} />
+    <Route path="/collectibles" element={<Collectibles />} />
+    <Route path="/options-flow" element={<OptionsFlow />} />
+    <Route path="/macro" element={<Macro />} />
+    <Route path="/ipo-tracker" element={<IpoTracker />} />
+    <Route path="/estate-planning" element={<EstatePlanning />} />
+    <Route path="/insurance" element={<Insurance />} />
+    <Route path="/entity-structure" element={<EntityStructure />} />
+    <Route path="/fundraising" element={<Fundraising />} />
     <Route path="*" element={<NotFound />} />
   </Routes>
 );

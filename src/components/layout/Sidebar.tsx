@@ -1,16 +1,16 @@
 import { NavLink as RouterNavLink, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Radar, Briefcase, Zap, PieChart, ShieldAlert,
-  Bot, Globe, BarChart3, Settings, Eye, ShieldCheck, LogOut, FileText,
-  Bitcoin, TrendingUp, Newspaper, Cpu, Shield, Brain,
+  Bot, Globe, BarChart3, Eye, ShieldCheck, FileText,
+  Bitcoin, Newspaper, Cpu, Shield, Brain,
   CalendarDays, BookOpen, Calculator, Map, FlaskConical, Leaf, Megaphone, Crosshair,
   Bell, ScanSearch, CandlestickChart, Workflow, Users, Landmark, BookMarked,
   DollarSign, Wheat, LineChart, Vote, Activity, Trophy, Ticket, Rss, Layers,
-  Building2, GitMerge
+  Building2, GitMerge, CreditCard, PiggyBank, Wallet, Repeat,
+  Home, Package, BarChart2, Network, Scale, HandCoins,
+  ListOrdered, Flame
 } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
-import { useAuth } from "@/components/AuthProvider";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const navSections = [
@@ -34,6 +34,30 @@ const navSections = [
       { to: "/strategy-allocator", icon: PieChart, label: "Strategy Allocator" },
       { to: "/quantum", icon: Cpu, label: "Quantum Engine" },
       { to: "/settings", icon: ShieldAlert, label: "Risk Controls" },
+    ],
+  },
+  {
+    label: "Wealth Planning",
+    items: [
+      { to: "/net-worth",         icon: BarChart2,   label: "Net Worth" },
+      { to: "/debt-manager",      icon: CreditCard,  label: "Debt Manager" },
+      { to: "/retirement",        icon: PiggyBank,   label: "Retirement" },
+      { to: "/cash-flow-planner", icon: Wallet,      label: "Cash Flow" },
+      { to: "/dividend-tracker",  icon: Repeat,      label: "Dividends" },
+      { to: "/real-estate",       icon: Home,        label: "Real Estate" },
+      { to: "/collectibles",      icon: Package,     label: "Collectibles" },
+      { to: "/insurance",         icon: Shield,      label: "Insurance" },
+      { to: "/estate-planning",   icon: Scale,       label: "Estate Planning" },
+      { to: "/entity-structure",  icon: Network,     label: "Entity Structure" },
+      { to: "/fundraising",       icon: HandCoins,   label: "Fundraising" },
+    ],
+  },
+  {
+    label: "Market Intel",
+    items: [
+      { to: "/options-flow",  icon: Flame,       label: "Options Flow" },
+      { to: "/macro",         icon: Globe,       label: "Macro" },
+      { to: "/ipo-tracker",   icon: ListOrdered, label: "IPO Tracker" },
     ],
   },
   {
@@ -118,17 +142,7 @@ const navSections = [
 
 export default function Sidebar() {
   const location = useLocation();
-  const { isAdmin, profile } = useSubscription();
-  const { user } = useAuth();
-
-  const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast.error("Error signing out");
-    } else {
-      window.location.href = "/";
-    }
-  };
+  const { isAdmin } = useSubscription();
 
   return (
     <aside className="hidden w-[220px] shrink-0 border-r border-border bg-background lg:flex lg:flex-col overflow-y-auto">
@@ -174,39 +188,6 @@ export default function Sidebar() {
           );
         })}
 
-        <div className="mt-auto pt-4 border-t border-border flex flex-col gap-1">
-          <RouterNavLink
-            to="/settings"
-            className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-fast ${
-              location.pathname === "/settings"
-                ? "bg-bullish/10 text-bullish"
-                : "text-muted-foreground hover:bg-bullish/5 hover:text-bullish"
-            }`}
-          >
-            <Settings className="h-4 w-4" />
-            Settings
-          </RouterNavLink>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-bearish transition-fast hover:bg-bearish/10"
-          >
-            <LogOut className="h-4 w-4" />
-            Sign Out
-          </button>
-          
-          {user && (
-            <div className="mt-2 flex flex-col gap-1 px-3 py-2 border-t border-border/50">
-              <div className="flex items-center gap-2">
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-bullish/15 text-bullish text-[10px] font-bold">
-                  {user.email?.substring(0, 2).toUpperCase()}
-                </div>
-                <div className="overflow-hidden">
-                  <p className="truncate text-[10px] font-medium text-foreground">{user.email}</p>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
       </nav>
     </aside>
   );

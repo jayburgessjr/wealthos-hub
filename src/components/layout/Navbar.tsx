@@ -1,8 +1,19 @@
 import { useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import AjeLogo from "@/components/AjeLogo";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Settings, LogOut } from "lucide-react";
+import { toast } from "sonner";
 
 const StatItem = ({ label, value, color }: { label: string; value: string; color?: string }) => (
   <div className="flex flex-col items-center gap-0.5 px-3">
@@ -13,8 +24,18 @@ const StatItem = ({ label, value, color }: { label: string; value: string; color
 
 export default function Navbar() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const hasCreated = useRef(false);
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast.error("Error signing out");
+    } else {
+      navigate("/");
+    }
+  };
 
   const { data: portfolio, isLoading } = useQuery({
     queryKey: ['portfolio', user?.id],
@@ -67,11 +88,12 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-border bg-background px-4">
       <div className="flex items-center gap-2">
-        <span className="relative flex h-2.5 w-2.5">
+        <AjeLogo size={28} />
+        <h1 className="font-display text-lg font-bold tracking-tight text-foreground">AJE</h1>
+        <span className="relative flex h-2.5 w-2.5 ml-1">
           <span className="absolute inline-flex h-full w-full animate-pulse-green rounded-full bg-bullish opacity-75" />
           <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-bullish" />
         </span>
-        <h1 className="font-display text-lg font-bold tracking-tight text-foreground">WealthOS</h1>
       </div>
 
       <div className="hidden items-center divide-x divide-border md:flex">
@@ -104,6 +126,31 @@ export default function Navbar() {
         <div className="ml-2 border-l border-border pl-3">
           <ThemeToggle />
         </div>
+
+        {user && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex h-8 w-8 items-center justify-center rounded-full bg-bullish/15 text-bullish text-xs font-bold hover:bg-bullish/25 transition-colors focus:outline-none">
+                {user.email?.substring(0, 2).toUpperCase()}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <div className="px-3 py-2">
+                <p className="text-xs font-medium text-foreground truncate">{user.email}</p>
+              </div>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate("/settings")} className="cursor-pointer">
+                <Settings className="mr-2 h-4 w-4" />
+                Settings
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-bearish focus:text-bearish">
+                <LogOut className="mr-2 h-4 w-4" />
+                Sign Out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
     </header>
   );
