@@ -158,20 +158,21 @@ export default function Sidebar() {
     <aside
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`hidden shrink-0 border-r border-border bg-background lg:flex lg:flex-col overflow-y-auto overflow-x-hidden transition-all duration-200 ease-in-out ${
-        isOpen ? "w-[220px]" : "w-[52px]"
-      }`}
+      className={`hidden shrink-0 lg:flex lg:flex-col overflow-y-auto overflow-x-hidden transition-all duration-200 ease-in-out
+        border-r border-black/[0.06] dark:border-white/[0.06]
+        bg-[#f2f2f2] dark:bg-[#111111]
+        ${isOpen ? "w-[220px]" : "w-[52px]"}`}
     >
       {/* Pin toggle */}
       <div className={`flex items-center px-3 pt-3 pb-1 ${isOpen ? "justify-end" : "justify-center"}`}>
         <button
           onClick={togglePin}
           title={isPinned ? "Unpin sidebar" : "Pin sidebar open"}
-          className="rounded-md p-1 text-muted-foreground/40 hover:text-muted-foreground transition-colors"
+          className="rounded-md p-1 text-foreground/20 hover:text-foreground/50 transition-colors"
         >
           {isPinned
-            ? <PinOff className="h-3.5 w-3.5" />
-            : <Pin className="h-3.5 w-3.5" />
+            ? <PinOff className="h-3 w-3" />
+            : <Pin className="h-3 w-3" />
           }
         </button>
       </div>
@@ -184,7 +185,7 @@ export default function Sidebar() {
             <div key={section.label} className="mb-1">
               {/* Section label — hidden when collapsed */}
               <div className={`overflow-hidden transition-all duration-200 ${isOpen ? "max-h-8 opacity-100" : "max-h-0 opacity-0"}`}>
-                <span className="mb-0.5 block px-2 font-body text-[10px] font-semibold uppercase tracking-widest text-bullish/50">
+                <span className="mb-0.5 block px-2 text-[9px] font-bold uppercase tracking-widest text-foreground/25">
                   {section.label}
                 </span>
               </div>
@@ -204,17 +205,17 @@ export default function Sidebar() {
                         toast.error("Admin permissions required");
                       }
                     }}
-                    className={`flex items-center rounded-lg px-2 py-2 text-sm font-medium transition-colors duration-150 ${
+                    className={`flex items-center rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors duration-100 ${
                       isOpen ? "gap-2.5" : "justify-center"
                     } ${
                       active
-                        ? "bg-bullish/10 text-bullish"
+                        ? "bg-foreground/[0.08] text-foreground"
                         : isRestricted
-                        ? "text-muted-foreground/30 cursor-not-allowed"
-                        : "text-muted-foreground hover:bg-bullish/5 hover:text-bullish"
+                        ? "text-foreground/20 cursor-not-allowed"
+                        : "text-foreground/40 hover:bg-foreground/[0.05] hover:text-foreground/80"
                     }`}
                   >
-                    <item.icon className={`h-4 w-4 shrink-0 ${isRestricted ? "opacity-20" : ""}`} />
+                    <item.icon className={`h-[15px] w-[15px] shrink-0 ${isRestricted ? "opacity-30" : ""}`} />
 
                     {/* Label — slides in when open */}
                     <span className={`overflow-hidden whitespace-nowrap transition-all duration-200 ${
@@ -224,7 +225,7 @@ export default function Sidebar() {
                     </span>
 
                     {isRestricted && isOpen && (
-                      <ShieldAlert className="ml-auto h-3 w-3 shrink-0 opacity-50" />
+                      <ShieldAlert className="ml-auto h-3 w-3 shrink-0 opacity-30" />
                     )}
                   </RouterNavLink>
                 );
