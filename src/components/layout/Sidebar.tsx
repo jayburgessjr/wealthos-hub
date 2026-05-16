@@ -159,7 +159,7 @@ export default function Sidebar() {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={`hidden shrink-0 lg:flex lg:flex-col overflow-y-auto overflow-x-hidden transition-all duration-200 ease-in-out
-        border-r border-black/[0.06] dark:border-white/[0.06]
+        sidebar-scroll border-r border-black/[0.06] dark:border-white/[0.06]
         bg-[#f2f2f2] dark:bg-[#111111]
         ${isOpen ? "w-[220px]" : "w-[52px]"}`}
     >
