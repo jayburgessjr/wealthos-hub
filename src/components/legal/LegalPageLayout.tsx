@@ -46,7 +46,7 @@ export default function LegalPageLayout({
                 <div className="space-y-2 text-sm text-amber-50/90">
                   <p className="font-semibold text-amber-200">Important notice</p>
                   <p>
-                    WealthOS Hub is provided for informational and entertainment
+                    AJE is provided for informational and entertainment
                     purposes only. Nothing on this site is financial,
                     investment, tax, accounting, or legal advice, and no
                     fiduciary or advisor-client relationship is created by your

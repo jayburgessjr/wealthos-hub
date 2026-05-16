@@ -32,7 +32,7 @@ export default function NotFound() {
             <Rocket className="h-5 w-5 text-primary-foreground" />
           </div>
           <span className="font-display text-2xl font-bold tracking-tight">
-            WealthOS<span className="text-primary">.</span>
+            AJE<span className="text-primary">.</span>
           </span>
         </Link>
 

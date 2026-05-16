@@ -6,7 +6,7 @@ import { useDemo } from "../DemoProvider";
 
 const stats = [
   { label: "Asset Classes", value: "10+" },
-  { label: "Market Tools", value: "30+" },
+  { label: "Market Tools", value: "50+" },
   { label: "AI Models", value: "Multi" },
   { label: "Data Sources", value: "15+" },
 ];
@@ -36,7 +36,7 @@ export default function LandingHero() {
           >
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
               <Sparkles className="h-4 w-4" />
-              <span>Your Personal Hedge Fund Operating System</span>
+              <span>Build Wealth Here — Your Personal Hedge Fund OS</span>
             </div>
           </motion.div>
 
@@ -122,7 +122,7 @@ export default function LandingHero() {
 
               <img
                 src="/dashboardimage.png"
-                alt="WealthOS Dashboard"
+                alt="AJE Dashboard"
                 className="w-full object-cover object-top"
                 onError={(e) => {
                   // Fallback to a dark placeholder if image not yet saved
@@ -149,7 +149,7 @@ export default function LandingHero() {
 
               <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20">
                 <span className="rounded-full border border-border/60 bg-background/80 px-4 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur-sm tracking-widest uppercase">
-                  WealthOS Dashboard
+                  AJE Dashboard
                 </span>
               </div>
             </div>

@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { SubscriptionGate } from "@/components/SubscriptionGate";
 import { supabase } from "@/integrations/supabase/client";
 
 const DEFAULT_TICKERS = ['NVDA', 'SPY', 'TSLA', 'AMZN', 'META', 'AMD', 'AAPL'];
@@ -111,6 +112,7 @@ export default function Signals() {
 
   return (
     <DashboardLayout>
+      <SubscriptionGate>
       <div className="space-y-6">
       <div className="flex flex-col gap-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -237,6 +239,7 @@ export default function Signals() {
         </div>
       )}
       </div>
+      </SubscriptionGate>
     </DashboardLayout>
   );
 }

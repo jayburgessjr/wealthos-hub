@@ -13,6 +13,7 @@ import {
   Zap,
 } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { SubscriptionGate } from "@/components/SubscriptionGate";
 import {
   Accordion,
   AccordionContent,
@@ -145,9 +146,9 @@ const operatingCadence = [
 
 const faqItems = [
   {
-    question: "What is WealthOS doing under the hood?",
+    question: "What is AJE doing under the hood?",
     answer:
-      "WealthOS combines portfolio state, AI-generated signals, market context, and compounding assumptions into one operating system for managing capital. It is built to function like a personal hedge-fund intelligence layer for an individual investor, connecting idea generation, sizing, monitoring, and review.",
+      "AJE combines portfolio state, AI-generated signals, market context, and compounding assumptions into one operating system for managing capital. It is built to function like a personal hedge-fund intelligence layer for an individual investor, connecting idea generation, sizing, monitoring, and review.",
   },
   {
     question: "What should a new user do first?",
@@ -174,6 +175,7 @@ const faqItems = [
 export default function Documents() {
   return (
     <DashboardLayout>
+      <SubscriptionGate tier="elite">
       <div className="space-y-6">
         <section className="relative overflow-hidden rounded-3xl border border-border bg-card">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,197,94,0.14),transparent_38%),radial-gradient(circle_at_top_right,rgba(59,130,246,0.10),transparent_32%)]" />
@@ -188,7 +190,7 @@ export default function Documents() {
                   Personal hedge-fund-style decision intelligence for building wealth in the market.
                 </h2>
                 <p className="max-w-2xl text-sm leading-6 text-muted-foreground lg:text-base">
-                  WealthOS helps you build wealth through the market by surfacing decision intelligence across
+                  AJE helps you build wealth through the market by surfacing decision intelligence across
                   entry, exit, sizing, risk, and portfolio management. It links signals, risk controls, position
                   monitoring, compounding logic, and performance review so you can make better buy, sell, hold,
                   and allocation decisions from one operating loop.
@@ -314,6 +316,7 @@ export default function Documents() {
           </CardContent>
         </Card>
       </div>
+      </SubscriptionGate>
     </DashboardLayout>
   );
 }

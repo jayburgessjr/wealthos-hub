@@ -7,6 +7,7 @@ import {
   CalendarDays, BarChart2, RefreshCw, Layers,
 } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { SubscriptionGate } from "@/components/SubscriptionGate";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -429,6 +430,7 @@ export default function DividendTracker() {
 
   return (
     <DashboardLayout>
+      <SubscriptionGate tier="elite">
       <div className="p-6 space-y-6 max-w-7xl mx-auto">
 
         {/* Header */}
@@ -828,6 +830,7 @@ export default function DividendTracker() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      </SubscriptionGate>
     </DashboardLayout>
   );
 }

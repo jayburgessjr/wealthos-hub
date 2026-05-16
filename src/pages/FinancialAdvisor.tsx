@@ -92,7 +92,7 @@ function DisclaimerBanner() {
       {expanded && (
         <div className="mt-3 space-y-2 border-t border-amber-500/20 pt-3 text-xs text-amber-200/70 leading-relaxed">
           <p>
-            <strong className="text-amber-300">Not Financial Advice.</strong> The WealthOS Financial Advisor is an AI tool designed to help you think through financial strategies and concepts. It is not a licensed financial advisor, investment advisor, broker-dealer, or CPA. Nothing provided here constitutes legal, tax, or investment advice.
+            <strong className="text-amber-300">Not Financial Advice.</strong> The AJE Financial Advisor is an AI tool designed to help you think through financial strategies and concepts. It is not a licensed financial advisor, investment advisor, broker-dealer, or CPA. Nothing provided here constitutes legal, tax, or investment advice.
           </p>
           <p>
             <strong className="text-amber-300">Consult a Professional.</strong> Before making any significant financial decisions — including but not limited to investments, retirement planning, tax strategies, or estate planning — you should consult with a qualified, licensed financial advisor, certified public accountant (CPA), or attorney.
@@ -101,7 +101,7 @@ function DisclaimerBanner() {
             <strong className="text-amber-300">No Guarantees.</strong> Past performance is not indicative of future results. All investing involves risk, including the potential loss of principal. Any projections or estimates presented are illustrative only.
           </p>
           <p>
-            <strong className="text-amber-300">Regulatory Notice.</strong> WealthOS is not registered with the SEC, FINRA, or any other regulatory body as an investment advisor. This service is provided for educational and informational purposes only.
+            <strong className="text-amber-300">Regulatory Notice.</strong> AJE is not registered with the SEC, FINRA, or any other regulatory body as an investment advisor. This service is provided for educational and informational purposes only.
           </p>
         </div>
       )}
@@ -116,7 +116,7 @@ export default function FinancialAdvisor() {
     {
       role: "assistant",
       content:
-        "Welcome to the **WealthOS Financial Advisor** — your AI-powered financial strategy partner.\n\nI'm trained to help you build comprehensive financial strategies: portfolio construction, retirement planning, tax optimization, income strategies, and wealth accumulation frameworks.\n\nTell me about your financial goals, current situation, or ask me to develop a specific strategy.",
+        "Welcome to the **AJE Financial Advisor** — your AI-powered financial strategy partner.\n\nI'm trained to help you build comprehensive financial strategies: portfolio construction, retirement planning, tax optimization, income strategies, and wealth accumulation frameworks.\n\nTell me about your financial goals, current situation, or ask me to develop a specific strategy.",
     },
   ]);
   const [input, setInput] = useState("");

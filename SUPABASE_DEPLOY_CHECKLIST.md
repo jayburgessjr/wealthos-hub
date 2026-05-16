@@ -1,4 +1,4 @@
-# Supabase Deploy Checklist — WealthOS Hub
+# Supabase Deploy Checklist — AJE
 > Project ID: `magpawmyuqyzgczewxsl`
 > Last updated: 2026-05-13
 
@@ -7,7 +7,7 @@
 ## Prerequisites
 
 Reconnect the Supabase MCP to the account that owns `magpawmyuqyzgczewxsl`:
-1. Go to [supabase.com/dashboard/account/tokens](https://supabase.com/dashboard/account/tokens) — logged in to the **WealthOS account**
+1. Go to [supabase.com/dashboard/account/tokens](https://supabase.com/dashboard/account/tokens) — logged in to the **AJE account**
 2. Generate a new personal access token
 3. Update `~/.claude.json` → `mcpServers.supabase` with the new token, or re-authenticate via OAuth
 4. Restart Claude Code

@@ -64,7 +64,7 @@ const Index = () => {
               </h2>
 
               <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground">
-                Signals, AI advisors, risk controls, compound modeling, and 30+ tools —
+                Signals, AI advisors, risk controls, compound modeling, wealth planning, and 50+ tools —
                 all aligned to your mission, your portfolio, and your goals.
               </p>
 

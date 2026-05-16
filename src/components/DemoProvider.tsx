@@ -9,15 +9,15 @@ const DemoContext = createContext<DemoContextType | undefined>(undefined);
 
 export function DemoProvider({ children }: { children: React.ReactNode }) {
   const [isDemoMode, setIsDemoMode] = useState<boolean>(() => {
-    return sessionStorage.getItem("wealthos_demo_mode") === "true";
+    return sessionStorage.getItem("aje_demo_mode") === "true";
   });
 
   const setDemoMode = (val: boolean) => {
     setIsDemoMode(val);
     if (val) {
-      sessionStorage.setItem("wealthos_demo_mode", "true");
+      sessionStorage.setItem("aje_demo_mode", "true");
     } else {
-      sessionStorage.removeItem("wealthos_demo_mode");
+      sessionStorage.removeItem("aje_demo_mode");
     }
   };
 

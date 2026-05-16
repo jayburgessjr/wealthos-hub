@@ -8,9 +8,9 @@ import { motion } from "framer-motion";
 
 const faqs = [
   {
-    question: "What is WealthOS and who is it for?",
+    question: "What is AJE and who is it for?",
     answer:
-      "WealthOS is a personal hedge fund operating system for sophisticated individual investors. It gives you the same decision infrastructure that institutional traders use — signals, risk controls, AI advisors, allocation modeling — without needing a Bloomberg terminal or a prop desk. It's built for investors who want to run their capital with intention, not guesswork.",
+      "AJE is a personal hedge fund operating system for sophisticated individual investors. It gives you the same decision infrastructure that institutional traders use — signals, risk controls, AI advisors, allocation modeling — without needing a Bloomberg terminal or a prop desk. It's built for investors who want to run their capital with intention, not guesswork.",
   },
   {
     question: "How do the AI signals work?",
@@ -35,17 +35,17 @@ const faqs = [
   {
     question: "What are prediction markets and why are they on a financial platform?",
     answer:
-      "Prediction markets like Kalshi and Polymarket price the probability of real-world events — Fed rate decisions, election outcomes, economic data releases. Those probabilities are directly relevant to how you position your portfolio. WealthOS integrates them so your trading thesis and your macro bets are informed by the same probability data.",
+      "Prediction markets like Kalshi and Polymarket price the probability of real-world events — Fed rate decisions, election outcomes, economic data releases. Those probabilities are directly relevant to how you position your portfolio. AJE integrates them so your trading thesis and your macro bets are informed by the same probability data.",
   },
   {
     question: "Can I input my real portfolio from other brokers?",
     answer:
-      "Yes. The My Portfolio page lets you manually input all your real holdings — stocks, crypto, options, real estate, Kalshi contracts, bonds, cash — across any broker or exchange. Once entered, WealthOS uses that data to personalize every signal, risk calculation, and allocation recommendation to your actual positions.",
+      "Yes. The My Portfolio page lets you manually input all your real holdings — stocks, crypto, options, real estate, Kalshi contracts, bonds, cash — across any broker or exchange. Once entered, AJE uses that data to personalize every signal, risk calculation, and allocation recommendation to your actual positions.",
   },
   {
     question: "Is my financial data secure?",
     answer:
-      "Yes. All data is stored securely via Supabase with Row Level Security — your holdings, portfolio, and decisions are only accessible to your authenticated account. WealthOS is a decision and analysis layer, not a broker. We do not connect to or have access to your brokerage accounts.",
+      "Yes. All data is stored securely via Supabase with Row Level Security — your holdings, portfolio, and decisions are only accessible to your authenticated account. AJE is a decision and analysis layer, not a broker. We do not connect to or have access to your brokerage accounts.",
   },
   {
     question: "What is the AI Financial Advisor?",
@@ -53,9 +53,9 @@ const faqs = [
       "The AI Financial Advisor is a sophisticated AI model trained on financial strategy, portfolio theory, risk management, and market psychology. You can ask it anything — position sizing for a specific setup, whether a trade aligns with your mission, how to structure a hedge, what historical data says about a pattern. It responds with your full portfolio context in mind.",
   },
   {
-    question: "Do I need trading experience to use WealthOS?",
+    question: "Do I need trading experience to use AJE?",
     answer:
-      "Basic market familiarity helps. WealthOS is not an autopilot system — it's a decision-intelligence layer that helps you think more clearly about what to buy, sell, hold, size, and monitor. The more context you bring, the more valuable the platform becomes.",
+      "Basic market familiarity helps. AJE is not an autopilot system — it's a decision-intelligence layer that helps you think more clearly about what to buy, sell, hold, size, and monitor. The more context you bring, the more valuable the platform becomes.",
   },
   {
     question: "What's included in the Weekly Briefing?",
@@ -63,9 +63,14 @@ const faqs = [
       "The Weekly Briefing is an AI-generated intelligence report covering market regime, top signals, macro events to watch, insider activity trends, and your portfolio's current risk exposure — delivered fresh each week so you start every trading week with full situational awareness.",
   },
   {
-    question: "Can I try it before paying?",
+    question: "What's included in the Free tier?",
     answer:
-      "Yes. The Free tier includes portfolio tracking, live charts, basic watchlist, performance metrics, and holdings input at no cost, with no credit card required. The Live Demo button on the landing page also lets you explore the full interface with demo data before creating an account.",
+      "The Free tier includes the full dashboard, portfolio tracking, position management, live charts, asset screener, paper trading simulator, position sizer, trading journal, P&L calendar, performance metrics, markets overview, watchlist, and the Decision Hub — all at no cost, no credit card required. AI features and advanced engines require a Pro or Elite subscription.",
+  },
+  {
+    question: "What does Elite include that Pro doesn't?",
+    answer:
+      "Elite ($250/mo) unlocks the complete platform: Options Flow and Insider Activity, all four Prediction Markets (Kalshi, Polymarket, Sports, Lottery EV), the full Wealth Planning suite (Net Worth, Retirement, Estate Planning, Cash Flow, Debt Manager, Dividends, Real Estate, Collectibles, Insurance), Business tools (Entity Structure, Fundraising), Private Equity, M&A Tracker, IPO Tracker, Weekly Briefing, and the Document Vault. It's designed for serious capital allocators managing $250K+.",
   },
 ];
 

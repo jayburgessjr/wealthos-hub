@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Building, ChevronRight } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { SubscriptionGate } from "@/components/SubscriptionGate";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const inputCls =
@@ -227,6 +228,7 @@ function QBICalculator() {
 export default function EntityStructure() {
   return (
     <DashboardLayout>
+      <SubscriptionGate tier="elite">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -358,6 +360,7 @@ export default function EntityStructure() {
           </CardContent>
         </Card>
       </motion.div>
+      </SubscriptionGate>
     </DashboardLayout>
   );
 }

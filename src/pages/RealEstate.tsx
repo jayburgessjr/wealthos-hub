@@ -6,6 +6,7 @@ import {
   TrendingUp, Percent, Loader2,
 } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { SubscriptionGate } from "@/components/SubscriptionGate";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -415,6 +416,7 @@ export default function RealEstate() {
 
   return (
     <DashboardLayout>
+      <SubscriptionGate tier="elite">
       <div className="space-y-6 p-4 md:p-6">
         {/* Header */}
         <motion.div
@@ -548,6 +550,7 @@ export default function RealEstate() {
           userId={user?.id ?? ""}
         />
       )}
+      </SubscriptionGate>
     </DashboardLayout>
   );
 }

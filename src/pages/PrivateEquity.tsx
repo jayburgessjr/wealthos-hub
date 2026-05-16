@@ -7,6 +7,7 @@ import {
   Circle, Calculator, Layers, Plus, Trash2, Pencil, Loader2,
 } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { SubscriptionGate } from "@/components/SubscriptionGate";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -454,6 +455,7 @@ export default function PrivateEquity() {
 
   return (
     <DashboardLayout>
+      <SubscriptionGate tier="elite">
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="space-y-6">
 
         {/* Header */}
@@ -652,6 +654,7 @@ export default function PrivateEquity() {
         userId={userId}
         onClose={() => setPortfolioModal({ open: false })}
       />
+      </SubscriptionGate>
     </DashboardLayout>
   );
 }

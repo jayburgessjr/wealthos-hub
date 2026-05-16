@@ -11,7 +11,7 @@ const steps = [
     glow: "shadow-primary/20",
     title: "Set Your Mission",
     description:
-      "Define your starting capital, target goal, and timeframe. WealthOS aligns every signal, alert, and directive to get you there.",
+      "Define your starting capital, target goal, and timeframe. AJE aligns every signal, alert, and directive to get you there.",
   },
   {
     step: "02",
@@ -69,7 +69,7 @@ export default function HowItWorks() {
             <span className="text-primary">Four Steps.</span>
           </h2>
           <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-            WealthOS is built around a repeatable decision loop. Every tool on the platform
+            AJE is built around a repeatable decision loop. Every tool on the platform
             feeds into one of these four phases.
           </p>
         </motion.div>

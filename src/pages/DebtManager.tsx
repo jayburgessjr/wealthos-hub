@@ -7,6 +7,7 @@ import {
   AlertTriangle, Calculator,
 } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { SubscriptionGate } from "@/components/SubscriptionGate";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -389,6 +390,7 @@ export default function DebtManager() {
 
   return (
     <DashboardLayout>
+      <SubscriptionGate tier="elite">
       <div className="space-y-6 p-6">
         {/* Header */}
         <motion.div
@@ -587,6 +589,7 @@ export default function DebtManager() {
         userId={user.id}
         existing={editing}
       />
+      </SubscriptionGate>
     </DashboardLayout>
   );
 }

@@ -20,6 +20,7 @@ import {
   Radio,
 } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { SubscriptionGate } from "@/components/SubscriptionGate";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -550,6 +551,7 @@ export default function FinancialNews() {
 
   return (
     <DashboardLayout>
+      <SubscriptionGate tier="elite">
       <div className="p-6 space-y-6 max-w-[1600px] mx-auto">
 
         {/* ── Page header ── */}
@@ -927,6 +929,7 @@ export default function FinancialNews() {
           </div>
         </div>
       </div>
+      </SubscriptionGate>
     </DashboardLayout>
   );
 }

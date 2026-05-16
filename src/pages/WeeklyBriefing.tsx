@@ -179,7 +179,7 @@ export default function WeeklyBriefing() {
 
   return (
     <DashboardLayout>
-      <SubscriptionGate>
+      <SubscriptionGate tier="elite">
         <div className="space-y-6">
           {/* Header */}
           <div className="flex items-start justify-between">

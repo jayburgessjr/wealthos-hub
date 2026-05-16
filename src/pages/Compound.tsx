@@ -1,4 +1,5 @@
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { SubscriptionGate } from "@/components/SubscriptionGate";
 import { useState, useMemo, useCallback } from "react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { STRATEGY_TIERS, getCurrentTier, getNextTierUnlock, getAvailableStrategies } from "@/data/strategyTiers";
@@ -138,6 +139,7 @@ export default function Compound() {
 
   return (
     <DashboardLayout>
+      <SubscriptionGate>
       <div className="space-y-6">
         {/* Page Header */}
         <motion.div
@@ -168,7 +170,6 @@ export default function Compound() {
         <motion.div variants={cardVariants} initial="hidden" animate="visible" custom={0} className="rounded-xl border border-border bg-card overflow-hidden">
           <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
             <span className="font-display text-[11px] font-bold uppercase tracking-[1.2px] text-muted-foreground">Projection Parameters</span>
-            <span className="rounded bg-bullish/10 px-2 py-0.5 text-xs font-medium text-bullish">LIVE MODEL</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
             {/* Starting Capital */}
@@ -493,6 +494,7 @@ export default function Compound() {
           </div>
         </motion.div>
       </div>
+      </SubscriptionGate>
     </DashboardLayout>
   );
 }

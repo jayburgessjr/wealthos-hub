@@ -7,6 +7,7 @@ import {
   AlertTriangle, Activity, Zap, BarChart2, X,
 } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { SubscriptionGate } from "@/components/SubscriptionGate";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { Button } from "@/components/ui/button";
@@ -1070,6 +1071,7 @@ export default function Bots() {
   // ── Render ────────────────────────────────────────────────────────────────────
   return (
     <DashboardLayout>
+      <SubscriptionGate>
       <div className="space-y-6 p-4 sm:p-6">
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -1337,6 +1339,7 @@ export default function Bots() {
         }}
         onSave={handleSave}
       />
+      </SubscriptionGate>
     </DashboardLayout>
   );
 }

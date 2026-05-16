@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Target, AlertCircle, TrendingUp, TrendingDown, Calendar, ChevronRight, Minus } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { SubscriptionGate } from "@/components/SubscriptionGate";
 
 // ── Strategy Brief ─────────────────────────────────────────────────────────────
 function StrategyBrief() {
@@ -106,6 +107,7 @@ export default function Kalshi() {
 
   return (
     <DashboardLayout>
+      <SubscriptionGate tier="elite">
       <div className="space-y-6">
 
         {/* Header */}
@@ -225,6 +227,7 @@ export default function Kalshi() {
         </div>
 
       </div>
+      </SubscriptionGate>
     </DashboardLayout>
   );
 }

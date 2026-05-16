@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Shield, Plus, Pencil, Trash2, Loader2, CheckCircle2, XCircle } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { SubscriptionGate } from "@/components/SubscriptionGate";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -276,6 +277,7 @@ export default function Insurance() {
 
   return (
     <DashboardLayout>
+      <SubscriptionGate tier="elite">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -436,6 +438,7 @@ export default function Insurance() {
           existing={editing}
         />
       )}
+      </SubscriptionGate>
     </DashboardLayout>
   );
 }

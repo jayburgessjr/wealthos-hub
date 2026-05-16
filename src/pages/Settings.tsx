@@ -226,7 +226,7 @@ export default function SettingsPage() {
             </div>
             <div>
               <p className="text-sm font-bold text-foreground">
-                {subscriptionPlan === 'pro' ? 'WealthOS Pro Plan' : 'Free Tier'}
+                {subscriptionPlan === 'pro' ? 'AJE Pro Plan' : 'Free Tier'}
               </p>
               <p className="text-xs text-muted-foreground uppercase">
                 Status: <span className={isPro ? 'text-bullish font-bold' : ''}>{subscriptionStatus}</span>

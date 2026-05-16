@@ -15,6 +15,7 @@ import {
   Clock,
 } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { SubscriptionGate } from "@/components/SubscriptionGate";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { Button } from "@/components/ui/button";
@@ -720,6 +721,7 @@ export default function Alerts() {
 
   return (
     <DashboardLayout>
+      <SubscriptionGate>
       <div className="space-y-6 max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3">
@@ -773,6 +775,7 @@ export default function Alerts() {
           </TabsContent>
         </Tabs>
       </div>
+      </SubscriptionGate>
     </DashboardLayout>
   );
 }

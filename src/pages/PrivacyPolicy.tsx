@@ -4,13 +4,13 @@ export default function PrivacyPolicy() {
   return (
     <LegalPageLayout
       title="Privacy Policy"
-      summary="This policy explains the basic categories of information WealthOS Hub may collect and how that information is used, while also clarifying that the product is not a licensed advisory service."
+      summary="This policy explains the basic categories of information AJE may collect and how that information is used, while also clarifying that the product is not a licensed advisory service."
     >
       <h2>1. Information We Collect</h2>
       <p>
         We may collect account information, contact details, usage activity,
         settings, uploaded content, and technical data needed to operate,
-        secure, and improve WealthOS Hub.
+        secure, and improve AJE.
       </p>
 
       <h2>2. How We Use Information</h2>
@@ -22,7 +22,7 @@ export default function PrivacyPolicy() {
 
       <h2>3. Financial Disclaimer</h2>
       <p>
-        Data you enter into WealthOS Hub and outputs you receive from WealthOS
+        Data you enter into AJE and outputs you receive from AJE
         Hub do not create a financial advisor-client, legal-client, tax-client,
         or fiduciary relationship. The platform is not a replacement for advice
         from licensed professionals.
@@ -45,7 +45,7 @@ export default function PrivacyPolicy() {
 
       <h2>6. Your Responsibility</h2>
       <p>
-        You should avoid treating WealthOS Hub as your only source of
+        You should avoid treating AJE as your only source of
         information when making financial or legal decisions. You remain
         responsible for the decisions you make and for consulting licensed
         professionals where appropriate.

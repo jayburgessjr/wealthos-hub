@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { format, differenceInDays, parseISO } from "date-fns";
 
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { SubscriptionGate } from "@/components/SubscriptionGate";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -250,6 +251,7 @@ export default function TaxHarvesting() {
 
   return (
     <DashboardLayout>
+      <SubscriptionGate tier="elite">
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3">
@@ -583,6 +585,7 @@ export default function TaxHarvesting() {
           </Card>
         </motion.div>
       </div>
+      </SubscriptionGate>
     </DashboardLayout>
   );
 }

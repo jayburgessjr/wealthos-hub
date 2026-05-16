@@ -36,7 +36,7 @@ export default function AssetClasses() {
             Every Asset Class <span className="text-primary">You Trade.</span>
           </h2>
           <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
-            From blue-chip stocks to Kalshi prediction contracts — WealthOS tracks,
+            From blue-chip stocks to Kalshi prediction contracts — AJE tracks,
             analyzes, and generates signals across all 10+ asset types you hold.
           </p>
         </motion.div>

@@ -58,7 +58,7 @@ export default function Signup() {
     return (
       <div className="flex min-h-screen bg-background text-foreground">
         <div className="relative hidden w-1/2 lg:block">
-          <img src={HERO_IMAGE} alt="WealthOS" className="absolute inset-0 h-full w-full object-cover" />
+          <img src={HERO_IMAGE} alt="AJE" className="absolute inset-0 h-full w-full object-cover" />
           <div className="absolute inset-0 bg-background/70" />
           <div className="absolute inset-0 bg-gradient-to-r from-transparent to-background/40" />
           <div className="relative flex h-full items-center p-12">
@@ -67,7 +67,7 @@ export default function Signup() {
                 <Rocket className="h-5 w-5 text-primary-foreground" />
               </div>
               <span className="font-display text-2xl font-bold tracking-tight text-foreground">
-                WealthOS<span className="text-primary">.</span>
+                AJE<span className="text-primary">.</span>
               </span>
             </Link>
           </div>
@@ -109,7 +109,7 @@ export default function Signup() {
       <div className="relative hidden w-1/2 lg:block">
         <img
           src={HERO_IMAGE}
-          alt="WealthOS"
+          alt="AJE"
           className="absolute inset-0 h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-background/70" />
@@ -122,7 +122,7 @@ export default function Signup() {
               <Rocket className="h-5 w-5 text-primary-foreground" />
             </div>
             <span className="font-display text-2xl font-bold tracking-tight text-foreground">
-              WealthOS<span className="text-primary">.</span>
+              AJE<span className="text-primary">.</span>
             </span>
           </Link>
 
@@ -166,7 +166,7 @@ export default function Signup() {
             <p className="text-sm text-foreground/80 leading-relaxed">
               "The goal isn't to predict the market. It's to have better decision infrastructure than everyone else."
             </p>
-            <p className="mt-2 text-xs font-semibold text-primary">— WealthOS Philosophy</p>
+            <p className="mt-2 text-xs font-semibold text-primary">— AJE Philosophy</p>
           </div>
         </div>
       </div>
@@ -180,7 +180,7 @@ export default function Signup() {
               <Rocket className="h-5 w-5 text-primary-foreground" />
             </div>
             <span className="font-display text-2xl font-bold tracking-tight">
-              WealthOS<span className="text-primary">.</span>
+              AJE<span className="text-primary">.</span>
             </span>
           </Link>
         </div>

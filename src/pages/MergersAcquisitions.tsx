@@ -7,6 +7,7 @@ import {
   Clock, Activity, Calculator, Layers, Plus, Trash2, Pencil, Loader2,
 } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { SubscriptionGate } from "@/components/SubscriptionGate";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -348,6 +349,7 @@ export default function MergersAcquisitions() {
 
   return (
     <DashboardLayout>
+      <SubscriptionGate tier="elite">
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="space-y-6">
 
         {/* Header */}
@@ -587,6 +589,7 @@ export default function MergersAcquisitions() {
 
       <DealModal open={dealModal.open} existing={dealModal.existing} userId={userId} onClose={() => setDealModal({ open: false })} />
       <CompModal open={compModal.open} existing={compModal.existing} userId={userId} onClose={() => setCompModal({ open: false })} />
+      </SubscriptionGate>
     </DashboardLayout>
   );
 }

@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 
 // ─── Goal persistence (localStorage) ─────────────────────────────────────────
 
-const STORAGE_KEY = "wealthos_goal_v1";
+const STORAGE_KEY = "aje_goal_v1";
 
 interface GoalState {
   startingCapital: number;
@@ -360,7 +360,7 @@ export default function GoalEngine({ currentCapital }: GoalEngineProps) {
               <p className="text-xs text-muted-foreground">
                 {editing
                   ? "Update your goal and the Decision Hub will recalibrate."
-                  : "Tell WealthOS where you want to go — every decision gets aligned to get you there."}
+                  : "Tell AJE where you want to go — every decision gets aligned to get you there."}
               </p>
             </div>
           </div>

@@ -24,13 +24,21 @@ export function useSubscription() {
     enabled: !!user || isDemoMode,
   });
 
+  const plan = isDemoMode ? "pro" : (profile?.subscription_plan || "free");
+  const status = isDemoMode ? "active" : (profile?.subscription_status || "none");
+  const isActive = status === "active" || status === "trialing";
+  const isAdmin = !isDemoMode && (profile?.is_admin || false);
+  const isElite = isAdmin || (isActive && plan === "elite");
+  const isPro = isAdmin || isElite || (isActive && plan === "pro");
+
   return {
     profile,
     isLoading,
-    isPro: isDemoMode || profile?.subscription_status === "active" || profile?.subscription_status === "trialing",
-    isAdmin: !isDemoMode && (profile?.is_admin || false),
+    isPro,
+    isElite,
+    isAdmin,
     onboardingCompleted: isDemoMode || (profile?.onboarding_completed || false),
-    subscriptionStatus: isDemoMode ? "active" : (profile?.subscription_status || "none"),
-    subscriptionPlan: isDemoMode ? "pro" : (profile?.subscription_plan || "free"),
+    subscriptionStatus: status,
+    subscriptionPlan: plan,
   };
 }

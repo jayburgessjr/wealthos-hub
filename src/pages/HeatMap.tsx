@@ -5,6 +5,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { useDemo } from "@/components/DemoProvider";
 import { sandboxPositions } from "@/data/sandboxData";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { SubscriptionGate } from "@/components/SubscriptionGate";
 import { Card } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
@@ -286,6 +287,7 @@ export default function HeatMap() {
 
   return (
     <DashboardLayout>
+      <SubscriptionGate tier="elite">
       <div className="space-y-6">
         {/* Page Header */}
         <div className="flex items-center gap-3">
@@ -763,6 +765,7 @@ export default function HeatMap() {
           </div>
         </Card>
       </div>
+      </SubscriptionGate>
     </DashboardLayout>
   );
 }

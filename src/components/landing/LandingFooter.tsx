@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { Rocket, Github, Twitter, Linkedin } from "lucide-react";
+import { Github, Twitter, Linkedin } from "lucide-react";
+import AjeLogo from "@/components/AjeLogo";
 
 export default function LandingFooter() {
   return (
@@ -8,11 +9,9 @@ export default function LandingFooter() {
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4 lg:grid-cols-5">
           <div className="col-span-2 lg:col-span-2">
             <Link to="/" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                <Rocket className="h-5 w-5 text-primary-foreground" />
-              </div>
+              <AjeLogo size={32} />
               <span className="font-display text-xl font-bold tracking-tight">
-                WealthOS<span className="text-primary">.</span>
+                AJE<span className="text-primary">.</span>
               </span>
             </Link>
             <p className="mt-4 max-w-xs text-sm text-muted-foreground">
@@ -44,7 +43,7 @@ export default function LandingFooter() {
           <div>
             <h4 className="font-display text-sm font-bold uppercase tracking-wider">Company</h4>
             <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-              <li><Link to="#" className="transition-colors hover:text-foreground">About</Link></li>
+              <li><Link to="/about" className="transition-colors hover:text-foreground">About</Link></li>
               <li><Link to="#" className="transition-colors hover:text-foreground">Blog</Link></li>
               <li><Link to="#" className="transition-colors hover:text-foreground">Careers</Link></li>
               <li><Link to="#" className="transition-colors hover:text-foreground">Contact</Link></li>
@@ -62,9 +61,9 @@ export default function LandingFooter() {
         </div>
         
         <div className="mt-20 border-t border-border/30 pt-8 text-center text-xs text-muted-foreground">
-          <p>© {new Date().getFullYear()} WealthOS Hub. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} AJE. All rights reserved.</p>
           <p className="mt-2">
-            WealthOS Hub is for informational and entertainment purposes only,
+            AJE is for informational and entertainment purposes only,
             not financial, investment, tax, or legal advice. Please consult
             licensed professionals before making decisions.
           </p>

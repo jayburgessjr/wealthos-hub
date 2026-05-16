@@ -55,7 +55,7 @@ export default function AIAdvisor() {
   const { user } = useAuth();
   const { isDemoMode } = useDemo();
   const [messages, setMessages] = useState<Msg[]>([
-    { role: "assistant", content: "Welcome to **WealthOS AI Advisor**. I have access to your portfolio, open positions, signal scores, and market regime.\n\nAsk me anything — or use the quick prompts below." },
+    { role: "assistant", content: "Welcome to **AJE AI Advisor**. I have access to your portfolio, open positions, signal scores, and market regime.\n\nAsk me anything — or use the quick prompts below." },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);

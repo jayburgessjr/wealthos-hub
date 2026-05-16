@@ -150,7 +150,7 @@ export default function Onboarding() {
       }
 
       queryClient.invalidateQueries({ queryKey: ["profile"] });
-      toast.success("WealthOS configured — welcome aboard.");
+      toast.success("AJE configured — welcome aboard.");
       navigate("/dashboard");
     } catch (err: any) {
       toast.error(err.message || "Something went wrong.");
@@ -191,7 +191,7 @@ export default function Onboarding() {
                   <Target size={40} />
                 </div>
                 <div>
-                  <h1 className="font-display text-4xl font-black tracking-tight sm:text-5xl">Welcome to WealthOS.</h1>
+                  <h1 className="font-display text-4xl font-black tracking-tight sm:text-5xl">Welcome to AJE.</h1>
                   <p className="mt-3 text-lg text-muted-foreground">Let's personalize your decision intelligence platform. This takes about 2 minutes.</p>
                 </div>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -378,7 +378,7 @@ export default function Onboarding() {
                 <div>
                   <h2 className="font-display text-4xl font-black tracking-tight">Ready for Liftoff.</h2>
                   <p className="mt-3 text-lg text-muted-foreground max-w-md mx-auto">
-                    Your WealthOS Hub is configured and ready to deploy.
+                    Your AJE is configured and ready to deploy.
                   </p>
                 </div>
                 <Card className="max-w-sm mx-auto p-6 bg-accent/50 border-primary/20 text-left space-y-3">

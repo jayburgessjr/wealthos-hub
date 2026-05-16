@@ -203,7 +203,7 @@ export default function LegalDisclosureGate() {
 
             <p className="text-xs leading-6 text-muted-foreground">
               By continuing, you confirm that you read and accept this required
-              disclosure and understand that WealthOS Hub is not a licensed
+              disclosure and understand that AJE is not a licensed
               financial advisory service.
             </p>
 

@@ -6,6 +6,9 @@ import {
   ScanSearch, Workflow, CalendarDays, Leaf, Map,
   Vote, Activity, Trophy, Ticket, Landmark, Newspaper,
   Briefcase, Layers, FlaskConical, BookMarked,
+  BarChart2, CalendarCheck, Wallet, PiggyBank, Coins,
+  Home, Gem, Umbrella, TrendingDown, Scale, LineChart,
+  Handshake, GitMerge, Rocket, FileText,
 } from "lucide-react";
 
 const coreFeatures = [
@@ -30,7 +33,7 @@ const coreFeatures = [
     color: "text-neutral",
     bg: "bg-neutral/10",
     title: "My Portfolio",
-    desc: "Input all your real holdings — stocks, crypto, options, real estate, Kalshi contracts, cash — and WealthOS personalizes every recommendation around your actual positions.",
+    desc: "Input all your real holdings — stocks, crypto, options, real estate, Kalshi contracts, cash — and AJE personalizes every recommendation around your actual positions.",
     span: "md:col-span-1",
   },
   {
@@ -106,6 +109,8 @@ const marketFeatures = [
   { icon: Globe, color: "text-neutral", bg: "bg-neutral/10", title: "Market Regime", desc: "Bull/bear/neutral regime detection with VIX, macro, and breadth analysis." },
   { icon: Landmark, color: "text-watch", bg: "bg-watch/10", title: "Insider Activity", desc: "Track corporate insider buys/sells and congressional trading disclosures." },
   { icon: Newspaper, color: "text-primary", bg: "bg-primary/10", title: "News & Intelligence", desc: "Curated market intelligence, sector rotation signals, and macro event tracking." },
+  { icon: BarChart2, color: "text-neutral", bg: "bg-neutral/10", title: "Options Flow", desc: "Unusual options activity, dark pool prints, and institutional positioning signals." },
+  { icon: CalendarCheck, color: "text-watch", bg: "bg-watch/10", title: "Earnings Calendar", desc: "Upcoming earnings with analyst estimates, surprise history, and implied move data." },
 ];
 
 const predictionFeatures = [
@@ -113,6 +118,28 @@ const predictionFeatures = [
   { icon: Activity, color: "text-watch", bg: "bg-watch/10", title: "Polymarket", desc: "Decentralized prediction market analysis with real-money probability odds." },
   { icon: Trophy, color: "text-neutral", bg: "bg-neutral/10", title: "Sports Trading", desc: "EV-based sports betting analysis with Kelly sizing and bankroll management." },
   { icon: Ticket, color: "text-bearish", bg: "bg-bearish/10", title: "Lottery / EV", desc: "Mathematical EV analysis for lottery jackpots, parlays, and probabilistic bets." },
+];
+
+const wealthFeatures = [
+  { icon: Wallet, color: "text-primary", bg: "bg-primary/10", title: "Net Worth Tracker", desc: "Aggregate every asset and liability into a single real-time net worth dashboard." },
+  { icon: PiggyBank, color: "text-watch", bg: "bg-watch/10", title: "Cash Flow Planner", desc: "Model income, expenses, and savings rate to optimize your monthly capital allocation." },
+  { icon: TrendingDown, color: "text-bearish", bg: "bg-bearish/10", title: "Debt Manager", desc: "Payoff strategies, interest analysis, and debt snowball/avalanche modeling." },
+  { icon: LineChart, color: "text-neutral", bg: "bg-neutral/10", title: "Retirement Planner", desc: "Monte Carlo retirement projections with Social Security, withdrawal rates, and longevity modeling." },
+  { icon: Coins, color: "text-primary", bg: "bg-primary/10", title: "Dividend Tracker", desc: "Track dividend income, yield on cost, reinvestment schedules, and ex-dividend dates." },
+  { icon: Home, color: "text-watch", bg: "bg-watch/10", title: "Real Estate", desc: "Property holdings, rental yield, appreciation tracking, and equity calculations." },
+  { icon: Gem, color: "text-neutral", bg: "bg-neutral/10", title: "Collectibles & Alt Assets", desc: "Track art, watches, wine, and alternative assets alongside your financial portfolio." },
+  { icon: Umbrella, color: "text-primary", bg: "bg-primary/10", title: "Insurance Planning", desc: "Policy tracking, coverage gap analysis, and life/disability insurance optimization." },
+  { icon: Scale, color: "text-watch", bg: "bg-watch/10", title: "Estate Planning", desc: "Asset distribution modeling, trust structure overview, and beneficiary management." },
+];
+
+const businessFeatures = [
+  { icon: Landmark, color: "text-primary", bg: "bg-primary/10", title: "Entity Structure", desc: "LLC, S-Corp, C-Corp, and trust structuring guidance tailored to your capital and income profile." },
+  { icon: Handshake, color: "text-watch", bg: "bg-watch/10", title: "Fundraising Intelligence", desc: "Deal flow tracking, cap table modeling, and round structure analysis for founders and angels." },
+  { icon: Briefcase, color: "text-neutral", bg: "bg-neutral/10", title: "Private Equity", desc: "Track PE positions, IRR modeling, and illiquid asset exposure in your overall allocation." },
+  { icon: GitMerge, color: "text-primary", bg: "bg-primary/10", title: "M&A Tracker", desc: "Monitor merger arbitrage opportunities, deal spreads, and acquisition premium trends." },
+  { icon: Rocket, color: "text-watch", bg: "bg-watch/10", title: "IPO Tracker", desc: "Upcoming IPOs, lock-up expiry dates, post-IPO performance, and direct listing analysis." },
+  { icon: BookOpen, color: "text-neutral", bg: "bg-neutral/10", title: "Weekly Briefing", desc: "AI-generated weekly intelligence report: regime, top signals, macro events, and portfolio risk." },
+  { icon: FileText, color: "text-primary", bg: "bg-primary/10", title: "Document Vault", desc: "Store financial statements, tax docs, contracts, and brokerage statements in one secure place." },
 ];
 
 const toolFeatures = [
@@ -233,9 +260,9 @@ export default function BentoGrid() {
           badge="Markets & Intelligence"
           title="Know What's Moving"
           highlight="Before You Trade."
-          subtitle="Market regime, insider activity, earnings, and news intelligence so you never trade blind."
+          subtitle="Market regime, insider activity, options flow, earnings, and news intelligence so you never trade blind."
         />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
           {marketFeatures.map((f, i) => (
             <FeatureCard key={f.title} {...f} delay={i * 0.08} />
           ))}
@@ -257,10 +284,40 @@ export default function BentoGrid() {
         </div>
       </section>
 
+      {/* ── Wealth Planning ── */}
+      <section className="container px-4">
+        <SectionHeader
+          badge="Wealth Planning"
+          title="Manage the Full"
+          highlight="Financial Picture."
+          subtitle="Net worth, retirement, estate planning, debt, dividends, real estate, and every asset class that makes up your total wealth."
+        />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+          {wealthFeatures.map((f, i) => (
+            <FeatureCard key={f.title} {...f} delay={i * 0.07} />
+          ))}
+        </div>
+      </section>
+
+      {/* ── Business & Private Markets ── */}
+      <section className="container px-4">
+        <SectionHeader
+          badge="Business & Private Markets"
+          title="Infrastructure for"
+          highlight="Serious Capital."
+          subtitle="Entity structuring, fundraising, private equity, M&A arbitrage, IPO tracking, and your full document vault."
+        />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {businessFeatures.map((f, i) => (
+            <FeatureCard key={f.title} {...f} delay={i * 0.07} />
+          ))}
+        </div>
+      </section>
+
       {/* ── Tools Grid ── */}
       <section className="container px-4">
         <SectionHeader
-          badge="30+ Tools"
+          badge="50+ Tools"
           title="Every Tool a"
           highlight="Serious Investor Needs."
           subtitle="Screener, position sizer, paper trading, journal, bots, tax harvesting, P&L calendar, heat map, alerts, and more."

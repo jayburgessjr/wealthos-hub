@@ -63,7 +63,7 @@ export default function Login() {
       <div className="relative hidden w-1/2 lg:block">
         <img
           src={HERO_IMAGE}
-          alt="WealthOS"
+          alt="AJE"
           className="absolute inset-0 h-full w-full object-cover"
         />
         {/* Dark overlay */}
@@ -78,7 +78,7 @@ export default function Login() {
               <Rocket className="h-5 w-5 text-primary-foreground" />
             </div>
             <span className="font-display text-2xl font-bold tracking-tight text-foreground">
-              WealthOS<span className="text-primary">.</span>
+              AJE<span className="text-primary">.</span>
             </span>
           </Link>
 
@@ -122,7 +122,7 @@ export default function Login() {
             <p className="text-sm text-foreground/80 leading-relaxed">
               "The goal isn't to predict the market. It's to have better decision infrastructure than everyone else."
             </p>
-            <p className="mt-2 text-xs font-semibold text-primary">— WealthOS Philosophy</p>
+            <p className="mt-2 text-xs font-semibold text-primary">— AJE Philosophy</p>
           </div>
         </div>
       </div>
@@ -136,7 +136,7 @@ export default function Login() {
               <Rocket className="h-5 w-5 text-primary-foreground" />
             </div>
             <span className="font-display text-2xl font-bold tracking-tight">
-              WealthOS<span className="text-primary">.</span>
+              AJE<span className="text-primary">.</span>
             </span>
           </Link>
         </div>
@@ -152,7 +152,7 @@ export default function Login() {
               <div className="mb-8">
                 <h1 className="font-display text-3xl font-bold">Welcome back</h1>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Sign in to your WealthOS account
+                  Sign in to your AJE account
                 </p>
               </div>
 

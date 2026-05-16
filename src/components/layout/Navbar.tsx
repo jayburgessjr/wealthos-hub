@@ -116,14 +116,7 @@ export default function Navbar() {
       </div>
 
       <div className="flex items-center gap-3">
-        <span className="rounded-md border border-neutral/30 bg-neutral/10 px-2.5 py-1 font-mono text-xs font-medium text-neutral">
-          RISK-ON
-        </span>
-        <span className="flex items-center gap-1.5 font-mono text-xs text-bullish">
-          <span className="h-1.5 w-1.5 rounded-full bg-bullish animate-pulse-green" />
-          LIVE
-        </span>
-        <div className="ml-2 border-l border-border pl-3">
+        <div className="border-l border-border pl-3">
           <ThemeToggle />
         </div>
 

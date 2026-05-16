@@ -532,7 +532,7 @@ export default function News() {
             </div>
 
             <p className="text-right text-xs uppercase tracking-widest text-muted-foreground/40">
-              AI sentiment scores computed from headline + summary NLP · Powered by WealthOS Intelligence
+              AI sentiment scores computed from headline + summary NLP · Powered by AJE Intelligence
             </p>
           </motion.div>
         )}

@@ -6,6 +6,7 @@ import {
   Plus, Trash2, RefreshCw
 } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { SubscriptionGate } from "@/components/SubscriptionGate";
 import { optimizePortfolio, type AssetInput, type QuantumResult } from "@/lib/quantumOptimizer";
 
 // ── Default asset universe ─────────────────────────────────────────────────
@@ -186,6 +187,7 @@ export default function Quantum() {
 
   return (
     <DashboardLayout>
+      <SubscriptionGate>
       <div className="space-y-6">
 
         {/* Header */}
@@ -587,6 +589,7 @@ export default function Quantum() {
           </div>
         </div>
       </div>
+      </SubscriptionGate>
     </DashboardLayout>
   );
 }

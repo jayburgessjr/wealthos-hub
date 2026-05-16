@@ -4,18 +4,18 @@ export default function Disclaimer() {
   return (
     <LegalPageLayout
       title="Disclaimer"
-      summary="This page states the core financial and liability limitations of WealthOS Hub in plain language."
+      summary="This page states the core financial and liability limitations of AJE in plain language."
     >
       <h2>1. Informational and Entertainment Use Only</h2>
       <p>
-        WealthOS Hub is intended for general informational, educational, and
+        AJE is intended for general informational, educational, and
         entertainment use. It is designed to help users explore scenarios and
         ideas, not to replace professional judgment.
       </p>
 
       <h2>2. Not Financial Advice</h2>
       <p>
-        Nothing on WealthOS Hub is financial advice, investment advice, tax
+        Nothing on AJE is financial advice, investment advice, tax
         advice, accounting advice, legal advice, or a personalized
         recommendation. Any analysis, AI output, market commentary, signal,
         score, plan, or projection may be incomplete or wrong.
@@ -32,14 +32,14 @@ export default function Disclaimer() {
       <h2>4. Decisions Are Your Responsibility</h2>
       <p>
         You are solely responsible for any decision, action, or inaction you
-        take based on your use of WealthOS Hub. This includes trading,
+        take based on your use of AJE. This includes trading,
         investing, rebalancing, allocating capital, borrowing, tax reporting,
         or any other financial decision.
       </p>
 
       <h2>5. No Liability for User Decisions</h2>
       <p>
-        To the fullest extent permitted by law, WealthOS Hub and its operators
+        To the fullest extent permitted by law, AJE and its operators
         disclaim liability for losses or damages of any kind resulting from
         your reliance on the platform or from decisions you make after using
         it.

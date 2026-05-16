@@ -9,6 +9,7 @@ import {
   Filter,
 } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { SubscriptionGate } from "@/components/SubscriptionGate";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -210,6 +211,7 @@ export default function OptionsFlow() {
 
   return (
     <DashboardLayout>
+      <SubscriptionGate tier="elite">
       <div className="p-6 space-y-6 max-w-[1400px] mx-auto">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
@@ -399,6 +401,7 @@ export default function OptionsFlow() {
           </Card>
         </motion.div>
       </div>
+      </SubscriptionGate>
     </DashboardLayout>
   );
 }

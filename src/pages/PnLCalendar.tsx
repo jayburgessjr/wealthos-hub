@@ -236,7 +236,7 @@ export default function PnLCalendar() {
 
   return (
     <DashboardLayout>
-      <SubscriptionGate>
+      <SubscriptionGate tier="elite">
         <motion.div
           className="space-y-6"
           initial={{ opacity: 0, y: 12 }}

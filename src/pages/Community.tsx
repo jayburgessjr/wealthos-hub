@@ -599,7 +599,7 @@ export default function Community() {
           <div>
             <h1 className="text-2xl font-bold text-foreground">Community</h1>
             <p className="text-muted-foreground text-sm mt-1">
-              Share your ideas with the WealthOS community
+              Share your ideas with the AJE community
             </p>
           </div>
           <Button

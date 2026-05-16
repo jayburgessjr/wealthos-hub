@@ -12,6 +12,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { SubscriptionGate } from "@/components/SubscriptionGate";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -291,6 +292,7 @@ export default function InsiderActivity() {
 
   return (
     <DashboardLayout>
+      <SubscriptionGate tier="elite">
       <div className="flex flex-col gap-6 p-6">
         {/* Header */}
         <motion.div
@@ -600,6 +602,7 @@ export default function InsiderActivity() {
           </TabsContent>
         </Tabs>
       </div>
+      </SubscriptionGate>
     </DashboardLayout>
   );
 }

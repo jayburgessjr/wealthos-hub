@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Brain, AlertCircle, TrendingUp, TrendingDown, Droplets, BarChart2, ChevronRight, Minus } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { SubscriptionGate } from "@/components/SubscriptionGate";
 
 // ── Strategy Brief ─────────────────────────────────────────────────────────────
 function StrategyBrief() {
@@ -110,6 +111,7 @@ export default function Polymarket() {
 
   return (
     <DashboardLayout>
+      <SubscriptionGate tier="elite">
       <div className="space-y-6">
 
         {/* Header */}
@@ -240,6 +242,7 @@ export default function Polymarket() {
         </div>
 
       </div>
+      </SubscriptionGate>
     </DashboardLayout>
   );
 }

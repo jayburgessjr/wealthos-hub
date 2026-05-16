@@ -7,6 +7,7 @@ import {
   ChevronRight, Clock, AlertTriangle
 } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { SubscriptionGate } from "@/components/SubscriptionGate";
 import { Badge } from "@/components/ui/badge";
 
 const fadeUp = {
@@ -126,7 +127,7 @@ const WORKFLOWS = [
 ];
 
 const DISCLAIMERS = [
-  "WealthOS does not guarantee any return. All trading involves risk of loss.",
+  "AJE does not guarantee any return. All trading involves risk of loss.",
   "Signals are probabilistic, not predictive. You will have losing trades.",
   "Congressional disclosure data carries a 30–45 day lag by law.",
   "Bots require well-defined rules — test in Paper Mode before going live.",
@@ -135,6 +136,7 @@ const DISCLAIMERS = [
 export default function Playbook() {
   return (
     <DashboardLayout>
+      <SubscriptionGate tier="elite">
       <div className="mx-auto max-w-4xl space-y-12 pb-16">
 
         {/* Hero */}
@@ -152,7 +154,7 @@ export default function Playbook() {
             <span className="text-bullish">Like an Institution.</span>
           </h1>
           <p className="max-w-2xl text-base text-muted-foreground leading-relaxed">
-            WealthOS doesn't trade for you. It gives you the same operating system that hedge funds use —
+            AJE doesn't trade for you. It gives you the same operating system that hedge funds use —
             signal generation, structured decisions, automated execution, and relentless compounding —
             in a single dashboard built for individual investors.
           </p>
@@ -176,9 +178,9 @@ export default function Playbook() {
             <div className="space-y-2">
               <h2 className="text-base font-semibold text-foreground">The Compound Engine is the Real Product</h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Most platforms help you trade. WealthOS is built to help you <span className="text-foreground font-medium">compound</span>.
-                A trader making the same 20 trades per month as a WealthOS user might net the same gross return —
-                but the WealthOS user sized correctly, logged everything, and ran tax harvesting. They keep 30–40% more
+                Most platforms help you trade. AJE is built to help you <span className="text-foreground font-medium">compound</span>.
+                A trader making the same 20 trades per month as a AJE user might net the same gross return —
+                but the AJE user sized correctly, logged everything, and ran tax harvesting. They keep 30–40% more
                 of their profits and redeploy it faster. Run the numbers in the Compound Engine and you'll feel the difference.
               </p>
               <Link
@@ -359,7 +361,7 @@ export default function Playbook() {
         <div className="rounded-xl border border-border/50 bg-card/50 p-5 space-y-3">
           <div className="flex items-center gap-2">
             <AlertTriangle className="h-4 w-4 text-watch" />
-            <h3 className="text-sm font-semibold text-muted-foreground">What WealthOS Can't Do</h3>
+            <h3 className="text-sm font-semibold text-muted-foreground">What AJE Can't Do</h3>
           </div>
           <ul className="space-y-1.5">
             {DISCLAIMERS.map((d) => (
@@ -372,6 +374,7 @@ export default function Playbook() {
         </div>
 
       </div>
+      </SubscriptionGate>
     </DashboardLayout>
   );
 }

@@ -35,7 +35,7 @@
   <!-- Left accent bar -->
   <rect x="80" y="200" width="4" height="120" rx="2" fill="#00cc73" opacity="0.8"/>
 
-  <!-- WealthOS wordmark -->
+  <!-- AJE wordmark -->
   <text
     x="108"
     y="275"
@@ -44,7 +44,7 @@
     font-weight="900"
     fill="#ffffff"
     letter-spacing="-3"
-  >WealthOS</text>
+  >AJE</text>
 
   <!-- Tagline -->
   <text

@@ -1,4 +1,5 @@
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { SubscriptionGate } from "@/components/SubscriptionGate";
 import { streamInvoke } from "@/lib/streamInvoke";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -1478,6 +1479,7 @@ export default function Strategy123() {
 
   return (
     <DashboardLayout>
+      <SubscriptionGate>
       <div className="space-y-6">
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -1542,6 +1544,7 @@ export default function Strategy123() {
           </AnimatePresence>
         </motion.div>
       </div>
+      </SubscriptionGate>
     </DashboardLayout>
   );
 }

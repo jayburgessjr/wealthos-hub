@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Trophy, Calculator, AlertCircle, ChevronRight, TrendingUp } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { SubscriptionGate } from "@/components/SubscriptionGate";
 
 // ── Strategy Brief ─────────────────────────────────────────────────────────────
 function StrategyBrief() {
@@ -137,6 +138,7 @@ export default function SportsTrading() {
 
   return (
     <DashboardLayout>
+      <SubscriptionGate tier="elite">
       <div className="space-y-6">
 
         {/* Header */}
@@ -345,6 +347,7 @@ export default function SportsTrading() {
         </div>
 
       </div>
+      </SubscriptionGate>
     </DashboardLayout>
   );
 }

@@ -1,4 +1,4 @@
-# WealthOS Hub — Agent Operating System
+# AJE — Agent Operating System
 
 > This file is the operating contract between the human and the AI agent working in this repository.
 > It defines mission, permissions, memory, context budget, and self-correction rules.
@@ -10,7 +10,7 @@
 
 ### Primary Objective
 
-Accelerate development of **WealthOS Hub** — an AI-powered personal hedge fund dashboard — by writing correct, secure, minimal-scope TypeScript/React code that ships features and fixes without introducing regressions or security vulnerabilities.
+Accelerate development of **AJE** — an AI-powered personal hedge fund dashboard — by writing correct, secure, minimal-scope TypeScript/React code that ships features and fixes without introducing regressions or security vulnerabilities.
 
 ### Autonomous Actions (no human approval needed)
 
