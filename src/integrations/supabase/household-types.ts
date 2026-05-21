@@ -51,7 +51,7 @@ export interface Subscription {
   confirmed: boolean;
   notes?: string;
   paymentAccountId?: string;
-  frequency: "monthly" | "annual";
+  frequency: "monthly" | "yearly";
   isAutoPay?: boolean;
 }
 
@@ -223,7 +223,7 @@ export interface UpdateTaskInput {
 export interface WeeklySummary {
   id: string;
   householdId: string;
-  period: string; // 'YYYY-Www'
+  weekStartDate: string; // ISO date YYYY-MM-DD
   notes?: string;
   data: Record<string, unknown>;
   createdAt: string;
@@ -233,7 +233,7 @@ export interface WeeklySummary {
 export interface MonthlySummary {
   id: string;
   householdId: string;
-  period: string; // 'YYYY-MM'
+  month: string; // 'YYYY-MM'
   notes?: string;
   data: Record<string, unknown>;
   createdAt: string;
@@ -253,7 +253,7 @@ export interface QuarterlySummary {
 export interface Budget {
   id: string;
   month: string; // YYYY-MM format
-  income: number; // DEPRECATED: kept for backwards compatibility, use incomeEntries instead
+  income?: number; // DEPRECATED: kept for backwards compatibility, use incomeEntries instead
   incomeSources: IncomeSource[]; // expected/recurring income sources
   incomeEntries: IncomeEntry[]; // actual income received
   categories: Category[];
