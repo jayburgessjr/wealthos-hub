@@ -1998,7 +1998,6 @@ export async function upsertQuarterlySummary(
         period: input.period,
         notes: input.notes ?? null,
         data: input.data ?? {},
-        updated_at: new Date().toISOString(),
       },
       { onConflict: "household_id,period" },
     )
