@@ -325,7 +325,7 @@ export default function Sidebar() {
         <div className="flex rounded-md overflow-hidden border border-foreground/10">
           <button
             onClick={() => navigate("/dashboard")}
-            className={`flex-1 py-1.5 text-[11px] font-semibold transition-colors ${
+            className={`flex-1 py-1.5 text-center text-[11px] font-semibold transition-colors ${
               !isHousehold
                 ? "bg-blue-600 text-white"
                 : "text-foreground/40 hover:text-foreground/70"
@@ -335,7 +335,7 @@ export default function Sidebar() {
           </button>
           <button
             onClick={() => navigate("/household")}
-            className={`flex-1 py-1.5 text-[11px] font-semibold transition-colors ${
+            className={`flex-1 py-1.5 text-center text-[11px] font-semibold transition-colors ${
               isHousehold
                 ? "bg-emerald-600 text-white"
                 : "text-foreground/40 hover:text-foreground/70"
