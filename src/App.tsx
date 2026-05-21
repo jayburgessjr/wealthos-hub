@@ -1,5 +1,29 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { HouseholdBudgetProvider } from "@/context/HouseholdBudgetContext";
+
+// Household pages (stubs — will be replaced in Tasks 9-29)
+import HouseholdSetup from "./pages/household/HouseholdSetup";
+import HouseholdDashboard from "./pages/household/HouseholdDashboard";
+import HouseholdBudget from "./pages/household/HouseholdBudget";
+import HouseholdBills from "./pages/household/HouseholdBills";
+import HouseholdIncome from "./pages/household/HouseholdIncome";
+import HouseholdSubscriptions from "./pages/household/HouseholdSubscriptions";
+import HouseholdGoals from "./pages/household/HouseholdGoals";
+import HouseholdDebts from "./pages/household/HouseholdDebts";
+import HouseholdBankAccounts from "./pages/household/HouseholdBankAccounts";
+import HouseholdCreditScores from "./pages/household/HouseholdCreditScores";
+import HouseholdNetWorth from "./pages/household/HouseholdNetWorth";
+import HouseholdSimulator from "./pages/household/HouseholdSimulator";
+import HouseholdWeeklyMeeting from "./pages/household/HouseholdWeeklyMeeting";
+import HouseholdMonthlyCloseout from "./pages/household/HouseholdMonthlyCloseout";
+import HouseholdQuarterlyReview from "./pages/household/HouseholdQuarterlyReview";
+import HouseholdAIAssistant from "./pages/household/HouseholdAIAssistant";
+import HouseholdCFOReports from "./pages/household/HouseholdCFOReports";
+import HouseholdCareers from "./pages/household/HouseholdCareers";
+import HouseholdVision from "./pages/household/HouseholdVision";
+import HouseholdTasks from "./pages/household/HouseholdTasks";
+import HouseholdSettings from "./pages/household/HouseholdSettings";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -63,10 +87,7 @@ import SportsTrading from "./pages/SportsTrading";
 import LotteryEV from "./pages/LotteryEV";
 import FinancialNews from "./pages/FinancialNews";
 import MyPortfolio from "./pages/MyPortfolio";
-import NetWorth from "./pages/NetWorth";
-import DebtManager from "./pages/DebtManager";
 import Retirement from "./pages/Retirement";
-import CashFlowPlanner from "./pages/CashFlowPlanner";
 import DividendTracker from "./pages/DividendTracker";
 import RealEstate from "./pages/RealEstate";
 import Collectibles from "./pages/Collectibles";
@@ -79,6 +100,37 @@ import EntityStructure from "./pages/EntityStructure";
 import Fundraising from "./pages/Fundraising";
 
 const queryClient = new QueryClient();
+
+const HouseholdRoutes = () => (
+  <HouseholdBudgetProvider>
+    <Routes>
+      <Route path="/" element={<HouseholdDashboard />} />
+      <Route path="/setup" element={<HouseholdSetup />} />
+      <Route path="/command-center" element={<HouseholdDashboard />} />
+      <Route path="/budget" element={<HouseholdBudget />} />
+      <Route path="/bills" element={<HouseholdBills />} />
+      <Route path="/income" element={<HouseholdIncome />} />
+      <Route path="/subscriptions" element={<HouseholdSubscriptions />} />
+      <Route path="/goals" element={<HouseholdGoals />} />
+      <Route path="/debts" element={<HouseholdDebts />} />
+      <Route path="/bank-accounts" element={<HouseholdBankAccounts />} />
+      <Route path="/credit-scores" element={<HouseholdCreditScores />} />
+      <Route path="/net-worth" element={<HouseholdNetWorth />} />
+      <Route path="/simulator" element={<HouseholdSimulator />} />
+      <Route path="/weekly-meeting" element={<HouseholdWeeklyMeeting />} />
+      <Route path="/monthly-closeout" element={<HouseholdMonthlyCloseout />} />
+      <Route path="/quarterly-review" element={<HouseholdQuarterlyReview />} />
+      <Route path="/ai-assistant" element={<HouseholdAIAssistant />} />
+      <Route path="/cfo-reports" element={<HouseholdCFOReports />} />
+      <Route path="/careers" element={<HouseholdCareers />} />
+      <Route path="/vision" element={<HouseholdVision />} />
+      <Route path="/tasks" element={<HouseholdTasks />} />
+      <Route path="/settings" element={<HouseholdSettings />} />
+      <Route path="/members" element={<HouseholdSettings />} />
+      <Route path="/invite/:token" element={<HouseholdSetup />} />
+    </Routes>
+  </HouseholdBudgetProvider>
+);
 
 const AppShell = () => (
   <>
@@ -144,10 +196,19 @@ const AppRoutes = () => (
     <Route path="/lottery-ev" element={<LotteryEV />} />
     <Route path="/financial-news" element={<FinancialNews />} />
     <Route path="/my-portfolio" element={<MyPortfolio />} />
-    <Route path="/net-worth" element={<NetWorth />} />
-    <Route path="/debt-manager" element={<DebtManager />} />
+    <Route
+      path="/net-worth"
+      element={<Navigate to="/household/net-worth" replace />}
+    />
+    <Route
+      path="/debt-manager"
+      element={<Navigate to="/household/debts" replace />}
+    />
     <Route path="/retirement" element={<Retirement />} />
-    <Route path="/cash-flow-planner" element={<CashFlowPlanner />} />
+    <Route
+      path="/cash-flow-planner"
+      element={<Navigate to="/household/bank-accounts" replace />}
+    />
     <Route path="/dividend-tracker" element={<DividendTracker />} />
     <Route path="/real-estate" element={<RealEstate />} />
     <Route path="/collectibles" element={<Collectibles />} />
@@ -158,6 +219,7 @@ const AppRoutes = () => (
     <Route path="/insurance" element={<Insurance />} />
     <Route path="/entity-structure" element={<EntityStructure />} />
     <Route path="/fundraising" element={<Fundraising />} />
+    <Route path="/household/*" element={<HouseholdRoutes />} />
     <Route path="*" element={<NotFound />} />
   </Routes>
 );
@@ -166,15 +228,15 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
       <AuthProvider>
-      <DemoProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <AppShell />
-          </BrowserRouter>
-        </TooltipProvider>
-      </DemoProvider>
+        <DemoProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <AppShell />
+            </BrowserRouter>
+          </TooltipProvider>
+        </DemoProvider>
       </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>
