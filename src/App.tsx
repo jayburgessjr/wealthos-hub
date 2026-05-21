@@ -24,6 +24,7 @@ import HouseholdCareers from "./pages/household/HouseholdCareers";
 import HouseholdVision from "./pages/household/HouseholdVision";
 import HouseholdTasks from "./pages/household/HouseholdTasks";
 import HouseholdSettings from "./pages/household/HouseholdSettings";
+import AcceptInvitation from "./pages/household/AcceptInvitation";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -127,7 +128,7 @@ const HouseholdRoutes = () => (
       <Route path="/tasks" element={<HouseholdTasks />} />
       <Route path="/settings" element={<HouseholdSettings />} />
       <Route path="/members" element={<HouseholdSettings />} />
-      <Route path="/invite/:token" element={<HouseholdSetup />} />
+      <Route path="/invite/:token" element={<AcceptInvitation />} />
     </Routes>
   </HouseholdBudgetProvider>
 );
