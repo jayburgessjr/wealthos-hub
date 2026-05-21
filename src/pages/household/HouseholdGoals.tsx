@@ -216,11 +216,18 @@ export default function HouseholdGoals() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold">Goals</h1>
-            <p className="text-muted-foreground font-mono text-xs md:text-sm mt-1">
-              Track your financial goals
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="text-xs uppercase tracking-widest text-muted-foreground">
+                Future
+              </span>
+            </div>
+            <h1 className="font-display text-[28px] font-extrabold leading-none tracking-tight">
+              Financial <span className="text-emerald-500">Goals</span>
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Track your financial goals.
             </p>
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

@@ -39,11 +39,26 @@ export default function HouseholdMonthlyCloseout() {
 
   return (
     <DashboardLayout>
-      <MonthlyCloseoutWizard
-        budget={budget}
-        onComplete={handleComplete}
-        onCancel={handleCancel}
-      />
+      <div className="space-y-6">
+        <div>
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="text-xs uppercase tracking-widest text-muted-foreground">
+              Insights
+            </span>
+          </div>
+          <h1 className="font-display text-[28px] font-extrabold leading-none tracking-tight">
+            Monthly <span className="text-emerald-500">Closeout</span>
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Wrap up the month and set the table for the next.
+          </p>
+        </div>
+        <MonthlyCloseoutWizard
+          budget={budget}
+          onComplete={handleComplete}
+          onCancel={handleCancel}
+        />
+      </div>
     </DashboardLayout>
   );
 }

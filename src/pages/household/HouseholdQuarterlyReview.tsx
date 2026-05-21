@@ -109,10 +109,15 @@ export default function HouseholdQuarterlyReview() {
             Back
           </Button>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">
-              Quarterly Review
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="text-xs uppercase tracking-widest text-muted-foreground">
+                Insights
+              </span>
+            </div>
+            <h1 className="font-display text-[28px] font-extrabold leading-none tracking-tight">
+              Quarterly <span className="text-emerald-500">Review</span>
             </h1>
-            <p className="text-sm text-muted-foreground font-mono">
+            <p className="mt-1 text-sm text-muted-foreground">
               {quarterLabel} · {format(qStart, "MMM d")} –{" "}
               {format(qEnd, "MMM d, yyyy")}
             </p>

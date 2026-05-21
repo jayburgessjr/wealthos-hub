@@ -3,7 +3,7 @@ import { useHouseholdBudget } from "@/context/HouseholdBudgetContext";
 import { useHouseholdFinancialData } from "@/hooks/useHouseholdFinancialData";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import {
   FlaskConical,
   Plus,
@@ -178,19 +178,19 @@ export default function HouseholdSimulator() {
         <div className="border-4 border-border bg-secondary p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-start gap-4">
-              <div className="p-3 bg-card border-2 border-border">
-                <FlaskConical className="w-6 h-6" />
-              </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <h1 className="text-2xl md:text-3xl font-bold">
-                    What-If Simulator
-                  </h1>
-                  <span className="px-2 py-0.5 bg-primary/20 text-primary text-xs font-mono border border-primary">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="text-xs uppercase tracking-widest text-muted-foreground">
+                    Future
+                  </span>
+                  <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-500 text-[10px] font-bold tracking-widest rounded border border-emerald-500/20">
                     AI POWERED
                   </span>
                 </div>
-                <p className="text-muted-foreground text-xs md:text-sm mt-1">
+                <h1 className="font-display text-[28px] font-extrabold leading-none tracking-tight">
+                  Budget <span className="text-emerald-500">Simulator</span>
+                </h1>
+                <p className="mt-1 text-sm text-muted-foreground">
                   Test hypothetical scenarios, compare outcomes, and get AI
                   insights.
                 </p>
@@ -265,24 +265,30 @@ export default function HouseholdSimulator() {
           onValueChange={setActiveTab}
           className="space-y-4"
         >
-          <TabsList className="grid grid-cols-4 w-full max-w-lg">
-            <TabsTrigger value="builder" className="font-mono text-xs">
-              <Plus className="w-3 h-3 mr-1" />
-              Builder
-            </TabsTrigger>
-            <TabsTrigger value="projection" className="font-mono text-xs">
-              <BarChart3 className="w-3 h-3 mr-1" />
-              Project
-            </TabsTrigger>
-            <TabsTrigger value="goals" className="font-mono text-xs">
-              <Target className="w-3 h-3 mr-1" />
-              Goals
-            </TabsTrigger>
-            <TabsTrigger value="ai" className="font-mono text-xs">
-              <Sparkles className="w-3 h-3 mr-1" />
-              AI
-            </TabsTrigger>
-          </TabsList>
+          <div className="border border-border bg-card rounded-xl p-1 flex gap-1 w-fit overflow-x-auto">
+            {[
+              { id: "builder", label: "Builder", icon: Plus },
+              { id: "projection", label: "Project", icon: BarChart3 },
+              { id: "goals", label: "Goals", icon: Target },
+              { id: "ai", label: "AI", icon: Sparkles },
+            ].map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`rounded-lg px-4 py-2 text-[13px] font-medium transition-colors whitespace-nowrap flex items-center gap-2 ${
+                    activeTab === tab.id
+                      ? "bg-foreground/[0.08] text-foreground"
+                      : "text-foreground/40 hover:text-foreground/70"
+                  }`}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
 
           {/* Builder Tab */}
           <TabsContent value="builder" className="space-y-6">

@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   TrendingUp,
@@ -56,6 +56,7 @@ export default function HouseholdAIAssistant() {
     market: { content: "", loading: false },
     insights: { content: "", loading: false },
   });
+  const [advisorTab, setAdvisorTab] = useState<string>("insights");
 
   const updateSection = (
     section: AdvisorSection,
@@ -226,12 +227,20 @@ export default function HouseholdAIAssistant() {
       <div className="space-y-6" role="region" aria-labelledby="advisor-title">
         {/* Header */}
         <div>
-          <h1 id="advisor-title" className="text-2xl md:text-3xl font-bold">
-            Financial Advisor
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="text-xs uppercase tracking-widest text-muted-foreground">
+              AI
+            </span>
+          </div>
+          <h1
+            id="advisor-title"
+            className="font-display text-[28px] font-extrabold leading-none tracking-tight"
+          >
+            Financial <span className="text-emerald-500">Assistant</span>
           </h1>
-          <p className="text-muted-foreground font-mono text-xs md:text-sm mt-1">
+          <p className="mt-1 text-sm text-muted-foreground">
             AI-powered insights and recommendations based on your complete
-            financial picture
+            financial picture.
           </p>
         </div>
 
@@ -314,32 +323,36 @@ export default function HouseholdAIAssistant() {
 
         {/* Advisor Tabs */}
         <ErrorBoundary>
-          <Tabs defaultValue="insights" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="insights" className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4" />
-                <span className="hidden sm:inline">AI Insights</span>
-              </TabsTrigger>
-              <TabsTrigger value="weekly" className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                <span className="hidden sm:inline">Weekly Review</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="investment"
-                className="flex items-center gap-2"
-              >
-                <TrendingUp className="h-4 w-4" />
-                <span className="hidden sm:inline">Investments</span>
-              </TabsTrigger>
-              <TabsTrigger value="loans" className="flex items-center gap-2">
-                <CreditCard className="h-4 w-4" />
-                <span className="hidden sm:inline">Loans & Credit</span>
-              </TabsTrigger>
-              <TabsTrigger value="market" className="flex items-center gap-2">
-                <Bell className="h-4 w-4" />
-                <span className="hidden sm:inline">Market Alerts</span>
-              </TabsTrigger>
-            </TabsList>
+          <Tabs
+            value={advisorTab}
+            onValueChange={setAdvisorTab}
+            className="space-y-4"
+          >
+            <div className="border border-border bg-card rounded-xl p-1 flex gap-1 w-fit overflow-x-auto">
+              {[
+                { id: "insights", label: "AI Insights", icon: Sparkles },
+                { id: "weekly", label: "Weekly Review", icon: Calendar },
+                { id: "investment", label: "Investments", icon: TrendingUp },
+                { id: "loans", label: "Loans & Credit", icon: CreditCard },
+                { id: "market", label: "Market Alerts", icon: Bell },
+              ].map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setAdvisorTab(tab.id)}
+                    className={`rounded-lg px-4 py-2 text-[13px] font-medium transition-colors whitespace-nowrap flex items-center gap-2 ${
+                      advisorTab === tab.id
+                        ? "bg-foreground/[0.08] text-foreground"
+                        : "text-foreground/40 hover:text-foreground/70"
+                    }`}
+                  >
+                    <Icon className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">{tab.label}</span>
+                  </button>
+                );
+              })}
+            </div>
 
             <TabsContent value="insights">
               {renderContent(

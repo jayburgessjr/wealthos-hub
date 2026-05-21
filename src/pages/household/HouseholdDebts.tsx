@@ -155,13 +155,21 @@ export default function HouseholdDebts() {
   return (
     <DashboardLayout>
       <div className="space-y-6" role="region" aria-labelledby="debts-title">
-        <div className="flex items-center justify-between">
+        <div className="flex items-end justify-between">
           <div>
-            <h1 id="debts-title" className="text-2xl md:text-3xl font-bold">
-              Debts
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="text-xs uppercase tracking-widest text-muted-foreground">
+                Money Out
+              </span>
+            </div>
+            <h1
+              id="debts-title"
+              className="font-display text-[28px] font-extrabold leading-none tracking-tight"
+            >
+              Debt <span className="text-emerald-500">Manager</span>
             </h1>
-            <p className="text-muted-foreground font-mono text-xs md:text-sm mt-1">
-              Balances and simple payoff planning
+            <p className="mt-1 text-sm text-muted-foreground">
+              Balances and simple payoff planning.
             </p>
           </div>
           <div className="flex items-center gap-2">

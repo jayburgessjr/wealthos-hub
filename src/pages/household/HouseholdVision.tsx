@@ -114,11 +114,18 @@ export default function HouseholdVision() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex items-end justify-between">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold">Vision Board</h1>
-            <p className="text-muted-foreground font-mono text-xs md:text-sm mt-1">
-              Curate images and link them to goals
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="text-xs uppercase tracking-widest text-muted-foreground">
+                Life
+              </span>
+            </div>
+            <h1 className="font-display text-[28px] font-extrabold leading-none tracking-tight">
+              Vision <span className="text-emerald-500">Board</span>
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Curate images and link them to goals.
             </p>
           </div>
         </div>

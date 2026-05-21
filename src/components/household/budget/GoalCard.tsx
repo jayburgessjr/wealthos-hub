@@ -19,7 +19,7 @@ export function GoalCard({ goal, linkedBill, onClick }: GoalCardProps) {
   return (
     <button
       onClick={onClick}
-      className="w-full text-left border-2 border-border bg-card transition-all hover:shadow-sm hover:translate-x-0.5 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 overflow-hidden"
+      className="w-full text-left rounded-xl border border-border bg-card transition-all hover:border-foreground/20 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 overflow-hidden"
     >
       {/* Goal Image */}
       {goal.imagePath && (

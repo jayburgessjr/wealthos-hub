@@ -1877,8 +1877,22 @@ const HouseholdWeeklyMeeting = () => {
 
   return (
     <DashboardLayout>
-      <div className="max-w-4xl mx-auto space-y-4 md:space-y-6">
+      <div className="max-w-4xl mx-auto space-y-6">
         {demoMode && <DemoBanner />}
+
+        <div>
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="text-xs uppercase tracking-widest text-muted-foreground">
+              Insights
+            </span>
+          </div>
+          <h1 className="font-display text-[28px] font-extrabold leading-none tracking-tight">
+            Weekly <span className="text-emerald-500">Meeting</span>
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Mind, body & soul financial health check-in.
+          </p>
+        </div>
 
         {/* Progress Bar */}
         <Card>

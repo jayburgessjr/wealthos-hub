@@ -311,9 +311,16 @@ export default function HouseholdSettings() {
       <div className="space-y-6">
         {demoMode && <DemoBanner />}
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold">Household Settings</h1>
-          <p className="text-muted-foreground font-mono text-xs md:text-sm mt-1">
-            Manage your household and invite members
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="text-xs uppercase tracking-widest text-muted-foreground">
+              Household
+            </span>
+          </div>
+          <h1 className="font-display text-[28px] font-extrabold leading-none tracking-tight">
+            Settings & <span className="text-emerald-500">Members</span>
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Manage your household and invite members.
           </p>
         </div>
 

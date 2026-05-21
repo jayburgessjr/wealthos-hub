@@ -191,13 +191,18 @@ const HouseholdCreditScores = () => {
       <div className="space-y-4 md:space-y-6">
         {demoMode && <DemoBanner />}
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3">
           <div>
-            <h1 className="text-2xl md:text-4xl font-bold text-gray-900">
-              Credit Scores
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="text-xs uppercase tracking-widest text-muted-foreground">
+                Future
+              </span>
+            </div>
+            <h1 className="font-display text-[28px] font-extrabold leading-none tracking-tight">
+              Credit <span className="text-emerald-500">Scores</span>
             </h1>
-            <p className="text-sm md:text-base text-gray-600 mt-1 md:mt-2">
-              Track your credit health over time
+            <p className="mt-1 text-sm text-muted-foreground">
+              Track your credit health over time.
             </p>
           </div>
           <div className="flex gap-2">

@@ -48,43 +48,49 @@ export default function AcceptInvitation() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-lg mx-auto mt-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Accept Invitation</CardTitle>
-            <CardDescription>Join the invited household</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {!invite && (
-              <p className="text-sm text-muted-foreground">
-                Loading invitation…
+      <div className="max-w-lg mx-auto mt-8 space-y-6">
+        <div>
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="text-xs uppercase tracking-widest text-muted-foreground">
+              Household
+            </span>
+          </div>
+          <h1 className="font-display text-[28px] font-extrabold leading-none tracking-tight">
+            Accept <span className="text-emerald-500">Invitation</span>
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Join the invited household.
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-border bg-card p-4 md:p-5 space-y-4">
+          {!invite && (
+            <p className="text-sm text-muted-foreground">Loading invitation…</p>
+          )}
+          {invite && (
+            <>
+              <p className="text-sm">
+                You were invited to join a household as a member.
               </p>
-            )}
-            {invite && (
-              <>
-                <p className="text-sm">
-                  You were invited to join a household as a member.
+              <p className="text-xs text-muted-foreground font-mono">
+                Invited email: {invite.email}
+              </p>
+              {!user && !loading && (
+                <p className="text-sm text-muted-foreground">
+                  Please sign in with the invited email address, then return to
+                  this page.
                 </p>
-                <p className="text-xs text-muted-foreground font-mono">
-                  Invited email: {invite.email}
-                </p>
-                {!user && !loading && (
-                  <p className="text-sm text-muted-foreground">
-                    Please sign in with the invited email address, then return
-                    to this page.
-                  </p>
-                )}
-                <Button
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
-                  disabled={!canAccept || busy}
-                  onClick={onAccept}
-                >
-                  {busy ? "Accepting…" : "Accept Invitation"}
-                </Button>
-              </>
-            )}
-          </CardContent>
-        </Card>
+              )}
+              <Button
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                disabled={!canAccept || busy}
+                onClick={onAccept}
+              >
+                {busy ? "Accepting…" : "Accept Invitation"}
+              </Button>
+            </>
+          )}
+        </div>
       </div>
     </DashboardLayout>
   );

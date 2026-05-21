@@ -8,12 +8,14 @@ import {
   useCreateBillPaymentMutation,
 } from "@/hooks/useHouseholdBillPayments";
 import { useDebtsQuery } from "@/hooks/useHouseholdBudgetData";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { BarChart3, CreditCard } from "lucide-react";
+import { useState } from "react";
 import { useBudgetAlerts } from "@/hooks/useHouseholdBudgetAlerts";
 
 export default function HouseholdCFOReports() {
   const { budget, currentMonth, householdId } = useHouseholdBudget();
+  const [cfoTab, setCfoTab] = useState<string>("dashboard");
 
   const { data: summaries, isLoading: summariesLoading } =
     useMonthlyFinancialSummary(householdId);
@@ -58,25 +60,46 @@ export default function HouseholdCFOReports() {
     <DashboardLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-            CFO Reports
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="text-xs uppercase tracking-widest text-muted-foreground">
+              Insights
+            </span>
+          </div>
+          <h1 className="font-display text-[28px] font-extrabold leading-none tracking-tight">
+            CFO <span className="text-emerald-500">Reports</span>
           </h1>
-          <p className="text-sm text-muted-foreground font-mono mt-1">
-            Executive-level financial insights and bill payment tracking
+          <p className="mt-1 text-sm text-muted-foreground">
+            Executive-level financial insights and bill payment tracking.
           </p>
         </div>
 
-        <Tabs defaultValue="dashboard" className="space-y-6">
-          <TabsList className="grid w-full max-w-md grid-cols-2">
-            <TabsTrigger value="dashboard" className="font-mono">
-              <BarChart3 className="h-4 w-4 mr-2" />
-              Financial Overview
-            </TabsTrigger>
-            <TabsTrigger value="payments" className="font-mono">
-              <CreditCard className="h-4 w-4 mr-2" />
-              Bill Payments
-            </TabsTrigger>
-          </TabsList>
+        <Tabs value={cfoTab} onValueChange={setCfoTab} className="space-y-6">
+          <div className="border border-border bg-card rounded-xl p-1 flex gap-1 w-fit overflow-x-auto">
+            {[
+              {
+                id: "dashboard",
+                label: "Financial Overview",
+                icon: BarChart3,
+              },
+              { id: "payments", label: "Bill Payments", icon: CreditCard },
+            ].map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setCfoTab(tab.id)}
+                  className={`rounded-lg px-4 py-2 text-[13px] font-medium transition-colors whitespace-nowrap flex items-center gap-2 ${
+                    cfoTab === tab.id
+                      ? "bg-foreground/[0.08] text-foreground"
+                      : "text-foreground/40 hover:text-foreground/70"
+                  }`}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
 
           <TabsContent value="dashboard">
             <CFODashboard

@@ -29,8 +29,8 @@ export function CategoryCard({ category, onClick }: CategoryCardProps) {
     <button
       onClick={onClick}
       className={cn(
-        "w-full text-left border-2 border-border border-l-4 p-4 bg-card transition-all",
-        "hover:shadow-sm hover:translate-x-0.5 hover:-translate-y-0.5",
+        "w-full text-left rounded-xl border border-border border-l-4 p-4 bg-card transition-all",
+        "hover:border-foreground/20",
         "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
         typeColors[category.type],
       )}

@@ -23,11 +23,19 @@ export default function HouseholdNetWorth() {
     <DashboardLayout>
       <div className="space-y-6" role="region" aria-labelledby="networth-title">
         <div>
-          <h1 id="networth-title" className="text-2xl md:text-3xl font-bold">
-            Net Worth
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="text-xs uppercase tracking-widest text-muted-foreground">
+              Future
+            </span>
+          </div>
+          <h1
+            id="networth-title"
+            className="font-display text-[28px] font-extrabold leading-none tracking-tight"
+          >
+            Net <span className="text-emerald-500">Worth</span>
           </h1>
-          <p className="text-muted-foreground font-mono text-xs md:text-sm mt-1">
-            Assets minus liabilities
+          <p className="mt-1 text-sm text-muted-foreground">
+            Assets minus liabilities.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">

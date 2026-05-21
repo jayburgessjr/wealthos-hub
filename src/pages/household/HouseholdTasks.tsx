@@ -130,10 +130,17 @@ export default function HouseholdTasks() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold">Todos</h1>
-            <p className="text-muted-foreground font-mono text-xs md:text-sm mt-1">
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="text-xs uppercase tracking-widest text-muted-foreground">
+                Life
+              </span>
+            </div>
+            <h1 className="font-display text-[28px] font-extrabold leading-none tracking-tight">
+              Task <span className="text-emerald-500">Manager</span>
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
               {stats.total} tasks · {stats.todo} to do · {stats.inProgress} in
               progress · {stats.done} done
             </p>

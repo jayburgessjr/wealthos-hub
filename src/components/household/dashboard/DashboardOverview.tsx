@@ -1,16 +1,8 @@
 import { useHouseholdBudget } from "@/context/HouseholdBudgetContext";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { formatCurrency } from "@/lib/household-format";
 import { StatCard } from "./StatCard";
 import { RecentActivity } from "./RecentActivity";
@@ -155,13 +147,13 @@ export function DashboardOverview() {
   return (
     <div className="space-y-6">
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 md:gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-28 w-full" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-28 w-full rounded-xl" />
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 md:gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <StatCard
             title="Income Received"
             value={formatCurrency(Math.round(monthIncome))}
@@ -213,63 +205,64 @@ export function DashboardOverview() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="border-l-4 border-l-blue-500 shadow-sm">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">Bills Progress</CardTitle>
-              <Badge variant="outline">
-                {billsPaidCount} / {billsTotalCount} paid
-              </Badge>
-            </div>
-            <CardDescription>Paid vs total bills this month</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="space-y-1">
-                <div className="flex justify-between text-sm">
-                  <span>Bills Paid</span>
-                  <span className="font-semibold text-blue-600">
-                    {formatCurrency(billsPaidAmount)} /{" "}
-                    {formatCurrency(billsTotalAmount)}
-                  </span>
-                </div>
-                <Progress
-                  value={
-                    billsTotalAmount > 0
-                      ? (billsPaidAmount / billsTotalAmount) * 100
-                      : 0
-                  }
-                  className="h-2"
-                />
-              </div>
-              <div className="text-xs text-muted-foreground flex items-center justify-between">
-                <span>{billsTotalCount - billsPaidCount} bills remaining</span>
-                <span>
-                  {formatCurrency(billsTotalAmount - billsPaidAmount)} left to
-                  pay
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+        <div className="rounded-xl border border-border bg-card p-4 md:p-5">
+          <div className="flex items-center justify-between mb-1">
+            <h3 className="font-display text-[15px] font-extrabold uppercase tracking-tight text-foreground">
+              Bills Progress
+            </h3>
+            <Badge variant="outline" className="text-xs">
+              {billsPaidCount} / {billsTotalCount} paid
+            </Badge>
+          </div>
+          <p className="text-xs text-muted-foreground mb-4">
+            Paid vs total bills this month
+          </p>
+          <div className="space-y-4">
+            <div className="space-y-1">
+              <div className="flex justify-between text-sm">
+                <span>Bills Paid</span>
+                <span className="font-semibold text-emerald-500">
+                  {formatCurrency(billsPaidAmount)} /{" "}
+                  {formatCurrency(billsTotalAmount)}
                 </span>
               </div>
+              <Progress
+                value={
+                  billsTotalAmount > 0
+                    ? (billsPaidAmount / billsTotalAmount) * 100
+                    : 0
+                }
+                className="h-2"
+              />
             </div>
-          </CardContent>
-        </Card>
+            <div className="text-xs text-muted-foreground flex items-center justify-between">
+              <span>{billsTotalCount - billsPaidCount} bills remaining</span>
+              <span>
+                {formatCurrency(billsTotalAmount - billsPaidAmount)} left to pay
+              </span>
+            </div>
+          </div>
+        </div>
 
-        <Card className="border-l-4 border-l-orange-500 shadow-sm">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">Spending Flow</CardTitle>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 gap-1"
-                onClick={() => navigate("/household/dashboard?tab=reporting")}
-              >
-                VIEW ALL <ArrowRight className="w-3 h-3" />
-              </Button>
-            </div>
-            <CardDescription>Top categories by spend</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
+        <div className="rounded-xl border border-border bg-card p-4 md:p-5">
+          <div className="flex items-center justify-between mb-1">
+            <h3 className="font-display text-[15px] font-extrabold uppercase tracking-tight text-foreground">
+              Spending Flow
+            </h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 gap-1 text-xs"
+              onClick={() => navigate("/household/dashboard?tab=reporting")}
+            >
+              VIEW ALL <ArrowRight className="w-3 h-3" />
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground mb-4">
+            Top categories by spend
+          </p>
+          <div className="space-y-3">
             {topCategories.map((cat) => (
               <div key={cat.id} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -293,22 +286,22 @@ export function DashboardOverview() {
                 </div>
               </div>
             ))}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card className="border-l-4 border-l-green-500 shadow-sm">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">Revenue</CardTitle>
-              <Button variant="ghost" size="sm" className="h-8 gap-1">
-                INCOME <ArrowRight className="w-3 h-3" />
-              </Button>
-            </div>
-            <CardDescription>
-              {formatCurrency(monthIncome)} total • {incomeList.length} entries
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
+        <div className="rounded-xl border border-border bg-card p-4 md:p-5">
+          <div className="flex items-center justify-between mb-1">
+            <h3 className="font-display text-[15px] font-extrabold uppercase tracking-tight text-foreground">
+              Revenue
+            </h3>
+            <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs">
+              INCOME <ArrowRight className="w-3 h-3" />
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground mb-4">
+            {formatCurrency(monthIncome)} total • {incomeList.length} entries
+          </p>
+          <div className="space-y-3">
             {incomeList.slice(0, 4).map((inc) => (
               <div key={inc.id} className="flex items-center justify-between">
                 <div>
@@ -317,46 +310,64 @@ export function DashboardOverview() {
                     {format(new Date(inc.date), "M/d/yyyy")}
                   </p>
                 </div>
-                <span className="text-sm font-bold text-green-600">
+                <span className="text-sm font-bold text-emerald-500">
                   +{formatCurrency(inc.amount)}
                 </span>
               </div>
             ))}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         <div className="lg:col-span-2">
           <RecentActivity />
         </div>
-        <div className="space-y-6">
-          <Card className="shadow-sm">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Horizon & Alerts</CardTitle>
-              <CardDescription>Next 7 days & budget alerts</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
+        <div className="space-y-3">
+          <div className="rounded-xl border border-border bg-card p-4 md:p-5">
+            <h3 className="font-display text-[15px] font-extrabold uppercase tracking-tight text-foreground mb-1">
+              Horizon & Alerts
+            </h3>
+            <p className="text-xs text-muted-foreground mb-4">
+              Next 7 days & budget alerts
+            </p>
+            <div className="space-y-2">
               {alerts.length === 0 && (
                 <p className="text-sm text-muted-foreground">No alerts.</p>
               )}
-              {alerts.slice(0, 5).map((alert, i) => (
-                <Alert
-                  key={i}
-                  variant={alert.type === "danger" ? "destructive" : "default"}
-                  className="py-2"
-                >
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertTitle className="text-sm font-medium">
-                    {alert.type === "danger" ? "Over Budget" : "Alert"}
-                  </AlertTitle>
-                  <AlertDescription className="text-xs">
-                    {alert.message}
-                  </AlertDescription>
-                </Alert>
-              ))}
-            </CardContent>
-          </Card>
+              {alerts.slice(0, 5).map((alert, i) => {
+                const isDanger = alert.type === "danger";
+                return (
+                  <div
+                    key={i}
+                    className={`flex items-start gap-2 rounded-lg border px-3 py-2 ${
+                      isDanger
+                        ? "border-red-500/30 bg-red-500/5"
+                        : "border-border bg-card"
+                    }`}
+                  >
+                    <AlertTriangle
+                      className={`h-4 w-4 shrink-0 mt-0.5 ${
+                        isDanger ? "text-red-500" : "text-muted-foreground"
+                      }`}
+                    />
+                    <div className="min-w-0">
+                      <p
+                        className={`text-xs font-semibold uppercase tracking-wider ${
+                          isDanger ? "text-red-500" : "text-foreground"
+                        }`}
+                      >
+                        {isDanger ? "Over Budget" : "Alert"}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {alert.message}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
     </div>

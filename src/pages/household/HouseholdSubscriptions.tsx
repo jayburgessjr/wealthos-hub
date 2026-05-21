@@ -190,16 +190,22 @@ export default function HouseholdSubscriptions() {
         role="region"
         aria-labelledby="subscriptions-title"
       >
-        <div className="flex items-center justify-between">
+        <div className="flex items-end justify-between">
           <div>
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="text-xs uppercase tracking-widest text-muted-foreground">
+                Money Out
+              </span>
+            </div>
             <h1
               id="subscriptions-title"
-              className="text-2xl md:text-3xl font-bold"
+              className="font-display text-[28px] font-extrabold leading-none tracking-tight"
             >
-              Subscriptions
+              Subscriptions &{" "}
+              <span className="text-emerald-500">Recurring</span>
             </h1>
-            <p className="text-muted-foreground font-mono text-xs md:text-sm mt-1">
-              Track recurring subscriptions and upcoming charges
+            <p className="mt-1 text-sm text-muted-foreground">
+              Track recurring subscriptions and upcoming charges.
             </p>
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
