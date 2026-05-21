@@ -287,7 +287,8 @@ export function HouseholdBudgetProvider({
   // Quarterly summaries
   const { data: quarterlySummariesRaw = [] } =
     useQuarterlySummariesQuery(householdId);
-  const upsertQuarterlySummaryMutation = useUpsertQuarterlySummaryMutation();
+  const { mutate: upsertQuarterlySummaryMutate } =
+    useUpsertQuarterlySummaryMutation();
 
   const quarterlySummaries: QuarterlySummary[] = quarterlySummariesRaw.map(
     (r) => ({
@@ -308,9 +309,9 @@ export function HouseholdBudgetProvider({
       data?: Record<string, unknown>;
     }) => {
       if (!householdId) return;
-      upsertQuarterlySummaryMutation.mutate({ householdId, ...input });
+      upsertQuarterlySummaryMutate({ householdId, ...input });
     },
-    [householdId, upsertQuarterlySummaryMutation],
+    [householdId, upsertQuarterlySummaryMutate],
   );
 
   const totalSpent = useMemo(
