@@ -88,6 +88,60 @@ const HouseholdIncome = () => {
     fail: number;
   }>({ ok: 0, fail: 0 });
 
+  const [viewMode, setViewMode] = useState<"entries" | "sources">("entries");
+
+  // Add Source state
+  const [sourceName, setSourceName] = useState("");
+  const [sourceType, setSourceType] = useState("salary");
+  const [sourceExpected, setSourceExpected] = useState("");
+  const [sourceFrequency, setSourceFrequency] =
+    useState<RecurrenceFrequency>("monthly");
+  const [sourceNotes, setSourceNotes] = useState("");
+
+  // Add Entry state
+  const [amount, setAmount] = useState("");
+  const [entrySourceId, setEntrySourceId] = useState("");
+  const [entrySourceName, setEntrySourceName] = useState("");
+  const [entryType, setEntryType] = useState("salary");
+  const [entryDate, setEntryDate] = useState(() =>
+    new Date().toISOString().slice(0, 10),
+  );
+  const [entryNotes, setEntryNotes] = useState("");
+  const [entryPaymentMethod, setEntryPaymentMethod] =
+    useState("direct_deposit");
+  const [entryTaxStatus, setEntryTaxStatus] = useState("taxable");
+  const [entryGross, setEntryGross] = useState("");
+  const [entryNet, setEntryNet] = useState("");
+  const [entryBizExpenses, setEntryBizExpenses] = useState("");
+  const [entryPaymentAccountId, setEntryPaymentAccountId] = useState("");
+
+  const sourceOptions = useMemo(
+    () => budget.incomeSources.map((s) => ({ id: s.id, label: s.name })),
+    [budget.incomeSources],
+  );
+  const accountOptions = useMemo(
+    () => budget.bankAccounts.map((a) => ({ id: a.id, label: a.name })),
+    [budget.bankAccounts],
+  );
+
+  // Edit Source dialog state
+  const [editSourceOpen, setEditSourceOpen] = useState(false);
+  const [editingSourceId, setEditingSourceId] = useState<string | null>(null);
+  const [editSourceName, setEditSourceName] = useState("");
+  const [editSourceType, setEditSourceType] = useState("salary");
+  const [editSourceExpected, setEditSourceExpected] = useState("");
+  const [editSourceFrequency, setEditSourceFrequency] =
+    useState<RecurrenceFrequency>("monthly");
+
+  // Edit Entry dialog state
+  const [editEntryOpen, setEditEntryOpen] = useState(false);
+  const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
+  const [editEntryAmount, setEditEntryAmount] = useState("");
+  const [editEntryDate, setEditEntryDate] = useState(() =>
+    new Date().toISOString().slice(0, 10),
+  );
+  const [editEntryNotes, setEditEntryNotes] = useState("");
+
   if (isLoading) {
     return (
       <DashboardLayout>
@@ -109,8 +163,6 @@ const HouseholdIncome = () => {
       </DashboardLayout>
     );
   }
-  const [viewMode, setViewMode] = useState<"entries" | "sources">("entries");
-
   const currentMonth = budget.month;
 
   // Calculate income metrics
@@ -225,14 +277,6 @@ const HouseholdIncome = () => {
     .filter((entry) => entry.date.startsWith(currentMonth))
     .reduce((sum, entry) => sum + (entry.taxWithheld || 0), 0);
 
-  // Add Source state
-  const [sourceName, setSourceName] = useState("");
-  const [sourceType, setSourceType] = useState("salary");
-  const [sourceExpected, setSourceExpected] = useState("");
-  const [sourceFrequency, setSourceFrequency] =
-    useState<RecurrenceFrequency>("monthly");
-  const [sourceNotes, setSourceNotes] = useState("");
-
   const handleAddSource = (e: React.FormEvent) => {
     e.preventDefault();
     if (!sourceName) {
@@ -281,22 +325,6 @@ const HouseholdIncome = () => {
     );
   };
 
-  // Add Entry state
-  const [amount, setAmount] = useState("");
-  const [entrySourceId, setEntrySourceId] = useState("");
-  const [entrySourceName, setEntrySourceName] = useState("");
-  const [entryType, setEntryType] = useState("salary");
-  const [entryDate, setEntryDate] = useState(() =>
-    new Date().toISOString().slice(0, 10),
-  );
-  const [entryNotes, setEntryNotes] = useState("");
-  const [entryPaymentMethod, setEntryPaymentMethod] =
-    useState("direct_deposit");
-  const [entryTaxStatus, setEntryTaxStatus] = useState("taxable");
-  const [entryGross, setEntryGross] = useState("");
-  const [entryNet, setEntryNet] = useState("");
-  const [entryBizExpenses, setEntryBizExpenses] = useState("");
-  const [entryPaymentAccountId, setEntryPaymentAccountId] = useState("");
   const quickLogPaycheck = () => {
     const firstSalarySource = budget.incomeSources.find(
       (s) => s.type === "salary",
@@ -307,15 +335,6 @@ const HouseholdIncome = () => {
     setEntryDate(new Date().toISOString().slice(0, 10));
     setShowAddForm(true);
   };
-
-  const sourceOptions = useMemo(
-    () => budget.incomeSources.map((s) => ({ id: s.id, label: s.name })),
-    [budget.incomeSources],
-  );
-  const accountOptions = useMemo(
-    () => budget.bankAccounts.map((a) => ({ id: a.id, label: a.name })),
-    [budget.bankAccounts],
-  );
 
   const handleAddEntry = (e: React.FormEvent) => {
     e.preventDefault();
@@ -404,15 +423,6 @@ const HouseholdIncome = () => {
     );
   };
 
-  // Edit Source dialog state
-  const [editSourceOpen, setEditSourceOpen] = useState(false);
-  const [editingSourceId, setEditingSourceId] = useState<string | null>(null);
-  const [editSourceName, setEditSourceName] = useState("");
-  const [editSourceType, setEditSourceType] = useState("salary");
-  const [editSourceExpected, setEditSourceExpected] = useState("");
-  const [editSourceFrequency, setEditSourceFrequency] =
-    useState<RecurrenceFrequency>("monthly");
-
   const handleEditSourceSave = (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingSourceId) return;
@@ -450,15 +460,6 @@ const HouseholdIncome = () => {
       );
     }
   };
-
-  // Edit Entry dialog state
-  const [editEntryOpen, setEditEntryOpen] = useState(false);
-  const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
-  const [editEntryAmount, setEditEntryAmount] = useState("");
-  const [editEntryDate, setEditEntryDate] = useState(() =>
-    new Date().toISOString().slice(0, 10),
-  );
-  const [editEntryNotes, setEditEntryNotes] = useState("");
 
   const handleEditEntrySave = (e: React.FormEvent) => {
     e.preventDefault();
