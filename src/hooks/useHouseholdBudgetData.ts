@@ -75,6 +75,7 @@ import {
 import {
   fetchQuarterlySummaries,
   upsertQuarterlySummary,
+  deleteQuarterlySummary,
   type CreateQuarterlySummaryInput,
 } from "@/integrations/supabase/household-queries";
 
@@ -112,6 +113,8 @@ export const budgetKeys = {
     ["household-weekly-summaries", householdId] as const,
   monthlySummaries: (householdId: string) =>
     ["household-monthly-summaries", householdId] as const,
+  quarterlySummaries: (householdId: string) =>
+    ["household-quarterly-summaries", householdId] as const,
 };
 
 export function useBudgetQuery(householdId: string | null, monthISO: string) {
@@ -1322,7 +1325,9 @@ export function useDeleteMonthlySummaryMutation(householdId: string | null) {
 
 export function useQuarterlySummariesQuery(householdId: string | null) {
   return useQuery({
-    queryKey: ["household-quarterly-summaries", householdId],
+    queryKey: householdId
+      ? budgetKeys.quarterlySummaries(householdId)
+      : ["household-quarterly-summaries", "no-household"],
     queryFn: () => fetchQuarterlySummaries(householdId!),
     enabled: !!householdId,
   });
@@ -1335,7 +1340,20 @@ export function useUpsertQuarterlySummaryMutation() {
       upsertQuarterlySummary(input),
     onSuccess: (_, vars) => {
       qc.invalidateQueries({
-        queryKey: ["household-quarterly-summaries", vars.householdId],
+        queryKey: budgetKeys.quarterlySummaries(vars.householdId),
+      });
+    },
+  });
+}
+
+export function useDeleteQuarterlySummaryMutation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id }: { id: string; householdId: string }) =>
+      deleteQuarterlySummary(id),
+    onSuccess: (_, vars) => {
+      qc.invalidateQueries({
+        queryKey: budgetKeys.quarterlySummaries(vars.householdId),
       });
     },
   });
