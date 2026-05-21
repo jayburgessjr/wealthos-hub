@@ -30,6 +30,11 @@ CREATE POLICY "household_members_update_quarterly" ON public.quarterly_summaries
     household_id IN (
       SELECT household_id FROM public.profiles WHERE id = auth.uid()
     )
+  )
+  WITH CHECK (
+    household_id IN (
+      SELECT household_id FROM public.profiles WHERE id = auth.uid()
+    )
   );
 
 CREATE POLICY "household_members_delete_quarterly" ON public.quarterly_summaries
@@ -38,3 +43,8 @@ CREATE POLICY "household_members_delete_quarterly" ON public.quarterly_summaries
       SELECT household_id FROM public.profiles WHERE id = auth.uid()
     )
   );
+
+CREATE TRIGGER set_quarterly_summaries_updated_at
+    BEFORE UPDATE ON public.quarterly_summaries
+    FOR EACH ROW
+    EXECUTE FUNCTION public.handle_updated_at();
