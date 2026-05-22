@@ -6,12 +6,57 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { useDemo } from "@/components/DemoProvider";
-import { sandboxPortfolio, sandboxPositions, sandboxSignals } from "@/data/sandboxData";
+import {
+  sandboxPortfolio,
+  sandboxPositions,
+  sandboxSignals,
+} from "@/data/sandboxData";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 import { streamInvoke } from "@/lib/streamInvoke";
 
 type Msg = { role: "user" | "assistant"; content: string };
+
+const PERSONAS = [
+  {
+    id: "aje",
+    label: "AJE",
+    intro:
+      "Welcome to **AJE AI Advisor**. I have access to your portfolio, open positions, signal scores, and market regime.\n\nAsk me anything — or use the quick prompts below.",
+  },
+  {
+    id: "buffett",
+    label: "Buffett",
+    intro:
+      "Thinking like **Warren Buffett**. I'll assess your positions for durable moats, management quality, and whether you're paying a fair price for a wonderful business.\n\nWhat would you like to examine?",
+  },
+  {
+    id: "graham",
+    label: "Graham",
+    intro:
+      "**Benjamin Graham** framework engaged. Let's find the margin of safety. Show me what you own and I'll tell you whether Mr. Market is offering a deal or an illusion.",
+  },
+  {
+    id: "lynch",
+    label: "Lynch",
+    intro:
+      "**Peter Lynch** here. Every stock is a company. Tell me what you own — I want to know the story and whether the PEG ratio justifies the price.",
+  },
+  {
+    id: "munger",
+    label: "Munger",
+    intro:
+      "**Charlie Munger** mode. We start by inverting: what would make each of your positions fail? Then we look for the lollapalooza.\n\nWhat's on your mind?",
+  },
+  {
+    id: "clarman",
+    label: "Klarman",
+    intro:
+      "**Seth Klarman** approach. Capital preservation first. Let's look at the downside on each of your positions before we discuss upside.\n\nWhat are you holding?",
+  },
+] as const;
+
+type PersonaId = (typeof PERSONAS)[number]["id"];
 
 const quickPrompts = [
   "What should I buy today?",
@@ -23,6 +68,7 @@ const quickPrompts = [
 async function streamChat({
   messages,
   context,
+  mode,
   onDelta,
   onDone,
   onError,
@@ -30,6 +76,7 @@ async function streamChat({
 }: {
   messages: Msg[];
   context: any;
+  mode: string;
   onDelta: (text: string) => void;
   onDone: () => void;
   onError: (msg: string) => void;
@@ -37,38 +84,54 @@ async function streamChat({
 }) {
   if (isDemo) {
     // Simulate thinking
-    await new Promise(r => setTimeout(r, 800));
-    const mockResponse = "In demo mode, I'm analyzing the sandbox portfolio ($124.5k capital). Your current positions in **NVDA** and **BTC** are performing exceptionally well. I recommend looking into **AAPL** or **MSFT** based on today's high signal scores. Your risk exposure is currently moderate.";
+    await new Promise((r) => setTimeout(r, 800));
+    const mockResponse =
+      "In demo mode, I'm analyzing the sandbox portfolio ($124.5k capital). Your current positions in **NVDA** and **BTC** are performing exceptionally well. I recommend looking into **AAPL** or **MSFT** based on today's high signal scores. Your risk exposure is currently moderate.";
     const words = mockResponse.split(" ");
     for (let word of words) {
       onDelta(word + " ");
-      await new Promise(r => setTimeout(r, 50));
+      await new Promise((r) => setTimeout(r, 50));
     }
     onDone();
     return;
   }
 
-  await streamInvoke("ai-advisor", { messages, context }, { onDelta, onDone, onError });
+  await streamInvoke(
+    "ai-advisor",
+    { messages, context, mode },
+    { onDelta, onDone, onError },
+  );
 }
 
 export default function AIAdvisor() {
   const { user } = useAuth();
   const { isDemoMode } = useDemo();
   const [messages, setMessages] = useState<Msg[]>([
-    { role: "assistant", content: "Welcome to **AJE AI Advisor**. I have access to your portfolio, open positions, signal scores, and market regime.\n\nAsk me anything — or use the quick prompts below." },
+    {
+      role: "assistant",
+      content:
+        "Welcome to **AJE AI Advisor**. I have access to your portfolio, open positions, signal scores, and market regime.\n\nAsk me anything — or use the quick prompts below.",
+    },
   ]);
+  const [persona, setPersona] = useState<PersonaId>("aje");
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
+  const switchPersona = (id: PersonaId) => {
+    const p = PERSONAS.find((p) => p.id === id)!;
+    setPersona(id);
+    setMessages([{ role: "assistant", content: p.intro }]);
+  };
+
   const { data: portfolio } = useQuery({
-    queryKey: ['portfolio', user?.id, isDemoMode ? 'demo' : 'live'],
+    queryKey: ["portfolio", user?.id, isDemoMode ? "demo" : "live"],
     queryFn: async () => {
       if (isDemoMode) return sandboxPortfolio;
       const { data } = await supabase
-        .from('portfolios')
-        .select('*')
-        .eq('user_id', user!.id)
+        .from("portfolios")
+        .select("*")
+        .eq("user_id", user!.id)
         .single();
       return data;
     },
@@ -76,27 +139,27 @@ export default function AIAdvisor() {
   });
 
   const { data: openPositions = [] } = useQuery({
-    queryKey: ['positions', user?.id, 'open', isDemoMode ? 'demo' : 'live'],
+    queryKey: ["positions", user?.id, "open", isDemoMode ? "demo" : "live"],
     queryFn: async () => {
       if (isDemoMode) return sandboxPositions;
       const { data } = await supabase
-        .from('positions')
-        .select('*')
-        .eq('user_id', user!.id)
-        .eq('status', 'open');
+        .from("positions")
+        .select("*")
+        .eq("user_id", user!.id)
+        .eq("status", "open");
       return data ?? [];
     },
     enabled: !!user || isDemoMode,
   });
 
   const { data: topSignals = [] } = useQuery({
-    queryKey: ['signals', 'top', isDemoMode ? 'demo' : 'live'],
+    queryKey: ["signals", "top", isDemoMode ? "demo" : "live"],
     queryFn: async () => {
       if (isDemoMode) return sandboxSignals;
       const { data } = await supabase
-        .from('signals')
-        .select('*')
-        .order('signal_score', { ascending: false })
+        .from("signals")
+        .select("*")
+        .order("signal_score", { ascending: false })
         .limit(5);
       return data ?? [];
     },
@@ -121,14 +184,26 @@ P&L $${portfolio?.total_pnl ?? 0},
 Win Rate ${portfolio?.win_rate ?? 0}%
 
 OPEN POSITIONS (${openPositions.length}):
-${openPositions.map(p => 
-  `${p.ticker} ${p.strategy_type} $${p.value} 
-   P&L ${p.pnl_percent}%`).join('\n') || 'None'}
+${
+  openPositions
+    .map(
+      (p) =>
+        `${p.ticker} ${p.strategy_type} $${p.value} 
+   P&L ${p.pnl_percent}%`,
+    )
+    .join("\n") || "None"
+}
 
 TOP SIGNALS:
-${topSignals.map(s => 
-  `${s.ticker} Score:${s.signal_score} 
-   ${s.action}`).join('\n') || 'None generated yet'}
+${
+  topSignals
+    .map(
+      (s) =>
+        `${s.ticker} Score:${s.signal_score} 
+   ${s.action}`,
+    )
+    .join("\n") || "None generated yet"
+}
 `;
 
     let assistantSoFar = "";
@@ -137,31 +212,37 @@ ${topSignals.map(s =>
       setMessages((prev) => {
         const last = prev[prev.length - 1];
         if (last?.role === "assistant" && prev.length > newMessages.length) {
-          return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistantSoFar } : m));
+          return prev.map((m, i) =>
+            i === prev.length - 1 ? { ...m, content: assistantSoFar } : m,
+          );
         }
-        return [...prev.slice(0, newMessages.length), { role: "assistant", content: assistantSoFar }];
+        return [
+          ...prev.slice(0, newMessages.length),
+          { role: "assistant", content: assistantSoFar },
+        ];
       });
     };
 
     await streamChat({
       isDemo: isDemoMode,
+      mode: persona,
       messages: newMessages.map((m) => ({ role: m.role, content: m.content })),
-      context: { 
+      context: {
         raw_context: contextString,
         portfolio,
-        positions: openPositions.map(p => ({
+        positions: openPositions.map((p) => ({
           ticker: p.ticker,
           strategy_type: p.strategy_type,
           value: p.value,
           pnl_percent: p.pnl_percent,
-          signal_score: p.signal_score
+          signal_score: p.signal_score,
         })),
-        signals: topSignals.map(s => ({
+        signals: topSignals.map((s) => ({
           ticker: s.ticker,
           signal_score: s.signal_score,
-          action: s.action
+          action: s.action,
         })),
-        marketRegime: "Risk-On"
+        marketRegime: "Risk-On",
       },
       onDelta: upsertAssistant,
       onDone: () => setLoading(false),
@@ -176,7 +257,27 @@ ${topSignals.map(s =>
     <DashboardLayout>
       <SubscriptionGate>
         <div className="flex h-[calc(100vh-8rem)] flex-col">
-          <h2 className="mb-4 font-display text-xl font-bold text-foreground">AI Advisor</h2>
+          <h2 className="mb-3 font-display text-xl font-bold text-foreground">
+            AI Advisor
+          </h2>
+
+          {/* Persona selector */}
+          <div className="mb-4 flex flex-wrap gap-1.5">
+            {PERSONAS.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => switchPersona(p.id)}
+                disabled={loading}
+                className={`rounded-full border px-3 py-1 text-xs transition-fast disabled:opacity-50 ${
+                  persona === p.id
+                    ? "border-bullish bg-bullish/10 text-foreground"
+                    : "border-border text-muted-foreground hover:border-bullish/30 hover:text-foreground"
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
 
           {/* Quick Prompts */}
           <div className="mb-4 flex flex-wrap gap-2">
@@ -195,7 +296,10 @@ ${topSignals.map(s =>
           {/* Chat */}
           <div className="flex-1 overflow-y-auto rounded-t-lg border border-b-0 border-border bg-card p-4 space-y-4">
             {messages.map((m, i) => (
-              <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+              <div
+                key={i}
+                className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
+              >
                 <div
                   className={`max-w-[85%] rounded-lg px-4 py-3 text-sm leading-relaxed ${
                     m.role === "user"
@@ -238,7 +342,7 @@ ${topSignals.map(s =>
             <button
               onClick={() => send(input)}
               disabled={loading || !input.trim()}
-              className="rounded-lg bg-bullish p-2 text-primary-foreground transition-fast hover:brightness-110 disabled:opacity-50"
+              className="rounded-lg bg-primary p-2 text-primary-foreground transition-fast hover:brightness-110 disabled:opacity-50"
             >
               <Send className="h-4 w-4" />
             </button>
