@@ -870,6 +870,7 @@ export interface CreateDebtInput {
   isActive?: boolean;
   notes?: string | null;
   syncToBill?: boolean;
+  userId?: string | null;
 }
 
 export async function fetchDebts(householdId: string) {
@@ -886,6 +887,7 @@ export async function fetchDebts(householdId: string) {
 export async function createDebt(householdId: string, input: CreateDebtInput) {
   const payload: any = {
     household_id: householdId,
+    user_id: input.userId ?? null,
     name: input.name,
     total_balance: input.totalBalance,
     current_balance: input.currentBalance,

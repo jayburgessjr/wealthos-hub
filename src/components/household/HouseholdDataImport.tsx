@@ -1,15 +1,22 @@
 import { useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import Papa from "papaparse";
 import { useHouseholdBudget } from "@/context/HouseholdBudgetContext";
 import { useAuth } from "@/components/AuthProvider";
+import { supabase } from "@/integrations/supabase/client";
 import {
   fetchCategories,
+  createCategory,
   createExpense,
   createBill,
   createIncomeEntry,
   createSubscription,
   createDebt,
   createGoal,
+  fetchBills,
+  fetchSubscriptions,
+  fetchDebts,
+  fetchGoals,
 } from "@/integrations/supabase/household-queries";
 import {
   Card,
@@ -58,6 +65,7 @@ type ParsedRow = {
 type ImportResult = {
   total: number;
   succeeded: number;
+  skipped: number;
   failed: number;
   byType: Record<string, number>;
   errors: string[];
@@ -128,15 +136,82 @@ export function HouseholdDataImport() {
   };
 
   const handleImport = async () => {
-    if (!householdId || !user || parsedRows.length === 0) return;
+    if (!householdId) {
+      toast.error("You need to set up a household before importing data.");
+      return;
+    }
+    if (!user || parsedRows.length === 0) return;
     setImporting(true);
 
     const categories = await fetchCategories(householdId).catch(() => []);
     const catMap = new Map(categories.map((c) => [c.name.toLowerCase(), c.id]));
 
+    // Ensure a fallback category exists for expenses whose category name doesn't match
+    let fallbackCategoryId: string | null = catMap.get("uncategorized") ?? null;
+    if (!fallbackCategoryId) {
+      try {
+        const fallback = await createCategory(householdId, {
+          name: "Uncategorized",
+          type: "variable",
+          monthlyLimit: 0,
+        });
+        fallbackCategoryId = fallback.id;
+        catMap.set("uncategorized", fallback.id);
+      } catch {
+        fallbackCategoryId = categories[0]?.id ?? null;
+      }
+    }
+
+    // Fetch existing records for deduplication
+    const [
+      { data: existingExpenses },
+      existingBills,
+      { data: existingIncome },
+      existingDebts,
+      existingGoals,
+      existingSubsResult,
+    ] = await Promise.all([
+      supabase
+        .from("expenses")
+        .select("description,amount,date")
+        .eq("household_id", householdId),
+      fetchBills(householdId).catch(() => []),
+      supabase
+        .from("income_entries")
+        .select("source_name,amount,date")
+        .eq("household_id", householdId),
+      fetchDebts(householdId).catch(() => []),
+      fetchGoals(householdId).catch(() => []),
+      fetchSubscriptions(householdId).catch(() => ({
+        items: [],
+        available: false,
+      })),
+    ]);
+
+    // dedup key sets — within-file duplicates are also caught by adding to the set after insert
+    const expenseKeys = new Set(
+      (existingExpenses ?? []).map(
+        (e: any) =>
+          `${(e.description ?? "").toLowerCase()}|${e.amount}|${e.date}`,
+      ),
+    );
+    const billKeys = new Set(existingBills.map((b) => b.name.toLowerCase()));
+    const incomeKeys = new Set(
+      (existingIncome ?? []).map(
+        (e: any) =>
+          `${(e.source_name ?? "").toLowerCase()}|${e.amount}|${e.date}`,
+      ),
+    );
+    const subsKeys = new Set(
+      (existingSubsResult.items ?? []).map((s: any) => s.name.toLowerCase()),
+    );
+    const debtKeys = new Set(existingDebts.map((d) => d.name.toLowerCase()));
+    const goalKeys = new Set(existingGoals.map((g) => g.name.toLowerCase()));
+
     const res: ImportResult = {
       total: parsedRows.length,
       succeeded: 0,
+      skipped: 0,
       failed: 0,
       byType: {},
       errors: [],
@@ -162,12 +237,51 @@ export function HouseholdDataImport() {
         continue;
       }
 
+      // Dedup check
+      const nameLower = name.toLowerCase();
+      let isDuplicate = false;
+      switch (type) {
+        case "expense": {
+          const key = `${nameLower}|${amount}|${date}`;
+          isDuplicate = expenseKeys.has(key);
+          if (!isDuplicate) expenseKeys.add(key);
+          break;
+        }
+        case "bill":
+          isDuplicate = billKeys.has(nameLower);
+          if (!isDuplicate) billKeys.add(nameLower);
+          break;
+        case "income": {
+          const key = `${nameLower}|${amount}|${date}`;
+          isDuplicate = incomeKeys.has(key);
+          if (!isDuplicate) incomeKeys.add(key);
+          break;
+        }
+        case "subscription":
+          isDuplicate = subsKeys.has(nameLower);
+          if (!isDuplicate) subsKeys.add(nameLower);
+          break;
+        case "debt":
+          isDuplicate = debtKeys.has(nameLower);
+          if (!isDuplicate) debtKeys.add(nameLower);
+          break;
+        case "goal":
+          isDuplicate = goalKeys.has(nameLower);
+          if (!isDuplicate) goalKeys.add(nameLower);
+          break;
+      }
+
+      if (isDuplicate) {
+        res.skipped++;
+        continue;
+      }
+
       try {
         switch (type) {
           case "expense":
             await createExpense(householdId, user.id, {
               amount,
-              categoryId: categoryId as any,
+              categoryId: (categoryId ?? fallbackCategoryId) as any,
               date,
               description: name,
               notes,
@@ -217,8 +331,9 @@ export function HouseholdDataImport() {
               totalBalance: balance,
               currentBalance: parseNum(row.current_amount) || balance,
               monthlyPayment: amount,
-              interestRate: parseNum(row.interest_rate) || null,
+              interestRate: parseNum(row.interest_rate),
               notes,
+              userId: user.id,
             });
             break;
           }
@@ -250,6 +365,7 @@ export function HouseholdDataImport() {
 
     if (res.succeeded > 0)
       toast.success(`Imported ${res.succeeded} of ${res.total} rows`);
+    if (res.skipped > 0) toast.info(`${res.skipped} duplicate rows skipped`);
     if (res.failed > 0)
       toast.error(`${res.failed} rows failed — see details below`);
   };
@@ -270,6 +386,15 @@ export function HouseholdDataImport() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {!householdId && (
+          <p className="text-sm text-muted-foreground">
+            You need to{" "}
+            <Link to="/household/setup" className="underline text-foreground">
+              set up a household
+            </Link>{" "}
+            before importing data.
+          </p>
+        )}
         <Button
           variant="outline"
           size="sm"
@@ -355,7 +480,10 @@ export function HouseholdDataImport() {
                 <AlertCircle className="h-4 w-4 text-amber-500" />
               )}
               <span className="text-sm font-medium">
-                {result.succeeded} imported · {result.failed} failed
+                {result.succeeded} imported
+                {result.skipped > 0 &&
+                  ` · ${result.skipped} skipped (duplicates)`}
+                {result.failed > 0 && ` · ${result.failed} failed`}
               </span>
             </div>
             <div className="flex flex-wrap gap-2">
