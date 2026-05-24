@@ -53,7 +53,7 @@ export function HeroBar({
 
         {/* Budget Left */}
         <div
-          className={`rounded-xl border border-border bg-card p-3 ${budgetAmber ? "text-amber-400" : ""}`}
+          className="rounded-xl border border-border bg-card p-3"
           data-testid="budget-left-chip"
         >
           <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
@@ -63,6 +63,7 @@ export function HeroBar({
             className={`mt-1 font-mono text-xl font-bold ${
               budgetAmber ? "text-amber-400" : "text-emerald-500"
             }`}
+            data-testid="budget-left-value"
           >
             {formatCurrency(budgetLeft)}
           </p>
@@ -71,7 +72,7 @@ export function HeroBar({
 
         {/* Bills Due */}
         <div
-          className={`rounded-xl border border-border bg-card p-3 ${billsRed ? "text-red-400" : ""}`}
+          className="rounded-xl border border-border bg-card p-3"
           data-testid="bills-due-chip"
         >
           <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
@@ -81,6 +82,7 @@ export function HeroBar({
             className={`mt-1 font-mono text-xl font-bold ${
               billsRed ? "text-red-400" : "text-foreground"
             }`}
+            data-testid="bills-due-value"
           >
             {billsDueCount}
           </p>
