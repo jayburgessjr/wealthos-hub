@@ -2,11 +2,23 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
-import { Rocket, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, TrendingUp, Shield, Brain } from "lucide-react";
+import {
+  Rocket,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  Loader2,
+  TrendingUp,
+  Shield,
+  Brain,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-const HERO_IMAGE = "https://images.pexels.com/photos/16594724/pexels-photo-16594724.jpeg";
+const HERO_IMAGE =
+  "https://images.pexels.com/photos/16594724/pexels-photo-16594724.jpeg";
 
 const features = [
   { icon: TrendingUp, text: "AI-ranked signals across 10+ asset classes" },
@@ -25,7 +37,10 @@ export default function Login() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
     if (error) {
       setLoading(false);
       toast.error(error.message);
@@ -37,12 +52,15 @@ export default function Login() {
       .eq("id", data.user.id)
       .maybeSingle();
     setLoading(false);
-    navigate(profile?.onboarding_completed ? "/dashboard" : "/onboarding");
+    navigate(profile?.onboarding_completed ? "/home" : "/onboarding");
   };
 
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) { toast.error("Enter your email first"); return; }
+    if (!email) {
+      toast.error("Enter your email first");
+      return;
+    }
     setLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/login`,
@@ -58,12 +76,11 @@ export default function Login() {
 
   return (
     <div className="flex min-h-screen bg-background text-foreground">
-
       {/* ── Left panel — image ─────────────────────────────────────── */}
       <div className="relative hidden w-1/2 lg:block">
         <img
           src={HERO_IMAGE}
-          alt="AJE"
+          alt="BWH"
           className="absolute inset-0 h-full w-full object-cover"
         />
         {/* Dark overlay */}
@@ -78,7 +95,7 @@ export default function Login() {
               <Rocket className="h-5 w-5 text-primary-foreground" />
             </div>
             <span className="font-display text-2xl font-bold tracking-tight text-foreground">
-              AJE<span className="text-primary">.</span>
+              BWH<span className="text-primary">.</span>
             </span>
           </Link>
 
@@ -93,8 +110,10 @@ export default function Login() {
                 Your Personal Hedge Fund
               </p>
               <h2 className="font-display text-5xl font-bold leading-tight text-foreground">
-                Every decision,<br />
-                ranked by urgency,<br />
+                Every decision,
+                <br />
+                ranked by urgency,
+                <br />
                 <span className="text-primary">backed by AI.</span>
               </h2>
 
@@ -120,9 +139,12 @@ export default function Login() {
           {/* Quote — bottom */}
           <div className="rounded-2xl border border-border/40 bg-card/60 p-5 backdrop-blur-sm">
             <p className="text-sm text-foreground/80 leading-relaxed">
-              "The goal isn't to predict the market. It's to have better decision infrastructure than everyone else."
+              "The goal isn't to predict the market. It's to have better
+              decision infrastructure than everyone else."
             </p>
-            <p className="mt-2 text-xs font-semibold text-primary">— AJE Philosophy</p>
+            <p className="mt-2 text-xs font-semibold text-primary">
+              — BWH Philosophy
+            </p>
           </div>
         </div>
       </div>
@@ -136,7 +158,7 @@ export default function Login() {
               <Rocket className="h-5 w-5 text-primary-foreground" />
             </div>
             <span className="font-display text-2xl font-bold tracking-tight">
-              AJE<span className="text-primary">.</span>
+              BWH<span className="text-primary">.</span>
             </span>
           </Link>
         </div>
@@ -150,9 +172,11 @@ export default function Login() {
           {!resetMode ? (
             <>
               <div className="mb-8">
-                <h1 className="font-display text-3xl font-bold">Welcome back</h1>
+                <h1 className="font-display text-3xl font-bold">
+                  Welcome back
+                </h1>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Sign in to your AJE account
+                  Sign in to your BWH account
                 </p>
               </div>
 
@@ -193,7 +217,11 @@ export default function Login() {
                       onClick={() => setShowPassword((v) => !v)}
                       className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
                     </button>
                   </div>
                 </div>
@@ -208,11 +236,17 @@ export default function Login() {
                   </button>
                 </div>
 
-                <Button type="submit" disabled={loading} className="h-12 w-full rounded-xl text-sm font-semibold">
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="h-12 w-full rounded-xl text-sm font-semibold"
+                >
                   {loading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
-                    <>Sign In <ArrowRight className="ml-2 h-4 w-4" /></>
+                    <>
+                      Sign In <ArrowRight className="ml-2 h-4 w-4" />
+                    </>
                   )}
                 </Button>
               </form>
@@ -220,7 +254,9 @@ export default function Login() {
           ) : (
             <>
               <div className="mb-8">
-                <h1 className="font-display text-3xl font-bold">Reset password</h1>
+                <h1 className="font-display text-3xl font-bold">
+                  Reset password
+                </h1>
                 <p className="mt-2 text-sm text-muted-foreground">
                   Enter your email and we'll send a reset link
                 </p>
@@ -244,8 +280,16 @@ export default function Login() {
                   </div>
                 </div>
 
-                <Button type="submit" disabled={loading} className="h-12 w-full rounded-xl text-sm font-semibold">
-                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Send Reset Link"}
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="h-12 w-full rounded-xl text-sm font-semibold"
+                >
+                  {loading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    "Send Reset Link"
+                  )}
                 </Button>
 
                 <button
@@ -261,16 +305,30 @@ export default function Login() {
 
           <div className="mt-8 border-t border-border pt-6 text-sm text-muted-foreground">
             Don't have an account?{" "}
-            <Link to="/signup" className="font-semibold text-primary hover:underline">
+            <Link
+              to="/signup"
+              className="font-semibold text-primary hover:underline"
+            >
               Create one free
             </Link>
           </div>
 
           <p className="mt-6 text-xs text-muted-foreground/60">
             By signing in you agree to our{" "}
-            <Link to="/terms" className="hover:text-muted-foreground transition-colors">Terms of Service</Link>
-            {" "}and{" "}
-            <Link to="/privacy" className="hover:text-muted-foreground transition-colors">Privacy Policy</Link>.
+            <Link
+              to="/terms"
+              className="hover:text-muted-foreground transition-colors"
+            >
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link
+              to="/privacy"
+              className="hover:text-muted-foreground transition-colors"
+            >
+              Privacy Policy
+            </Link>
+            .
           </p>
         </motion.div>
       </div>

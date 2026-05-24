@@ -101,36 +101,176 @@ import EstatePlanning from "./pages/EstatePlanning";
 import Insurance from "./pages/Insurance";
 import EntityStructure from "./pages/EntityStructure";
 import Fundraising from "./pages/Fundraising";
+import WealthDashboard from "./pages/WealthDashboard";
+import HomeDashboard from "./pages/HomeDashboard";
 
 const queryClient = new QueryClient();
 
 const HouseholdRoutes = () => (
   <HouseholdBudgetProvider>
     <Routes>
+      {/* Dashboard — standalone */}
       <Route path="/" element={<HouseholdDashboard />} />
       <Route path="/setup" element={<HouseholdSetup />} />
-      <Route path="/command-center" element={<HouseholdDashboard />} />
-      <Route path="/budget" element={<HouseholdBudget />} />
-      <Route path="/bills" element={<HouseholdBills />} />
-      <Route path="/income" element={<HouseholdIncome />} />
-      <Route path="/subscriptions" element={<HouseholdSubscriptions />} />
-      <Route path="/goals" element={<HouseholdGoals />} />
-      <Route path="/debts" element={<HouseholdDebts />} />
-      <Route path="/bank-accounts" element={<HouseholdBankAccounts />} />
-      <Route path="/credit-scores" element={<HouseholdCreditScores />} />
-      <Route path="/net-worth" element={<HouseholdNetWorth />} />
-      <Route path="/simulator" element={<HouseholdSimulator />} />
-      <Route path="/weekly-meeting" element={<HouseholdWeeklyMeeting />} />
-      <Route path="/monthly-closeout" element={<HouseholdMonthlyCloseout />} />
-      <Route path="/quarterly-review" element={<HouseholdQuarterlyReview />} />
-      <Route path="/ai-assistant" element={<HouseholdAIAssistant />} />
-      <Route path="/cfo-reports" element={<HouseholdCFOReports />} />
-      <Route path="/careers" element={<HouseholdCareers />} />
-      <Route path="/vision" element={<HouseholdVision />} />
-      <Route path="/tasks" element={<HouseholdTasks />} />
-      <Route path="/settings" element={<HouseholdSettings />} />
-      <Route path="/members" element={<HouseholdSettings />} />
+
+      {/* Money In */}
+      <Route
+        path="/money-in"
+        element={<Navigate to="/household/money-in/income" replace />}
+      />
+      <Route path="/money-in/income" element={<HouseholdIncome />} />
+      <Route
+        path="/money-in/bank-accounts"
+        element={<HouseholdBankAccounts />}
+      />
+
+      {/* Money Out */}
+      <Route
+        path="/money-out"
+        element={<Navigate to="/household/money-out/budget" replace />}
+      />
+      <Route path="/money-out/budget" element={<HouseholdBudget />} />
+      <Route path="/money-out/bills" element={<HouseholdBills />} />
+      <Route
+        path="/money-out/subscriptions"
+        element={<HouseholdSubscriptions />}
+      />
+      <Route path="/money-out/debts" element={<HouseholdDebts />} />
+
+      {/* Future */}
+      <Route
+        path="/future"
+        element={<Navigate to="/household/future/goals" replace />}
+      />
+      <Route path="/future/goals" element={<HouseholdGoals />} />
+      <Route path="/future/net-worth" element={<HouseholdNetWorth />} />
+      <Route path="/future/simulator" element={<HouseholdSimulator />} />
+
+      {/* Insights */}
+      <Route
+        path="/insights"
+        element={<Navigate to="/household/insights/ai-assistant" replace />}
+      />
+      <Route path="/insights/ai-assistant" element={<HouseholdAIAssistant />} />
+      <Route path="/insights/cfo-reports" element={<HouseholdCFOReports />} />
+      <Route
+        path="/insights/weekly-meeting"
+        element={<HouseholdWeeklyMeeting />}
+      />
+      <Route
+        path="/insights/monthly-closeout"
+        element={<HouseholdMonthlyCloseout />}
+      />
+      <Route
+        path="/insights/quarterly-review"
+        element={<HouseholdQuarterlyReview />}
+      />
+
+      {/* Life */}
+      <Route
+        path="/life"
+        element={<Navigate to="/household/life/careers" replace />}
+      />
+      <Route path="/life/careers" element={<HouseholdCareers />} />
+      <Route path="/life/vision" element={<HouseholdVision />} />
+      <Route path="/life/tasks" element={<HouseholdTasks />} />
+
+      {/* Manage */}
+      <Route
+        path="/manage"
+        element={<Navigate to="/household/manage/settings" replace />}
+      />
+      <Route path="/manage/settings" element={<HouseholdSettings />} />
+      <Route path="/manage/members" element={<HouseholdSettings />} />
+
+      {/* Misc */}
       <Route path="/invite/:token" element={<AcceptInvitation />} />
+
+      {/* Legacy redirects */}
+      <Route
+        path="/income"
+        element={<Navigate to="/household/money-in/income" replace />}
+      />
+      <Route
+        path="/bank-accounts"
+        element={<Navigate to="/household/money-in/bank-accounts" replace />}
+      />
+      <Route
+        path="/budget"
+        element={<Navigate to="/household/money-out/budget" replace />}
+      />
+      <Route
+        path="/bills"
+        element={<Navigate to="/household/money-out/bills" replace />}
+      />
+      <Route
+        path="/subscriptions"
+        element={<Navigate to="/household/money-out/subscriptions" replace />}
+      />
+      <Route
+        path="/debts"
+        element={<Navigate to="/household/money-out/debts" replace />}
+      />
+      <Route
+        path="/goals"
+        element={<Navigate to="/household/future/goals" replace />}
+      />
+      <Route
+        path="/net-worth"
+        element={<Navigate to="/household/future/net-worth" replace />}
+      />
+      <Route
+        path="/simulator"
+        element={<Navigate to="/household/future/simulator" replace />}
+      />
+      <Route
+        path="/ai-assistant"
+        element={<Navigate to="/household/insights/ai-assistant" replace />}
+      />
+      <Route
+        path="/cfo-reports"
+        element={<Navigate to="/household/insights/cfo-reports" replace />}
+      />
+      <Route
+        path="/weekly-meeting"
+        element={<Navigate to="/household/insights/weekly-meeting" replace />}
+      />
+      <Route
+        path="/monthly-closeout"
+        element={<Navigate to="/household/insights/monthly-closeout" replace />}
+      />
+      <Route
+        path="/quarterly-review"
+        element={<Navigate to="/household/insights/quarterly-review" replace />}
+      />
+      <Route
+        path="/careers"
+        element={<Navigate to="/household/life/careers" replace />}
+      />
+      <Route
+        path="/vision"
+        element={<Navigate to="/household/life/vision" replace />}
+      />
+      <Route
+        path="/tasks"
+        element={<Navigate to="/household/life/tasks" replace />}
+      />
+      <Route
+        path="/settings"
+        element={<Navigate to="/household/manage/settings" replace />}
+      />
+      <Route
+        path="/members"
+        element={<Navigate to="/household/manage/members" replace />}
+      />
+      <Route
+        path="/command-center"
+        element={<Navigate to="/household" replace />}
+      />
+      <Route
+        path="/credit-scores"
+        element={<Navigate to="/household/money-in/bank-accounts" replace />}
+      />
     </Routes>
   </HouseholdBudgetProvider>
 );
@@ -156,76 +296,250 @@ const AppRoutes = () => (
     {/* Protected routes — require authenticated user */}
     <Route element={<ProtectedRoute />}>
       <Route path="/onboarding" element={<Onboarding />} />
-      <Route path="/decisions" element={<Decisions />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/signals" element={<Signals />} />
-      <Route path="/positions" element={<Positions />} />
-      <Route path="/compound" element={<Compound />} />
-      <Route path="/strategy-allocator" element={<StrategyAllocator />} />
-      <Route path="/ai-advisor" element={<AIAdvisor />} />
-      <Route path="/performance" element={<Performance />} />
-      <Route path="/market-regime" element={<MarketRegime />} />
-      <Route path="/watchlist" element={<Watchlist />} />
-      <Route path="/documents" element={<Documents />} />
       <Route path="/settings" element={<SettingsPage />} />
-      <Route path="/admin" element={<AdminDashboard />} />
-      <Route path="/crypto" element={<Crypto />} />
-      <Route path="/markets" element={<Markets />} />
-      <Route path="/news" element={<News />} />
-      <Route path="/quantum" element={<Quantum />} />
-      <Route path="/security" element={<Security />} />
-      <Route path="/financial-advisor" element={<FinancialAdvisor />} />
-      <Route path="/pnl-calendar" element={<PnLCalendar />} />
-      <Route path="/position-sizer" element={<PositionSizer />} />
-      <Route path="/trading-journal" element={<TradingJournal />} />
-      <Route path="/weekly-briefing" element={<WeeklyBriefing />} />
-      <Route path="/tax-harvesting" element={<TaxHarvesting />} />
-      <Route path="/earnings-calendar" element={<EarningsCalendar />} />
-      <Route path="/heat-map" element={<HeatMap />} />
-      <Route path="/paper-trading" element={<PaperTrading />} />
-      <Route path="/strategy-123" element={<Strategy123 />} />
-      <Route path="/playbook" element={<Playbook />} />
-      <Route path="/alerts" element={<Alerts />} />
-      <Route path="/chart" element={<Chart />} />
-      <Route path="/screener" element={<Screener />} />
-      <Route path="/insider-activity" element={<InsiderActivity />} />
-      <Route path="/community" element={<Community />} />
       <Route path="/profile/:userId" element={<Profile />} />
-      <Route path="/bots" element={<Bots />} />
-      <Route path="/forex" element={<Forex />} />
-      <Route path="/commodities" element={<Commodities />} />
-      <Route path="/fixed-income" element={<FixedIncome />} />
-      <Route path="/private-equity" element={<PrivateEquity />} />
-      <Route path="/mergers-acquisitions" element={<MergersAcquisitions />} />
-      <Route path="/kalshi" element={<Kalshi />} />
-      <Route path="/polymarket" element={<Polymarket />} />
-      <Route path="/sports-trading" element={<SportsTrading />} />
-      <Route path="/lottery-ev" element={<LotteryEV />} />
-      <Route path="/financial-news" element={<FinancialNews />} />
-      <Route path="/my-portfolio" element={<MyPortfolio />} />
+
+      {/* ── Investment section (/invs/) ── */}
+      {/* Orient */}
+      <Route path="/invs/dashboard" element={<Dashboard />} />
+      <Route path="/invs/alerts" element={<Alerts />} />
+
+      {/* Market (tabbed) */}
+      <Route path="/invs/market" element={<Markets />} />
+      <Route path="/invs/market/macro" element={<Macro />} />
+      <Route path="/invs/market/regime" element={<MarketRegime />} />
+
+      {/* News */}
+      <Route path="/invs/news" element={<News />} />
+
+      {/* Discover (tabbed) */}
+      <Route path="/invs/discover" element={<Signals />} />
+      <Route path="/invs/discover/heat-map" element={<HeatMap />} />
+      <Route path="/invs/discover/options-flow" element={<OptionsFlow />} />
+      <Route path="/invs/discover/earnings" element={<EarningsCalendar />} />
+      <Route path="/invs/discover/ipo" element={<IpoTracker />} />
+      <Route path="/invs/discover/insider" element={<InsiderActivity />} />
+
+      {/* Research */}
+      <Route path="/invs/chart" element={<Chart />} />
+      <Route path="/invs/screener" element={<Screener />} />
+      <Route path="/invs/watchlist" element={<Watchlist />} />
+
+      {/* Decide */}
+      <Route path="/invs/decisions" element={<Decisions />} />
+      <Route path="/invs/trading-ai" element={<AIAdvisor />} />
+      <Route path="/invs/strategy" element={<FinancialAdvisor />} />
+      <Route path="/invs/strategy/123" element={<Strategy123 />} />
+      <Route path="/invs/strategy/allocator" element={<StrategyAllocator />} />
+      <Route path="/invs/strategy/sizer" element={<PositionSizer />} />
+
+      {/* Assets / Go Deep (tabbed) */}
+      <Route path="/invs/assets" element={<Crypto />} />
+      <Route path="/invs/assets/forex" element={<Forex />} />
+      <Route path="/invs/assets/commodities" element={<Commodities />} />
+      <Route path="/invs/assets/fixed-income" element={<FixedIncome />} />
+      <Route path="/invs/assets/private-equity" element={<PrivateEquity />} />
+      <Route path="/invs/assets/ma" element={<MergersAcquisitions />} />
+
+      {/* Execute (tabbed) */}
+      <Route path="/invs/execute" element={<Positions />} />
+      <Route path="/invs/execute/portfolio" element={<MyPortfolio />} />
+      <Route path="/invs/execute/paper" element={<PaperTrading />} />
+
+      {/* Automate */}
+      <Route path="/invs/bots" element={<Bots />} />
+
+      {/* Review (tabbed) */}
+      <Route path="/invs/review" element={<TradingJournal />} />
+      <Route path="/invs/review/performance" element={<Performance />} />
+      <Route path="/invs/review/pnl" element={<PnLCalendar />} />
+      <Route path="/invs/review/briefing" element={<WeeklyBriefing />} />
+      <Route path="/invs/review/playbook" element={<Playbook />} />
+
+      {/* Documents */}
+      <Route path="/invs/documents" element={<Documents />} />
+
+      {/* AI Engines (tabbed) */}
+      <Route path="/invs/ai-engines" element={<Compound />} />
+      <Route path="/invs/ai-engines/quantum" element={<Quantum />} />
+
+      {/* Prediction Markets (tabbed) */}
+      <Route path="/invs/prediction-markets" element={<Kalshi />} />
+      <Route
+        path="/invs/prediction-markets/polymarket"
+        element={<Polymarket />}
+      />
+      <Route
+        path="/invs/prediction-markets/sports"
+        element={<SportsTrading />}
+      />
+      <Route path="/invs/prediction-markets/lottery" element={<LotteryEV />} />
+
+      {/* Account */}
+      <Route path="/invs/security" element={<Security />} />
+      <Route path="/invs/community" element={<Community />} />
+
+      {/* Admin */}
+      <Route path="/invs/admin" element={<AdminDashboard />} />
+
+      {/* ── Legacy redirects (keep bookmarks working) ── */}
+      <Route
+        path="/dashboard"
+        element={<Navigate to="/invs/dashboard" replace />}
+      />
+      <Route
+        path="/signals"
+        element={<Navigate to="/invs/discover" replace />}
+      />
+      <Route
+        path="/decisions"
+        element={<Navigate to="/invs/decisions" replace />}
+      />
+      <Route
+        path="/ai-advisor"
+        element={<Navigate to="/invs/trading-ai" replace />}
+      />
+      <Route
+        path="/compound"
+        element={<Navigate to="/invs/ai-engines" replace />}
+      />
+      <Route
+        path="/quantum"
+        element={<Navigate to="/invs/ai-engines/quantum" replace />}
+      />
+      <Route path="/markets" element={<Navigate to="/invs/market" replace />} />
+      <Route path="/news" element={<Navigate to="/invs/news" replace />} />
+      <Route
+        path="/financial-news"
+        element={<Navigate to="/invs/news" replace />}
+      />
+      <Route path="/crypto" element={<Navigate to="/invs/assets" replace />} />
+      <Route
+        path="/kalshi"
+        element={<Navigate to="/invs/prediction-markets" replace />}
+      />
+      <Route
+        path="/positions"
+        element={<Navigate to="/invs/execute" replace />}
+      />
+      <Route
+        path="/trading-journal"
+        element={<Navigate to="/invs/review" replace />}
+      />
+      <Route path="/alerts" element={<Navigate to="/invs/alerts" replace />} />
+      <Route
+        path="/performance"
+        element={<Navigate to="/invs/review/performance" replace />}
+      />
+      <Route
+        path="/community"
+        element={<Navigate to="/invs/community" replace />}
+      />
+      <Route
+        path="/security"
+        element={<Navigate to="/invs/security" replace />}
+      />
+      <Route path="/admin" element={<Navigate to="/invs/admin" replace />} />
+
+      {/* ── Wealth (/wealth/) ── */}
+      <Route path="/wealth" element={<WealthDashboard />} />
+      {/* Long-term */}
+      <Route
+        path="/wealth/long-term"
+        element={<Navigate to="/wealth/long-term/retirement" replace />}
+      />
+      <Route path="/wealth/long-term/retirement" element={<Retirement />} />
+      <Route
+        path="/wealth/long-term/estate-planning"
+        element={<EstatePlanning />}
+      />
+      {/* Assets */}
+      <Route
+        path="/wealth/assets"
+        element={<Navigate to="/wealth/assets/real-estate" replace />}
+      />
+      <Route path="/wealth/assets/real-estate" element={<RealEstate />} />
+      <Route path="/wealth/assets/collectibles" element={<Collectibles />} />
+      <Route path="/wealth/assets/dividends" element={<DividendTracker />} />
+      {/* Protection */}
+      <Route
+        path="/wealth/protection"
+        element={<Navigate to="/wealth/protection/insurance" replace />}
+      />
+      <Route path="/wealth/protection/insurance" element={<Insurance />} />
+      <Route
+        path="/wealth/protection/tax-harvesting"
+        element={<TaxHarvesting />}
+      />
+      {/* Business */}
+      <Route
+        path="/wealth/business"
+        element={<Navigate to="/wealth/business/entity-structure" replace />}
+      />
+      <Route
+        path="/wealth/business/entity-structure"
+        element={<EntityStructure />}
+      />
+      <Route path="/wealth/business/fundraising" element={<Fundraising />} />
+      {/* Legacy redirects */}
+      <Route
+        path="/retirement"
+        element={<Navigate to="/wealth/long-term/retirement" replace />}
+      />
+      <Route
+        path="/estate-planning"
+        element={<Navigate to="/wealth/long-term/estate-planning" replace />}
+      />
+      <Route
+        path="/real-estate"
+        element={<Navigate to="/wealth/assets/real-estate" replace />}
+      />
+      <Route
+        path="/collectibles"
+        element={<Navigate to="/wealth/assets/collectibles" replace />}
+      />
+      <Route
+        path="/dividend-tracker"
+        element={<Navigate to="/wealth/assets/dividends" replace />}
+      />
+      <Route
+        path="/insurance"
+        element={<Navigate to="/wealth/protection/insurance" replace />}
+      />
+      <Route
+        path="/tax-harvesting"
+        element={<Navigate to="/wealth/protection/tax-harvesting" replace />}
+      />
+      <Route
+        path="/entity-structure"
+        element={<Navigate to="/wealth/business/entity-structure" replace />}
+      />
+      <Route
+        path="/fundraising"
+        element={<Navigate to="/wealth/business/fundraising" replace />}
+      />
       <Route
         path="/net-worth"
-        element={<Navigate to="/household/net-worth" replace />}
+        element={<Navigate to="/household/future/net-worth" replace />}
       />
       <Route
         path="/debt-manager"
-        element={<Navigate to="/household/debts" replace />}
+        element={<Navigate to="/household/money-out/debts" replace />}
       />
-      <Route path="/retirement" element={<Retirement />} />
       <Route
         path="/cash-flow-planner"
-        element={<Navigate to="/household/bank-accounts" replace />}
+        element={<Navigate to="/household/money-in/bank-accounts" replace />}
       />
-      <Route path="/dividend-tracker" element={<DividendTracker />} />
-      <Route path="/real-estate" element={<RealEstate />} />
-      <Route path="/collectibles" element={<Collectibles />} />
-      <Route path="/options-flow" element={<OptionsFlow />} />
-      <Route path="/macro" element={<Macro />} />
-      <Route path="/ipo-tracker" element={<IpoTracker />} />
-      <Route path="/estate-planning" element={<EstatePlanning />} />
-      <Route path="/insurance" element={<Insurance />} />
-      <Route path="/entity-structure" element={<EntityStructure />} />
-      <Route path="/fundraising" element={<Fundraising />} />
+
+      <Route
+        path="/home"
+        element={
+          <HouseholdBudgetProvider>
+            <HomeDashboard />
+          </HouseholdBudgetProvider>
+        }
+      />
+
       <Route path="/household/*" element={<HouseholdRoutes />} />
     </Route>
 
