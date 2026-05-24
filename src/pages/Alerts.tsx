@@ -161,7 +161,10 @@ function DeliveryBadge({ delivery }: { delivery: DeliveryType }) {
     both: "bg-orange-500/15 text-orange-400 border-orange-500/30",
   };
   return (
-    <Badge variant="outline" className={`text-xs capitalize ${config[delivery]}`}>
+    <Badge
+      variant="outline"
+      className={`text-xs capitalize ${config[delivery]}`}
+    >
       {delivery}
     </Badge>
   );
@@ -187,7 +190,9 @@ function StatCard({
       </div>
       <div>
         <p className="text-xs text-muted-foreground">{label}</p>
-        <p className="text-2xl font-mono font-semibold text-foreground">{value}</p>
+        <p className="text-2xl font-mono font-semibold text-foreground">
+          {value}
+        </p>
       </div>
     </div>
   );
@@ -299,8 +304,10 @@ function AlertRow({
                 <AlertDialogTitle>Delete Alert</AlertDialogTitle>
                 <AlertDialogDescription>
                   Delete the {CONDITION_LABELS[alert.condition_type]} alert for{" "}
-                  <span className="font-mono font-semibold">{alert.symbol}</span>? This
-                  cannot be undone.
+                  <span className="font-mono font-semibold">
+                    {alert.symbol}
+                  </span>
+                  ? This cannot be undone.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -349,16 +356,23 @@ function AlertsTable({
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border bg-muted/30">
-            {["Symbol", "Condition", "Threshold", "Current", "Status", "Delivery", "Created", "Actions"].map(
-              (h) => (
-                <th
-                  key={h}
-                  className="px-4 py-2.5 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap"
-                >
-                  {h}
-                </th>
-              )
-            )}
+            {[
+              "Symbol",
+              "Condition",
+              "Threshold",
+              "Current",
+              "Status",
+              "Delivery",
+              "Created",
+              "Actions",
+            ].map((h) => (
+              <th
+                key={h}
+                className="px-4 py-2.5 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap"
+              >
+                {h}
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>
@@ -380,7 +394,13 @@ function AlertsTable({
 
 // ── Triggered History ─────────────────────────────────────────────────────
 
-function TriggeredHistory({ alerts, loading }: { alerts: Alert[]; loading: boolean }) {
+function TriggeredHistory({
+  alerts,
+  loading,
+}: {
+  alerts: Alert[];
+  loading: boolean;
+}) {
   const triggered = alerts.filter((a) => a.status === "triggered");
 
   if (loading) {
@@ -410,16 +430,21 @@ function TriggeredHistory({ alerts, loading }: { alerts: Alert[]; loading: boole
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border bg-muted/30">
-            {["Symbol", "Condition", "Threshold", "Value at Trigger", "Triggered At", "Note"].map(
-              (h) => (
-                <th
-                  key={h}
-                  className="px-4 py-2.5 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap"
-                >
-                  {h}
-                </th>
-              )
-            )}
+            {[
+              "Symbol",
+              "Condition",
+              "Threshold",
+              "Value at Trigger",
+              "Triggered At",
+              "Note",
+            ].map((h) => (
+              <th
+                key={h}
+                className="px-4 py-2.5 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap"
+              >
+                {h}
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>
@@ -447,7 +472,9 @@ function TriggeredHistory({ alerts, loading }: { alerts: Alert[]; loading: boole
                 <td className="px-4 py-3 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1.5">
                     <Clock className="h-3 w-3" />
-                    {alert.triggered_at ? formatDateTime(alert.triggered_at) : "—"}
+                    {alert.triggered_at
+                      ? formatDateTime(alert.triggered_at)
+                      : "—"}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-xs text-muted-foreground max-w-[200px] truncate">
@@ -559,13 +586,13 @@ function CreateAlertForm({ onCreated }: { onCreated: () => void }) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {(Object.entries(CONDITION_LABELS) as [ConditionType, string][]).map(
-                ([val, label]) => (
-                  <SelectItem key={val} value={val}>
-                    {label}
-                  </SelectItem>
-                )
-              )}
+              {(
+                Object.entries(CONDITION_LABELS) as [ConditionType, string][]
+              ).map(([val, label]) => (
+                <SelectItem key={val} value={val}>
+                  {label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -581,7 +608,9 @@ function CreateAlertForm({ onCreated }: { onCreated: () => void }) {
             step="any"
             placeholder="0.00"
             value={form.threshold}
-            onChange={(e) => setForm((f) => ({ ...f, threshold: e.target.value }))}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, threshold: e.target.value }))
+            }
             className="font-mono bg-background border-border"
           />
         </div>
@@ -591,7 +620,9 @@ function CreateAlertForm({ onCreated }: { onCreated: () => void }) {
           <Label className="text-xs text-muted-foreground">Delivery</Label>
           <Select
             value={form.delivery}
-            onValueChange={(v) => setForm((f) => ({ ...f, delivery: v as DeliveryType }))}
+            onValueChange={(v) =>
+              setForm((f) => ({ ...f, delivery: v as DeliveryType }))
+            }
           >
             <SelectTrigger className="bg-background border-border">
               <SelectValue />
@@ -607,7 +638,10 @@ function CreateAlertForm({ onCreated }: { onCreated: () => void }) {
         {/* Webhook URL — conditional */}
         {showWebhook && (
           <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="webhook_url" className="text-xs text-muted-foreground">
+            <Label
+              htmlFor="webhook_url"
+              className="text-xs text-muted-foreground"
+            >
               Webhook URL
             </Label>
             <Input
@@ -615,7 +649,9 @@ function CreateAlertForm({ onCreated }: { onCreated: () => void }) {
               type="url"
               placeholder="https://hooks.example.com/…"
               value={form.webhook_url}
-              onChange={(e) => setForm((f) => ({ ...f, webhook_url: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, webhook_url: e.target.value }))
+              }
               className="bg-background border-border"
             />
           </div>
@@ -624,8 +660,7 @@ function CreateAlertForm({ onCreated }: { onCreated: () => void }) {
         {/* Note */}
         <div className={`space-y-1.5 ${showWebhook ? "" : "sm:col-span-2"}`}>
           <Label htmlFor="note" className="text-xs text-muted-foreground">
-            Note{" "}
-            <span className="text-muted-foreground/50">(optional)</span>
+            Note <span className="text-muted-foreground/50">(optional)</span>
           </Label>
           <Textarea
             id="note"
@@ -655,12 +690,10 @@ function CreateAlertForm({ onCreated }: { onCreated: () => void }) {
 // ── Page ──────────────────────────────────────────────────────────────────
 
 export default function Alerts() {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const {
-    data: alerts = [],
-    isLoading,
-  } = useQuery<Alert[]>({
+  const { data: alerts = [], isLoading } = useQuery<Alert[]>({
     queryKey: ["alerts", user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -677,7 +710,13 @@ export default function Alerts() {
   const refetch = () => queryClient.invalidateQueries({ queryKey: ["alerts"] });
 
   const toggleMutation = useMutation({
-    mutationFn: async ({ id, current }: { id: string; current: StatusType }) => {
+    mutationFn: async ({
+      id,
+      current,
+    }: {
+      id: string;
+      current: StatusType;
+    }) => {
       const next = current === "paused" ? "active" : "paused";
       const { error } = await supabase
         .from("alerts")
@@ -716,65 +755,75 @@ export default function Alerts() {
     (a) =>
       a.status === "triggered" &&
       a.triggered_at &&
-      new Date(a.triggered_at).toDateString() === today
+      new Date(a.triggered_at).toDateString() === today,
   ).length;
 
   return (
     <DashboardLayout>
       <SubscriptionGate>
-      <div className="space-y-6 max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center gap-3">
-          <Bell className="h-5 w-5 text-muted-foreground" />
-          <div>
-            <h1 className="text-xl font-semibold text-foreground">Alert Engine</h1>
-            <p className="text-sm text-muted-foreground">
-              Monitor price, RSI, volume, and momentum conditions in real-time.
-            </p>
+        <div className="space-y-6">
+          {/* Header */}
+          <div className="flex items-center gap-3">
+            <Bell className="h-5 w-5 text-muted-foreground" />
+            <div>
+              <h1 className="text-xl font-semibold text-foreground">
+                Alert Engine
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Monitor price, RSI, volume, and momentum conditions in
+                real-time.
+              </p>
+            </div>
           </div>
+
+          {/* Stats row */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <StatCard label="Total Alerts" value={total} icon={Bell} />
+            <StatCard
+              label="Active"
+              value={active}
+              icon={BellRing}
+              accent="text-bullish"
+            />
+            <StatCard
+              label="Triggered Today"
+              value={triggeredToday}
+              icon={AlertTriangle}
+              accent="text-blue-400"
+            />
+            <StatCard label="Paused" value={paused} icon={BellOff} />
+          </div>
+
+          {/* Create form */}
+          <CreateAlertForm onCreated={refetch} />
+
+          {/* Tabs: All / Triggered History */}
+          <Tabs defaultValue="all">
+            <TabsList className="bg-muted/50">
+              <TabsTrigger value="all">All Alerts</TabsTrigger>
+              <TabsTrigger value="history">Triggered History</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="all" className="mt-3">
+              <div className="bg-card border border-border rounded-lg overflow-hidden">
+                <AlertsTable
+                  alerts={alerts}
+                  onToggle={(id, current) =>
+                    toggleMutation.mutate({ id, current })
+                  }
+                  onDelete={(id) => deleteMutation.mutate(id)}
+                  loading={isLoading}
+                />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="history" className="mt-3">
+              <div className="bg-card border border-border rounded-lg overflow-hidden">
+                <TriggeredHistory alerts={alerts} loading={isLoading} />
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
-
-        {/* Stats row */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <StatCard label="Total Alerts" value={total} icon={Bell} />
-          <StatCard label="Active" value={active} icon={BellRing} accent="text-bullish" />
-          <StatCard
-            label="Triggered Today"
-            value={triggeredToday}
-            icon={AlertTriangle}
-            accent="text-blue-400"
-          />
-          <StatCard label="Paused" value={paused} icon={BellOff} />
-        </div>
-
-        {/* Create form */}
-        <CreateAlertForm onCreated={refetch} />
-
-        {/* Tabs: All / Triggered History */}
-        <Tabs defaultValue="all">
-          <TabsList className="bg-muted/50">
-            <TabsTrigger value="all">All Alerts</TabsTrigger>
-            <TabsTrigger value="history">Triggered History</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="all" className="mt-3">
-            <div className="bg-card border border-border rounded-lg overflow-hidden">
-              <AlertsTable
-                alerts={alerts}
-                onToggle={(id, current) => toggleMutation.mutate({ id, current })}
-                onDelete={(id) => deleteMutation.mutate(id)}
-                loading={isLoading}
-              />
-            </div>
-          </TabsContent>
-
-          <TabsContent value="history" className="mt-3">
-            <div className="bg-card border border-border rounded-lg overflow-hidden">
-              <TriggeredHistory alerts={alerts} loading={isLoading} />
-            </div>
-          </TabsContent>
-        </Tabs>
-      </div>
       </SubscriptionGate>
     </DashboardLayout>
   );

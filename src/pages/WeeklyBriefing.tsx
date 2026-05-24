@@ -215,7 +215,7 @@ export default function WeeklyBriefing() {
               </p>
               <button
                 onClick={generate}
-                className="flex items-center gap-2 rounded-xl bg-bullish px-6 py-3 font-semibold text-primary-foreground shadow-lg transition-fast hover:brightness-110"
+                className="flex items-center gap-2 rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground shadow-lg transition-fast hover:brightness-110"
               >
                 <Sparkles className="h-4 w-4" />
                 Generate This Week's Briefing

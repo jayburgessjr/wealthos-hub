@@ -208,7 +208,7 @@ export default function Watchlist() {
             <button
               onClick={() => addAsset()}
               disabled={isAdding || !newTicker.trim()}
-              className="w-full rounded-lg bg-bullish py-2.5 font-body text-sm font-semibold text-primary-foreground transition-fast hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full rounded-lg bg-primary py-2.5 font-body text-sm font-semibold text-primary-foreground transition-fast hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isAdding ? 'Adding…' : 'Add to Watchlist'}
             </button>

@@ -3,8 +3,19 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import {
-  Bot, Plus, Play, Pause, Pencil, Trash2, Info, ChevronRight,
-  AlertTriangle, Activity, Zap, BarChart2, X,
+  Bot,
+  Plus,
+  Play,
+  Pause,
+  Pencil,
+  Trash2,
+  Info,
+  ChevronRight,
+  AlertTriangle,
+  Activity,
+  Zap,
+  BarChart2,
+  X,
 } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { SubscriptionGate } from "@/components/SubscriptionGate";
@@ -112,7 +123,7 @@ const OPERATOR_SYMBOLS: Record<string, string> = {
   "is below": "<",
   "crosses above": "↑",
   "crosses below": "↓",
-  "equals": "=",
+  equals: "=",
 };
 
 const DEFAULT_BOT_FORM = {
@@ -131,7 +142,12 @@ const DEFAULT_BOT_FORM = {
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 function newCondition(): Condition {
-  return { id: crypto.randomUUID(), indicator: "Price", operator: "is above", value: "" };
+  return {
+    id: crypto.randomUUID(),
+    indicator: "Price",
+    operator: "is above",
+    value: "",
+  };
 }
 
 function conditionLabel(c: Condition): string {
@@ -199,7 +215,9 @@ function ConditionBuilder({
             <div className="flex items-center gap-2 p-3 bg-muted/30 border border-border rounded-lg">
               <Select
                 value={cond.indicator}
-                onValueChange={(v) => updateCondition(cond.id, { indicator: v })}
+                onValueChange={(v) =>
+                  updateCondition(cond.id, { indicator: v })
+                }
               >
                 <SelectTrigger className="w-40 h-8 text-sm">
                   <SelectValue />
@@ -233,11 +251,16 @@ function ConditionBuilder({
                 className="h-8 w-24 text-sm font-mono"
                 placeholder="value"
                 value={cond.value}
-                onChange={(e) => updateCondition(cond.id, { value: e.target.value })}
+                onChange={(e) =>
+                  updateCondition(cond.id, { value: e.target.value })
+                }
               />
 
               {cond.value && (
-                <Badge variant="outline" className="text-xs font-mono text-muted-foreground hidden sm:flex">
+                <Badge
+                  variant="outline"
+                  className="text-xs font-mono text-muted-foreground hidden sm:flex"
+                >
                   {conditionLabel(cond)}
                 </Badge>
               )}
@@ -305,7 +328,9 @@ function BotCard({
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold text-foreground truncate">{bot.name}</span>
+            <span className="font-semibold text-foreground truncate">
+              {bot.name}
+            </span>
             <StatusBadge status={bot.status} />
             {bot.paper_mode ? (
               <Badge className="bg-blue-500/15 text-blue-400 border-blue-500/30 text-xs">
@@ -365,11 +390,15 @@ function BotCard({
       <div className="grid grid-cols-3 gap-3 text-center">
         <div>
           <p className="text-xs text-muted-foreground">Position Size</p>
-          <p className="text-sm font-mono font-semibold">{bot.position_size_pct}%</p>
+          <p className="text-sm font-mono font-semibold">
+            {bot.position_size_pct}%
+          </p>
         </div>
         <div>
           <p className="text-xs text-muted-foreground">Executions</p>
-          <p className="text-sm font-mono font-semibold">{bot.executions_count}</p>
+          <p className="text-sm font-mono font-semibold">
+            {bot.executions_count}
+          </p>
         </div>
         <div>
           <p className="text-xs text-muted-foreground">Last Run</p>
@@ -518,7 +547,9 @@ function BotBuilderModal({
     else onClose();
   };
 
-  function buildPayload(activate?: boolean): Partial<BotRecord> & { activate?: boolean } {
+  function buildPayload(
+    activate?: boolean,
+  ): Partial<BotRecord> & { activate?: boolean } {
     const symbols = form.symbolsRaw
       .split(",")
       .map((s) => s.trim().toUpperCase())
@@ -595,7 +626,9 @@ function BotBuilderModal({
                 placeholder="Describe this bot's strategy..."
                 rows={2}
                 value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, description: e.target.value })
+                }
               />
             </div>
 
@@ -605,7 +638,9 @@ function BotBuilderModal({
                 id="bot-symbols"
                 placeholder="SPY, QQQ, AAPL"
                 value={form.symbolsRaw}
-                onChange={(e) => setForm({ ...form, symbolsRaw: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, symbolsRaw: e.target.value })
+                }
               />
               <p className="text-xs text-muted-foreground">
                 Bot will scan these tickers for matching conditions.
@@ -624,7 +659,9 @@ function BotBuilderModal({
                 max={25}
                 step={0.5}
                 value={[form.position_size_pct]}
-                onValueChange={([v]) => setForm({ ...form, position_size_pct: v })}
+                onValueChange={([v]) =>
+                  setForm({ ...form, position_size_pct: v })
+                }
                 className="w-full"
               />
               <div className="flex justify-between text-xs text-muted-foreground">
@@ -678,7 +715,9 @@ function BotBuilderModal({
                   id="webhook-url"
                   placeholder="https://your-broker-webhook.com/..."
                   value={form.webhook_url}
-                  onChange={(e) => setForm({ ...form, webhook_url: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, webhook_url: e.target.value })
+                  }
                 />
                 <p className="text-xs text-muted-foreground">
                   POST requests will be sent here on signal trigger.
@@ -691,8 +730,8 @@ function BotBuilderModal({
           <TabsContent value="entry" className="pt-4 space-y-4">
             <div>
               <p className="text-sm text-muted-foreground mb-3">
-                Define conditions that must ALL be true for the bot to enter a position.
-                Multiple conditions are joined with AND logic.
+                Define conditions that must ALL be true for the bot to enter a
+                position. Multiple conditions are joined with AND logic.
               </p>
               <ConditionBuilder
                 conditions={form.entry_conditions}
@@ -705,8 +744,8 @@ function BotBuilderModal({
           <TabsContent value="exit" className="pt-4 space-y-5">
             <div>
               <p className="text-sm text-muted-foreground mb-3">
-                Define conditions that trigger an exit. Also configure stop-loss and
-                take-profit levels below.
+                Define conditions that trigger an exit. Also configure stop-loss
+                and take-profit levels below.
               </p>
               <ConditionBuilder
                 conditions={form.exit_conditions}
@@ -771,7 +810,9 @@ function BotBuilderModal({
                   <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
                     Description
                   </p>
-                  <p className="text-sm text-foreground/80">{form.description}</p>
+                  <p className="text-sm text-foreground/80">
+                    {form.description}
+                  </p>
                 </div>
               )}
 
@@ -785,12 +826,18 @@ function BotBuilderModal({
                     .map((s) => s.trim().toUpperCase())
                     .filter(Boolean)
                     .map((s) => (
-                      <Badge key={s} variant="outline" className="font-mono text-xs">
+                      <Badge
+                        key={s}
+                        variant="outline"
+                        className="font-mono text-xs"
+                      >
                         {s}
                       </Badge>
                     ))}
                   {!form.symbolsRaw.trim() && (
-                    <span className="text-sm text-muted-foreground">None specified</span>
+                    <span className="text-sm text-muted-foreground">
+                      None specified
+                    </span>
                   )}
                 </div>
               </div>
@@ -800,7 +847,9 @@ function BotBuilderModal({
                   <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
                     Position Size
                   </p>
-                  <p className="font-mono font-semibold">{form.position_size_pct}% per trade</p>
+                  <p className="font-mono font-semibold">
+                    {form.position_size_pct}% per trade
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
@@ -817,7 +866,9 @@ function BotBuilderModal({
                   Entry Conditions
                 </p>
                 {form.entry_conditions.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No conditions set</p>
+                  <p className="text-sm text-muted-foreground">
+                    No conditions set
+                  </p>
                 ) : (
                   <p className="text-sm font-mono">
                     {form.entry_conditions.map(conditionLabel).join(" AND ")}
@@ -832,7 +883,9 @@ function BotBuilderModal({
                 {form.exit_conditions.length === 0 &&
                 !form.stop_loss_pct &&
                 !form.take_profit_pct ? (
-                  <p className="text-sm text-muted-foreground">No conditions set</p>
+                  <p className="text-sm text-muted-foreground">
+                    No conditions set
+                  </p>
                 ) : (
                   <div className="space-y-0.5">
                     {form.exit_conditions.map((c) => (
@@ -857,7 +910,7 @@ function BotBuilderModal({
 
             <div className="flex gap-3">
               <Button
-                className="flex-1 bg-bullish hover:bg-bullish/90 text-black font-semibold"
+                className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
                 disabled={!isValid}
                 onClick={() => onSave(buildPayload(true))}
               >
@@ -919,7 +972,11 @@ export default function Bots() {
   const PAGE_SIZE = 20;
 
   // ── Queries ──────────────────────────────────────────────────────────────────
-  const { data: bots = [], isLoading: botsLoading, refetch: refetchBots } = useQuery({
+  const {
+    data: bots = [],
+    isLoading: botsLoading,
+    refetch: refetchBots,
+  } = useQuery({
     queryKey: ["bots"],
     queryFn: async () => {
       const { data } = await supabase
@@ -944,7 +1001,9 @@ export default function Bots() {
 
   // ── Mutations ────────────────────────────────────────────────────────────────
   const createBot = useMutation({
-    mutationFn: async (payload: Partial<BotRecord> & { activate?: boolean }) => {
+    mutationFn: async (
+      payload: Partial<BotRecord> & { activate?: boolean },
+    ) => {
       const { activate, ...rest } = payload;
       const { error } = await supabase.from("bots").insert({
         ...rest,
@@ -975,7 +1034,9 @@ export default function Bots() {
         .from("bots")
         .update({
           ...rest,
-          ...(activate !== undefined ? { status: activate ? "active" : "draft" } : {}),
+          ...(activate !== undefined
+            ? { status: activate ? "active" : "draft" }
+            : {}),
         })
         .eq("id", id);
       if (error) throw error;
@@ -1024,7 +1085,7 @@ export default function Bots() {
     const now = new Date();
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const paperThisWeek = executions.filter(
-      (e) => e.paper_mode && new Date(e.executed_at) >= weekAgo
+      (e) => e.paper_mode && new Date(e.executed_at) >= weekAgo,
     ).length;
     return { total: bots.length, active, totalExec, paperThisWeek };
   }, [bots, executions]);
@@ -1039,7 +1100,7 @@ export default function Bots() {
 
   const pagedExecs = filteredExecPages.slice(
     execPage * PAGE_SIZE,
-    (execPage + 1) * PAGE_SIZE
+    (execPage + 1) * PAGE_SIZE,
   );
   const totalPages = Math.ceil(filteredExecPages.length / PAGE_SIZE);
 
@@ -1072,273 +1133,303 @@ export default function Bots() {
   return (
     <DashboardLayout>
       <SubscriptionGate>
-      <div className="space-y-6 p-4 sm:p-6">
-        {/* Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Trading Bots</h1>
-            <p className="text-muted-foreground text-sm mt-0.5">
-              Automate your strategies with rule-based execution
-            </p>
-          </div>
-          <Button onClick={handleOpenNew} className="gap-1.5 self-start sm:self-auto">
-            <Plus className="h-4 w-4" />
-            New Bot
-          </Button>
-        </div>
-
-        {/* Paper Mode Banner */}
-        <motion.div
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-start gap-3 bg-blue-500/10 border border-blue-500/25 rounded-lg px-4 py-3"
-        >
-          <Info className="h-4 w-4 text-blue-400 mt-0.5 shrink-0" />
-          <p className="text-sm text-blue-300">
-            <span className="font-semibold">Paper Mode is on by default.</span> All bots
-            run in simulation — no real orders are placed. Enable live execution only
-            after thorough testing and at your own risk.
-          </p>
-        </motion.div>
-
-        {/* Stats Row */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          {[
-            {
-              label: "Total Bots",
-              value: botsLoading ? null : stats.total,
-              icon: Bot,
-              color: "text-foreground",
-            },
-            {
-              label: "Active",
-              value: botsLoading ? null : stats.active,
-              icon: Activity,
-              color: "text-bullish",
-            },
-            {
-              label: "Total Executions",
-              value: botsLoading ? null : stats.totalExec,
-              icon: BarChart2,
-              color: "text-foreground",
-            },
-            {
-              label: "Paper Trades This Week",
-              value: execLoading ? null : stats.paperThisWeek,
-              icon: Zap,
-              color: "text-blue-400",
-            },
-          ].map(({ label, value, icon: Icon, color }) => (
-            <div
-              key={label}
-              className="bg-card border border-border rounded-lg p-4 flex items-center gap-3"
-            >
-              <Icon className={`h-5 w-5 shrink-0 ${color}`} />
-              <div>
-                <p className="text-xs text-muted-foreground">{label}</p>
-                {value === null ? (
-                  <Skeleton className="h-5 w-10 mt-0.5" />
-                ) : (
-                  <p className={`text-lg font-mono font-bold ${color}`}>{value}</p>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Bot Cards Grid */}
-        {botsLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="h-64 rounded-lg" />
-            ))}
-          </div>
-        ) : bots.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex flex-col items-center justify-center gap-4 py-20 text-center"
-          >
-            <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center">
-              <Bot className="h-8 w-8 text-muted-foreground" />
-            </div>
+        <div className="space-y-6 p-4 sm:p-6">
+          {/* Page Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <p className="text-lg font-semibold text-foreground">No bots yet</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Create your first automated strategy
+              <h1 className="text-2xl font-bold text-foreground">
+                Trading Bots
+              </h1>
+              <p className="text-muted-foreground text-sm mt-0.5">
+                Automate your strategies with rule-based execution
               </p>
             </div>
-            <Button onClick={handleOpenNew} className="gap-1.5">
-              <Plus className="h-4 w-4" />
-              Create Bot
-            </Button>
-          </motion.div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <AnimatePresence>
-              {bots.map((bot) => (
-                <BotCard
-                  key={bot.id}
-                  bot={bot}
-                  onEdit={handleEdit}
-                  onToggleStatus={(b) => toggleStatus.mutate(b)}
-                  onDelete={handleDelete}
-                />
-              ))}
-            </AnimatePresence>
-          </div>
-        )}
-
-        {/* Execution Log */}
-        <div className="bg-card border border-border rounded-lg overflow-hidden">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-4 border-b border-border">
-            <div className="flex items-center gap-2">
-              <Activity className="h-4 w-4 text-muted-foreground" />
-              <h2 className="font-semibold text-foreground">Execution Log</h2>
-            </div>
-            <Select
-              value={execFilterBot}
-              onValueChange={(v) => {
-                setExecFilterBot(v);
-                setExecPage(0);
-              }}
+            <Button
+              onClick={handleOpenNew}
+              className="gap-1.5 self-start sm:self-auto"
             >
-              <SelectTrigger className="w-44 h-8 text-sm">
-                <SelectValue placeholder="Filter by bot" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Bots</SelectItem>
-                {bots.map((b) => (
-                  <SelectItem key={b.id} value={b.id}>
-                    {b.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              <Plus className="h-4 w-4" />
+              New Bot
+            </Button>
           </div>
 
-          {execLoading ? (
-            <div className="p-5 space-y-2">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton key={i} className="h-8 w-full rounded" />
+          {/* Paper Mode Banner */}
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-start gap-3 bg-blue-500/10 border border-blue-500/25 rounded-lg px-4 py-3"
+          >
+            <Info className="h-4 w-4 text-blue-400 mt-0.5 shrink-0" />
+            <p className="text-sm text-blue-300">
+              <span className="font-semibold">
+                Paper Mode is on by default.
+              </span>{" "}
+              All bots run in simulation — no real orders are placed. Enable
+              live execution only after thorough testing and at your own risk.
+            </p>
+          </motion.div>
+
+          {/* Stats Row */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {[
+              {
+                label: "Total Bots",
+                value: botsLoading ? null : stats.total,
+                icon: Bot,
+                color: "text-foreground",
+              },
+              {
+                label: "Active",
+                value: botsLoading ? null : stats.active,
+                icon: Activity,
+                color: "text-bullish",
+              },
+              {
+                label: "Total Executions",
+                value: botsLoading ? null : stats.totalExec,
+                icon: BarChart2,
+                color: "text-foreground",
+              },
+              {
+                label: "Paper Trades This Week",
+                value: execLoading ? null : stats.paperThisWeek,
+                icon: Zap,
+                color: "text-blue-400",
+              },
+            ].map(({ label, value, icon: Icon, color }) => (
+              <div
+                key={label}
+                className="bg-card border border-border rounded-lg p-4 flex items-center gap-3"
+              >
+                <Icon className={`h-5 w-5 shrink-0 ${color}`} />
+                <div>
+                  <p className="text-xs text-muted-foreground">{label}</p>
+                  {value === null ? (
+                    <Skeleton className="h-5 w-10 mt-0.5" />
+                  ) : (
+                    <p className={`text-lg font-mono font-bold ${color}`}>
+                      {value}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Bot Cards Grid */}
+          {botsLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-64 rounded-lg" />
               ))}
             </div>
-          ) : pagedExecs.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground gap-2">
-              <AlertTriangle className="h-5 w-5" />
-              <p className="text-sm">No executions recorded yet.</p>
-            </div>
-          ) : (
-            <>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-border hover:bg-transparent">
-                      <TableHead className="text-xs uppercase tracking-wide">Bot</TableHead>
-                      <TableHead className="text-xs uppercase tracking-wide">Symbol</TableHead>
-                      <TableHead className="text-xs uppercase tracking-wide">Action</TableHead>
-                      <TableHead className="text-xs uppercase tracking-wide">Price</TableHead>
-                      <TableHead className="text-xs uppercase tracking-wide">Qty</TableHead>
-                      <TableHead className="text-xs uppercase tracking-wide">Status</TableHead>
-                      <TableHead className="text-xs uppercase tracking-wide">Mode</TableHead>
-                      <TableHead className="text-xs uppercase tracking-wide">Time</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {pagedExecs.map((exec) => (
-                      <TableRow
-                        key={exec.id}
-                        className={`border-border ${
-                          exec.paper_mode ? "opacity-80" : ""
-                        }`}
-                      >
-                        <TableCell className="text-sm font-medium">
-                          {exec.bots?.name ?? "—"}
-                        </TableCell>
-                        <TableCell className="font-mono text-sm font-semibold">
-                          {exec.symbol}
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant="outline"
-                            className={`text-xs capitalize font-mono ${
-                              exec.action === "buy" || exec.action === "cover"
-                                ? "text-bullish border-bullish/30"
-                                : "text-bearish border-bearish/30"
-                            }`}
-                          >
-                            {exec.action}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="font-mono text-sm">
-                          {formatPrice(exec.price)}
-                        </TableCell>
-                        <TableCell className="font-mono text-sm">
-                          {exec.quantity ?? "—"}
-                        </TableCell>
-                        <TableCell>
-                          <ExecStatusBadge status={exec.status} />
-                        </TableCell>
-                        <TableCell>
-                          {exec.paper_mode ? (
-                            <Badge className="bg-blue-500/15 text-blue-400 border-blue-500/30 text-xs">
-                              Paper
-                            </Badge>
-                          ) : (
-                            <Badge className="bg-orange-500/15 text-orange-400 border-orange-500/30 text-xs">
-                              Live
-                            </Badge>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-xs text-muted-foreground font-mono">
-                          {relativeTime(exec.executed_at)}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+          ) : bots.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex flex-col items-center justify-center gap-4 py-20 text-center"
+            >
+              <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center">
+                <Bot className="h-8 w-8 text-muted-foreground" />
               </div>
-
-              {totalPages > 1 && (
-                <div className="flex items-center justify-between px-5 py-3 border-t border-border">
-                  <p className="text-xs text-muted-foreground">
-                    Page {execPage + 1} of {totalPages} ({filteredExecPages.length} total)
-                  </p>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={execPage === 0}
-                      onClick={() => setExecPage((p) => Math.max(0, p - 1))}
-                    >
-                      Previous
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={execPage >= totalPages - 1}
-                      onClick={() => setExecPage((p) => Math.min(totalPages - 1, p + 1))}
-                    >
-                      Next
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </>
+              <div>
+                <p className="text-lg font-semibold text-foreground">
+                  No bots yet
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Create your first automated strategy
+                </p>
+              </div>
+              <Button onClick={handleOpenNew} className="gap-1.5">
+                <Plus className="h-4 w-4" />
+                Create Bot
+              </Button>
+            </motion.div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <AnimatePresence>
+                {bots.map((bot) => (
+                  <BotCard
+                    key={bot.id}
+                    bot={bot}
+                    onEdit={handleEdit}
+                    onToggleStatus={(b) => toggleStatus.mutate(b)}
+                    onDelete={handleDelete}
+                  />
+                ))}
+              </AnimatePresence>
+            </div>
           )}
-        </div>
-      </div>
 
-      {/* Bot Builder Modal */}
-      <BotBuilderModal
-        open={modalOpen}
-        editing={editingBot}
-        onClose={() => {
-          setModalOpen(false);
-          setEditingBot(null);
-        }}
-        onSave={handleSave}
-      />
+          {/* Execution Log */}
+          <div className="bg-card border border-border rounded-lg overflow-hidden">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-4 border-b border-border">
+              <div className="flex items-center gap-2">
+                <Activity className="h-4 w-4 text-muted-foreground" />
+                <h2 className="font-semibold text-foreground">Execution Log</h2>
+              </div>
+              <Select
+                value={execFilterBot}
+                onValueChange={(v) => {
+                  setExecFilterBot(v);
+                  setExecPage(0);
+                }}
+              >
+                <SelectTrigger className="w-44 h-8 text-sm">
+                  <SelectValue placeholder="Filter by bot" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Bots</SelectItem>
+                  {bots.map((b) => (
+                    <SelectItem key={b.id} value={b.id}>
+                      {b.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {execLoading ? (
+              <div className="p-5 space-y-2">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Skeleton key={i} className="h-8 w-full rounded" />
+                ))}
+              </div>
+            ) : pagedExecs.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground gap-2">
+                <AlertTriangle className="h-5 w-5" />
+                <p className="text-sm">No executions recorded yet.</p>
+              </div>
+            ) : (
+              <>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-border hover:bg-transparent">
+                        <TableHead className="text-xs uppercase tracking-wide">
+                          Bot
+                        </TableHead>
+                        <TableHead className="text-xs uppercase tracking-wide">
+                          Symbol
+                        </TableHead>
+                        <TableHead className="text-xs uppercase tracking-wide">
+                          Action
+                        </TableHead>
+                        <TableHead className="text-xs uppercase tracking-wide">
+                          Price
+                        </TableHead>
+                        <TableHead className="text-xs uppercase tracking-wide">
+                          Qty
+                        </TableHead>
+                        <TableHead className="text-xs uppercase tracking-wide">
+                          Status
+                        </TableHead>
+                        <TableHead className="text-xs uppercase tracking-wide">
+                          Mode
+                        </TableHead>
+                        <TableHead className="text-xs uppercase tracking-wide">
+                          Time
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {pagedExecs.map((exec) => (
+                        <TableRow
+                          key={exec.id}
+                          className={`border-border ${
+                            exec.paper_mode ? "opacity-80" : ""
+                          }`}
+                        >
+                          <TableCell className="text-sm font-medium">
+                            {exec.bots?.name ?? "—"}
+                          </TableCell>
+                          <TableCell className="font-mono text-sm font-semibold">
+                            {exec.symbol}
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant="outline"
+                              className={`text-xs capitalize font-mono ${
+                                exec.action === "buy" || exec.action === "cover"
+                                  ? "text-bullish border-bullish/30"
+                                  : "text-bearish border-bearish/30"
+                              }`}
+                            >
+                              {exec.action}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="font-mono text-sm">
+                            {formatPrice(exec.price)}
+                          </TableCell>
+                          <TableCell className="font-mono text-sm">
+                            {exec.quantity ?? "—"}
+                          </TableCell>
+                          <TableCell>
+                            <ExecStatusBadge status={exec.status} />
+                          </TableCell>
+                          <TableCell>
+                            {exec.paper_mode ? (
+                              <Badge className="bg-blue-500/15 text-blue-400 border-blue-500/30 text-xs">
+                                Paper
+                              </Badge>
+                            ) : (
+                              <Badge className="bg-orange-500/15 text-orange-400 border-orange-500/30 text-xs">
+                                Live
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-xs text-muted-foreground font-mono">
+                            {relativeTime(exec.executed_at)}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between px-5 py-3 border-t border-border">
+                    <p className="text-xs text-muted-foreground">
+                      Page {execPage + 1} of {totalPages} (
+                      {filteredExecPages.length} total)
+                    </p>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={execPage === 0}
+                        onClick={() => setExecPage((p) => Math.max(0, p - 1))}
+                      >
+                        Previous
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={execPage >= totalPages - 1}
+                        onClick={() =>
+                          setExecPage((p) => Math.min(totalPages - 1, p + 1))
+                        }
+                      >
+                        Next
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Bot Builder Modal */}
+        <BotBuilderModal
+          open={modalOpen}
+          editing={editingBot}
+          onClose={() => {
+            setModalOpen(false);
+            setEditingBot(null);
+          }}
+          onSave={handleSave}
+        />
       </SubscriptionGate>
     </DashboardLayout>
   );

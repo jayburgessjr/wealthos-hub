@@ -2,8 +2,16 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  CalendarDays, AlertTriangle, Clock, BarChart2,
-  ChevronDown, ChevronUp, Briefcase, Star, Activity, Info
+  CalendarDays,
+  AlertTriangle,
+  Clock,
+  BarChart2,
+  ChevronDown,
+  ChevronUp,
+  Briefcase,
+  Star,
+  Activity,
+  Info,
 } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { useAuth } from "@/components/AuthProvider";
@@ -26,15 +34,87 @@ type FilterTab = "all" | "positions" | "watchlist" | "this_week" | "next_week";
 
 // ── Mock data (fallback + demo) ────────────────────────────────────────────────
 const MOCK_EARNINGS: EarningsEntry[] = [
-  { ticker: "TSLA", company: "Tesla Inc.",       reportDate: "2026-04-29", reportTime: "AMC", epsEstimate: 0.48,  revenueEstimate: 23.8,  importance: "high" },
-  { ticker: "GOOGL",company: "Alphabet",          reportDate: "2026-04-29", reportTime: "AMC", epsEstimate: 2.01,  revenueEstimate: 89.5,  importance: "high" },
-  { ticker: "MSFT", company: "Microsoft",         reportDate: "2026-04-30", reportTime: "AMC", epsEstimate: 3.10,  revenueEstimate: 68.4,  importance: "high" },
-  { ticker: "META", company: "Meta Platforms",    reportDate: "2026-04-30", reportTime: "AMC", epsEstimate: 5.25,  revenueEstimate: 41.6,  importance: "high" },
-  { ticker: "AAPL", company: "Apple Inc.",        reportDate: "2026-05-01", reportTime: "AMC", epsEstimate: 1.62,  revenueEstimate: 94.2,  importance: "high" },
-  { ticker: "AMZN", company: "Amazon",            reportDate: "2026-05-02", reportTime: "AMC", epsEstimate: 1.35,  revenueEstimate: 155.0, importance: "high" },
-  { ticker: "BTC",  company: "Bitcoin (Coinbase)",reportDate: "2026-05-08", reportTime: "AMC", epsEstimate: null,  revenueEstimate: null,  importance: "medium" },
-  { ticker: "COIN", company: "Coinbase",          reportDate: "2026-05-08", reportTime: "AMC", epsEstimate: 1.88,  revenueEstimate: 2.1,   importance: "medium" },
-  { ticker: "NVDA", company: "NVIDIA Corp",       reportDate: "2026-05-22", reportTime: "AMC", epsEstimate: 5.58,  revenueEstimate: 43.1,  importance: "high" },
+  {
+    ticker: "TSLA",
+    company: "Tesla Inc.",
+    reportDate: "2026-04-29",
+    reportTime: "AMC",
+    epsEstimate: 0.48,
+    revenueEstimate: 23.8,
+    importance: "high",
+  },
+  {
+    ticker: "GOOGL",
+    company: "Alphabet",
+    reportDate: "2026-04-29",
+    reportTime: "AMC",
+    epsEstimate: 2.01,
+    revenueEstimate: 89.5,
+    importance: "high",
+  },
+  {
+    ticker: "MSFT",
+    company: "Microsoft",
+    reportDate: "2026-04-30",
+    reportTime: "AMC",
+    epsEstimate: 3.1,
+    revenueEstimate: 68.4,
+    importance: "high",
+  },
+  {
+    ticker: "META",
+    company: "Meta Platforms",
+    reportDate: "2026-04-30",
+    reportTime: "AMC",
+    epsEstimate: 5.25,
+    revenueEstimate: 41.6,
+    importance: "high",
+  },
+  {
+    ticker: "AAPL",
+    company: "Apple Inc.",
+    reportDate: "2026-05-01",
+    reportTime: "AMC",
+    epsEstimate: 1.62,
+    revenueEstimate: 94.2,
+    importance: "high",
+  },
+  {
+    ticker: "AMZN",
+    company: "Amazon",
+    reportDate: "2026-05-02",
+    reportTime: "AMC",
+    epsEstimate: 1.35,
+    revenueEstimate: 155.0,
+    importance: "high",
+  },
+  {
+    ticker: "BTC",
+    company: "Bitcoin (Coinbase)",
+    reportDate: "2026-05-08",
+    reportTime: "AMC",
+    epsEstimate: null,
+    revenueEstimate: null,
+    importance: "medium",
+  },
+  {
+    ticker: "COIN",
+    company: "Coinbase",
+    reportDate: "2026-05-08",
+    reportTime: "AMC",
+    epsEstimate: 1.88,
+    revenueEstimate: 2.1,
+    importance: "medium",
+  },
+  {
+    ticker: "NVDA",
+    company: "NVIDIA Corp",
+    reportDate: "2026-05-22",
+    reportTime: "AMC",
+    epsEstimate: 5.58,
+    revenueEstimate: 43.1,
+    importance: "high",
+  },
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -84,9 +164,18 @@ function fmtEps(v: number | null): string {
 }
 
 // ── Impact Meter ──────────────────────────────────────────────────────────────
-function ImpactMeter({ importance }: { importance: "high" | "medium" | "low" }) {
+function ImpactMeter({
+  importance,
+}: {
+  importance: "high" | "medium" | "low";
+}) {
   const bars = importance === "high" ? 5 : importance === "medium" ? 3 : 1;
-  const color = importance === "high" ? "#ef4444" : importance === "medium" ? "#f59e0b" : "#64748b";
+  const color =
+    importance === "high"
+      ? "#ef4444"
+      : importance === "medium"
+        ? "#f59e0b"
+        : "#64748b";
   return (
     <div className="flex items-center gap-0.5">
       {Array.from({ length: 5 }).map((_, i) => (
@@ -104,14 +193,26 @@ function ImpactMeter({ importance }: { importance: "high" | "medium" | "low" }) 
 }
 
 // ── Importance Badge ───────────────────────────────────────────────────────────
-function ImportanceBadge({ importance }: { importance: "high" | "medium" | "low" }) {
+function ImportanceBadge({
+  importance,
+}: {
+  importance: "high" | "medium" | "low";
+}) {
   const cfg = {
-    high:   { cls: "border-red-500/30 bg-red-500/10 text-red-400",    label: "HIGH" },
-    medium: { cls: "border-amber-500/30 bg-amber-500/10 text-amber-400", label: "MED" },
-    low:    { cls: "border-border bg-accent text-muted-foreground",    label: "LOW" },
+    high: {
+      cls: "border-red-500/30 bg-red-500/10 text-red-400",
+      label: "HIGH",
+    },
+    medium: {
+      cls: "border-amber-500/30 bg-amber-500/10 text-amber-400",
+      label: "MED",
+    },
+    low: { cls: "border-border bg-accent text-muted-foreground", label: "LOW" },
   }[importance];
   return (
-    <span className={`rounded-full border px-2 py-0.5 text-xs font-black uppercase tracking-widest ${cfg.cls}`}>
+    <span
+      className={`rounded-full border px-2 py-0.5 text-xs font-black uppercase tracking-widest ${cfg.cls}`}
+    >
       {cfg.label}
     </span>
   );
@@ -151,11 +252,7 @@ export default function EarningsCalendar() {
     queryFn: async () => {
       if (isDemoMode) {
         // Demo watchlist tickers cross-referenced from signals
-        return [
-          { ticker: "AAPL" },
-          { ticker: "MSFT" },
-          { ticker: "META" },
-        ];
+        return [{ ticker: "AAPL" }, { ticker: "MSFT" }, { ticker: "META" }];
       }
       const { data } = await supabase
         .from("watchlist")
@@ -166,44 +263,47 @@ export default function EarningsCalendar() {
     enabled: !!user || isDemoMode,
   });
 
-  // ── Fetch earnings from Alpha Vantage (with fallback) ─────────────────────
-  const { data: earnings = MOCK_EARNINGS } = useQuery<EarningsEntry[]>({
-    queryKey: ["earnings_calendar"],
+  // ── Derive tickers from positions + watchlist ─────────────────────────────
+  const allTickers = useMemo(() => {
+    const tickers = [
+      ...positions.map((p: any) => p.ticker),
+      ...watchlist.map((w: any) => w.ticker),
+    ];
+    return [...new Set(tickers)].filter(Boolean);
+  }, [positions, watchlist]);
+
+  // ── Fetch earnings from edge function (Polygon) ───────────────────────────
+  const { data: earnings = [] } = useQuery<EarningsEntry[]>({
+    queryKey: [
+      "earnings_calendar",
+      allTickers.sort().join(","),
+      isDemoMode ? "demo" : "live",
+    ],
     queryFn: async () => {
       if (isDemoMode) return MOCK_EARNINGS;
-      try {
-        const res = await fetch(
-          "https://www.alphavantage.co/query?function=EARNINGS_CALENDAR&horizon=3month&apikey=demo"
-        );
-        if (!res.ok) return MOCK_EARNINGS;
-        const text = await res.text();
-        if (!text || text.includes("Thank you for using Alpha Vantage")) return MOCK_EARNINGS;
-        // Parse CSV response
-        const lines = text.trim().split("\n").slice(1); // skip header
-        if (!lines.length) return MOCK_EARNINGS;
-        const parsed: EarningsEntry[] = lines.slice(0, 50).map(line => {
-          const cols = line.split(",");
-          return {
-            ticker:          cols[0]?.trim() ?? "",
-            company:         cols[1]?.trim() ?? "",
-            reportDate:      cols[2]?.trim() ?? "",
-            reportTime:      cols[3]?.trim() ?? "AMC",
-            epsEstimate:     parseFloat(cols[4]) || null,
-            revenueEstimate: parseFloat(cols[5]) || null,
-            importance:      "medium" as const,
-          };
-        }).filter(e => e.ticker && e.reportDate && /^\d{4}-\d{2}-\d{2}$/.test(e.reportDate));
-        return parsed.length ? parsed : MOCK_EARNINGS;
-      } catch {
-        return MOCK_EARNINGS;
-      }
+      if (!allTickers.length) return [];
+      const { data, error } = await supabase.functions.invoke(
+        "get-earnings-calendar",
+        {
+          body: { tickers: allTickers },
+        },
+      );
+      if (error) throw error;
+      return (data?.earnings ?? []) as EarningsEntry[];
     },
-    staleTime: 1000 * 60 * 30, // 30 min
+    enabled: isDemoMode || allTickers.length > 0,
+    staleTime: 1000 * 60 * 30,
   });
 
   // ── Derived sets ──────────────────────────────────────────────────────────
-  const positionTickers = useMemo(() => new Set(positions.map((p: any) => p.ticker.toUpperCase())), [positions]);
-  const watchlistTickers = useMemo(() => new Set(watchlist.map((w: any) => w.ticker.toUpperCase())), [watchlist]);
+  const positionTickers = useMemo(
+    () => new Set(positions.map((p: any) => p.ticker.toUpperCase())),
+    [positions],
+  );
+  const watchlistTickers = useMemo(
+    () => new Set(watchlist.map((w: any) => w.ticker.toUpperCase())),
+    [watchlist],
+  );
 
   // ── Week boundary helpers ─────────────────────────────────────────────────
   const thisWeekStart = useMemo(() => startOfWeek(today), [today]);
@@ -220,22 +320,37 @@ export default function EarningsCalendar() {
 
   // ── Filter earnings ───────────────────────────────────────────────────────
   const filtered = useMemo(() => {
-    return earnings.filter(e => {
+    return earnings.filter((e) => {
       const eDate = parseDate(e.reportDate);
       if (eDate < today) return false; // skip past
-      if (activeFilter === "positions")  return positionTickers.has(e.ticker.toUpperCase());
-      if (activeFilter === "watchlist")  return watchlistTickers.has(e.ticker.toUpperCase());
-      if (activeFilter === "this_week")  return eDate >= thisWeekStart && eDate < nextWeekStart;
-      if (activeFilter === "next_week")  return eDate >= nextWeekStart && eDate <= nextWeekEnd;
+      if (activeFilter === "positions")
+        return positionTickers.has(e.ticker.toUpperCase());
+      if (activeFilter === "watchlist")
+        return watchlistTickers.has(e.ticker.toUpperCase());
+      if (activeFilter === "this_week")
+        return eDate >= thisWeekStart && eDate < nextWeekStart;
+      if (activeFilter === "next_week")
+        return eDate >= nextWeekStart && eDate <= nextWeekEnd;
       return true;
     });
-  }, [earnings, activeFilter, positionTickers, watchlistTickers, today, thisWeekStart, nextWeekStart, nextWeekEnd]);
+  }, [
+    earnings,
+    activeFilter,
+    positionTickers,
+    watchlistTickers,
+    today,
+    thisWeekStart,
+    nextWeekStart,
+    nextWeekEnd,
+  ]);
 
   // ── Group by week ─────────────────────────────────────────────────────────
   const grouped = useMemo(() => {
     const map: Map<string, EarningsEntry[]> = new Map();
-    const sorted = [...filtered].sort((a, b) => a.reportDate.localeCompare(b.reportDate));
-    sorted.forEach(e => {
+    const sorted = [...filtered].sort((a, b) =>
+      a.reportDate.localeCompare(b.reportDate),
+    );
+    sorted.forEach((e) => {
       const ws = startOfWeek(parseDate(e.reportDate));
       const key = ws.toISOString();
       if (!map.has(key)) map.set(key, []);
@@ -250,10 +365,14 @@ export default function EarningsCalendar() {
   // ── Impact warnings (< 7 days, in portfolio or watchlist) ─────────────────
   const warnings = useMemo(() => {
     return earnings
-      .filter(e => {
+      .filter((e) => {
         const eDate = parseDate(e.reportDate);
         const days = daysBetween(today, eDate);
-        return days >= 0 && days < 7 && (positionTickers.has(e.ticker) || watchlistTickers.has(e.ticker));
+        return (
+          days >= 0 &&
+          days < 7 &&
+          (positionTickers.has(e.ticker) || watchlistTickers.has(e.ticker))
+        );
       })
       .sort((a, b) => a.reportDate.localeCompare(b.reportDate));
   }, [earnings, today, positionTickers, watchlistTickers]);
@@ -262,18 +381,24 @@ export default function EarningsCalendar() {
   const stats = useMemo(() => {
     const now = today;
     const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    const thisMonthReports = earnings.filter(e => {
+    const thisMonthReports = earnings.filter((e) => {
       const d = parseDate(e.reportDate);
       return d >= now && d <= monthEnd;
     });
-    const thisWeekReports = earnings.filter(e => {
+    const thisWeekReports = earnings.filter((e) => {
       const d = parseDate(e.reportDate);
       return d >= thisWeekStart && d < nextWeekStart;
     });
-    const portfolioReports = earnings.filter(e => positionTickers.has(e.ticker));
-    const epsEstimates = earnings.filter(e => e.epsEstimate !== null).map(e => e.epsEstimate as number);
+    const portfolioReports = earnings.filter((e) =>
+      positionTickers.has(e.ticker),
+    );
+    const epsEstimates = earnings
+      .filter((e) => e.epsEstimate !== null)
+      .map((e) => e.epsEstimate as number);
     const avgEps = epsEstimates.length
-      ? (epsEstimates.reduce((a, b) => a + b, 0) / epsEstimates.length).toFixed(2)
+      ? (epsEstimates.reduce((a, b) => a + b, 0) / epsEstimates.length).toFixed(
+          2,
+        )
       : "N/A";
 
     return {
@@ -292,7 +417,7 @@ export default function EarningsCalendar() {
   }, [today]);
 
   const FILTER_TABS: { id: FilterTab; label: string }[] = [
-    { id: "all",       label: "All" },
+    { id: "all", label: "All" },
     { id: "positions", label: "My Positions" },
     { id: "watchlist", label: "My Watchlist" },
     { id: "this_week", label: "This Week" },
@@ -302,7 +427,6 @@ export default function EarningsCalendar() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-
         {/* ── Header ─────────────────────────────────────────────────────────── */}
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -312,13 +436,17 @@ export default function EarningsCalendar() {
                 Earnings Intelligence
               </span>
             </div>
-            <h2 className="font-display text-3xl font-black tracking-tight">Earnings Calendar</h2>
-            <p className="mt-1 font-mono text-xs text-muted-foreground">{rangeLabel}</p>
+            <h2 className="font-display text-3xl font-black tracking-tight">
+              Earnings Calendar
+            </h2>
+            <p className="mt-1 font-mono text-xs text-muted-foreground">
+              {rangeLabel}
+            </p>
           </div>
           <div className="flex shrink-0 items-center gap-2 rounded-xl border border-amber-500/20 bg-amber-500/5 px-4 py-2.5">
             <Activity size={12} className="text-amber-400" />
             <span className="text-xs font-bold uppercase tracking-widest text-amber-400">
-              {earnings === MOCK_EARNINGS ? "Mock Data" : "Live"}
+              {isDemoMode ? "Demo" : "Live"}
             </span>
           </div>
         </div>
@@ -326,14 +454,37 @@ export default function EarningsCalendar() {
         {/* ── Stats Row ──────────────────────────────────────────────────────── */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {[
-            { label: "Reports This Month", value: String(stats.thisMonth),  color: "text-foreground"    },
-            { label: "Reports This Week",  value: String(stats.thisWeek),   color: "text-blue-400"      },
-            { label: "In Your Portfolio",  value: String(stats.inPortfolio),color: "text-emerald-400"   },
-            { label: "Avg EPS Estimate",   value: stats.avgEps === "N/A" ? "N/A" : `$${stats.avgEps}`, color: "text-amber-400" },
-          ].map(s => (
-            <div key={s.label} className="rounded-xl border border-border bg-card p-4">
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">{s.label}</p>
-              <p className={`mt-1 font-mono text-2xl font-black ${s.color}`}>{s.value}</p>
+            {
+              label: "Reports This Month",
+              value: String(stats.thisMonth),
+              color: "text-foreground",
+            },
+            {
+              label: "Reports This Week",
+              value: String(stats.thisWeek),
+              color: "text-blue-400",
+            },
+            {
+              label: "In Your Portfolio",
+              value: String(stats.inPortfolio),
+              color: "text-emerald-400",
+            },
+            {
+              label: "Avg EPS Estimate",
+              value: stats.avgEps === "N/A" ? "N/A" : `$${stats.avgEps}`,
+              color: "text-amber-400",
+            },
+          ].map((s) => (
+            <div
+              key={s.label}
+              className="rounded-xl border border-border bg-card p-4"
+            >
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                {s.label}
+              </p>
+              <p className={`mt-1 font-mono text-2xl font-black ${s.color}`}>
+                {s.value}
+              </p>
             </div>
           ))}
         </div>
@@ -347,7 +498,7 @@ export default function EarningsCalendar() {
               exit={{ opacity: 0, y: -8 }}
               className="space-y-2"
             >
-              {warnings.map(w => {
+              {warnings.map((w) => {
                 const days = daysBetween(today, parseDate(w.reportDate));
                 const inPortfolio = positionTickers.has(w.ticker);
                 return (
@@ -355,12 +506,22 @@ export default function EarningsCalendar() {
                     key={`warn-${w.ticker}`}
                     className="flex items-center gap-3 rounded-xl border border-red-500/30 bg-red-500/5 px-4 py-3"
                   >
-                    <AlertTriangle size={14} className="shrink-0 text-red-400" />
+                    <AlertTriangle
+                      size={14}
+                      className="shrink-0 text-red-400"
+                    />
                     <p className="flex-1 font-mono text-xs text-red-300">
-                      <span className="font-black">{w.ticker}</span> ({w.company}) reports in{" "}
-                      <span className="font-black">{days === 0 ? "today" : `${days} day${days !== 1 ? "s" : ""}`}</span>
-                      {" "}—{" "}
-                      {inPortfolio ? "review your position before earnings" : "watchlisted asset reporting soon"}
+                      <span className="font-black">{w.ticker}</span> (
+                      {w.company}) reports in{" "}
+                      <span className="font-black">
+                        {days === 0
+                          ? "today"
+                          : `${days} day${days !== 1 ? "s" : ""}`}
+                      </span>{" "}
+                      —{" "}
+                      {inPortfolio
+                        ? "review your position before earnings"
+                        : "watchlisted asset reporting soon"}
                     </p>
                     <div className="flex shrink-0 gap-1.5">
                       {inPortfolio && (
@@ -383,7 +544,7 @@ export default function EarningsCalendar() {
 
         {/* ── Filter Tabs ────────────────────────────────────────────────────── */}
         <div className="flex flex-wrap gap-1.5">
-          {FILTER_TABS.map(tab => (
+          {FILTER_TABS.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveFilter(tab.id)}
@@ -399,11 +560,19 @@ export default function EarningsCalendar() {
         </div>
 
         {/* ── Grouped Earnings List ──────────────────────────────────────────── */}
-        {grouped.length === 0 ? (
+        {!isDemoMode && allTickers.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border py-20">
             <CalendarDays size={32} className="text-muted-foreground/20" />
             <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground/50">
-              No earnings found for this filter
+              Add stocks to your Watchlist or Positions to see their earnings
+              dates
+            </p>
+          </div>
+        ) : grouped.length === 0 ? (
+          <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border py-20">
+            <CalendarDays size={32} className="text-muted-foreground/20" />
+            <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground/50">
+              No upcoming earnings in the next 3 months for your tickers
             </p>
           </div>
         ) : (
@@ -429,8 +598,12 @@ export default function EarningsCalendar() {
                     const eDate = parseDate(entry.reportDate);
                     const daysAway = daysBetween(today, eDate);
                     const isUrgent = daysAway < 7;
-                    const inPortfolio = positionTickers.has(entry.ticker.toUpperCase());
-                    const isWatchlisted = watchlistTickers.has(entry.ticker.toUpperCase());
+                    const inPortfolio = positionTickers.has(
+                      entry.ticker.toUpperCase(),
+                    );
+                    const isWatchlisted = watchlistTickers.has(
+                      entry.ticker.toUpperCase(),
+                    );
                     const isExpanded = expandedTicker === entry.ticker;
 
                     return (
@@ -443,14 +616,16 @@ export default function EarningsCalendar() {
                           isUrgent && (inPortfolio || isWatchlisted)
                             ? "border-red-500/30 bg-red-500/5"
                             : inPortfolio
-                            ? "border-emerald-500/20 bg-emerald-500/5"
-                            : isWatchlisted
-                            ? "border-blue-500/20 bg-blue-500/5"
-                            : "border-border bg-card"
+                              ? "border-emerald-500/20 bg-emerald-500/5"
+                              : isWatchlisted
+                                ? "border-blue-500/20 bg-blue-500/5"
+                                : "border-border bg-card"
                         }`}
                       >
                         <button
-                          onClick={() => setExpandedTicker(isExpanded ? null : entry.ticker)}
+                          onClick={() =>
+                            setExpandedTicker(isExpanded ? null : entry.ticker)
+                          }
                           className="w-full text-left"
                         >
                           <div className="flex items-center gap-4 p-4">
@@ -468,7 +643,11 @@ export default function EarningsCalendar() {
                               {/* Date + time */}
                               <div className="hidden sm:block shrink-0">
                                 <p className="font-mono text-xs font-bold text-foreground">
-                                  {eDate.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
+                                  {eDate.toLocaleDateString("en-US", {
+                                    weekday: "short",
+                                    month: "short",
+                                    day: "numeric",
+                                  })}
                                 </p>
                                 <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
                                   <Clock size={8} />
@@ -495,19 +674,29 @@ export default function EarningsCalendar() {
                             <div className="flex shrink-0 items-center gap-5">
                               {/* EPS */}
                               <div className="hidden md:block text-right">
-                                <p className="text-xs uppercase tracking-widest text-muted-foreground">EPS Est.</p>
-                                <p className="font-mono text-sm font-black text-foreground">{fmtEps(entry.epsEstimate)}</p>
+                                <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                                  EPS Est.
+                                </p>
+                                <p className="font-mono text-sm font-black text-foreground">
+                                  {fmtEps(entry.epsEstimate)}
+                                </p>
                               </div>
 
                               {/* Revenue */}
                               <div className="hidden md:block text-right">
-                                <p className="text-xs uppercase tracking-widest text-muted-foreground">Rev Est.</p>
-                                <p className="font-mono text-sm font-black text-foreground">{fmtRevenue(entry.revenueEstimate)}</p>
+                                <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                                  Rev Est.
+                                </p>
+                                <p className="font-mono text-sm font-black text-foreground">
+                                  {fmtRevenue(entry.revenueEstimate)}
+                                </p>
                               </div>
 
                               {/* Importance + impact meter */}
                               <div className="flex flex-col items-end gap-1.5">
-                                <ImportanceBadge importance={entry.importance} />
+                                <ImportanceBadge
+                                  importance={entry.importance}
+                                />
                                 <ImpactMeter importance={entry.importance} />
                               </div>
 
@@ -515,7 +704,9 @@ export default function EarningsCalendar() {
                               <div className="text-right min-w-[60px]">
                                 <p
                                   className={`font-mono text-sm font-black ${
-                                    isUrgent ? "text-red-400" : "text-muted-foreground"
+                                    isUrgent
+                                      ? "text-red-400"
+                                      : "text-muted-foreground"
                                   }`}
                                 >
                                   {daysAway === 0 ? "Today" : `${daysAway}d`}
@@ -526,10 +717,17 @@ export default function EarningsCalendar() {
                               </div>
 
                               {/* Expand chevron */}
-                              {isExpanded
-                                ? <ChevronUp size={14} className="shrink-0 text-muted-foreground" />
-                                : <ChevronDown size={14} className="shrink-0 text-muted-foreground" />
-                              }
+                              {isExpanded ? (
+                                <ChevronUp
+                                  size={14}
+                                  className="shrink-0 text-muted-foreground"
+                                />
+                              ) : (
+                                <ChevronDown
+                                  size={14}
+                                  className="shrink-0 text-muted-foreground"
+                                />
+                              )}
                             </div>
                           </div>
                         </button>
@@ -547,42 +745,72 @@ export default function EarningsCalendar() {
                               <div className="border-t border-border/40 px-4 pb-5 pt-4">
                                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                                   <div>
-                                    <p className="text-xs uppercase tracking-widest text-muted-foreground">Report Date</p>
+                                    <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                                      Report Date
+                                    </p>
                                     <p className="mt-1 font-mono text-sm font-bold text-foreground">
-                                      {eDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
+                                      {eDate.toLocaleDateString("en-US", {
+                                        weekday: "long",
+                                        month: "long",
+                                        day: "numeric",
+                                        year: "numeric",
+                                      })}
                                     </p>
                                   </div>
                                   <div>
-                                    <p className="text-xs uppercase tracking-widest text-muted-foreground">Report Time</p>
-                                    <p className="mt-1 font-mono text-sm font-bold text-foreground">{reportTimeLabel(entry.reportTime)}</p>
+                                    <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                                      Report Time
+                                    </p>
+                                    <p className="mt-1 font-mono text-sm font-bold text-foreground">
+                                      {reportTimeLabel(entry.reportTime)}
+                                    </p>
                                   </div>
                                   <div>
-                                    <p className="text-xs uppercase tracking-widest text-muted-foreground">EPS Estimate</p>
-                                    <p className="mt-1 font-mono text-sm font-bold text-amber-400">{fmtEps(entry.epsEstimate)}</p>
+                                    <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                                      EPS Estimate
+                                    </p>
+                                    <p className="mt-1 font-mono text-sm font-bold text-amber-400">
+                                      {fmtEps(entry.epsEstimate)}
+                                    </p>
                                   </div>
                                   <div>
-                                    <p className="text-xs uppercase tracking-widest text-muted-foreground">Revenue Estimate</p>
-                                    <p className="mt-1 font-mono text-sm font-bold text-amber-400">{fmtRevenue(entry.revenueEstimate)}</p>
+                                    <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                                      Revenue Estimate
+                                    </p>
+                                    <p className="mt-1 font-mono text-sm font-bold text-amber-400">
+                                      {fmtRevenue(entry.revenueEstimate)}
+                                    </p>
                                   </div>
                                 </div>
 
                                 {/* Potential impact section */}
                                 <div className="mt-4 flex items-start gap-3 rounded-xl border border-border/50 bg-accent/40 px-4 py-3">
-                                  <BarChart2 size={13} className="mt-0.5 shrink-0 text-muted-foreground" />
+                                  <BarChart2
+                                    size={13}
+                                    className="mt-0.5 shrink-0 text-muted-foreground"
+                                  />
                                   <div>
                                     <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                                       Potential Market Impact
                                     </p>
                                     <div className="mt-1.5 flex items-center gap-3">
-                                      <ImpactMeter importance={entry.importance} />
-                                      <span className={`font-mono text-xs font-bold ${
-                                        entry.importance === "high" ? "text-red-400"
-                                        : entry.importance === "medium" ? "text-amber-400"
-                                        : "text-muted-foreground"
-                                      }`}>
-                                        {entry.importance === "high" ? "High volatility expected — options premiums may spike"
-                                          : entry.importance === "medium" ? "Moderate impact — watch for gap opens"
-                                          : "Low expected impact"}
+                                      <ImpactMeter
+                                        importance={entry.importance}
+                                      />
+                                      <span
+                                        className={`font-mono text-xs font-bold ${
+                                          entry.importance === "high"
+                                            ? "text-red-400"
+                                            : entry.importance === "medium"
+                                              ? "text-amber-400"
+                                              : "text-muted-foreground"
+                                        }`}
+                                      >
+                                        {entry.importance === "high"
+                                          ? "High volatility expected — options premiums may spike"
+                                          : entry.importance === "medium"
+                                            ? "Moderate impact — watch for gap opens"
+                                            : "Low expected impact"}
                                       </span>
                                     </div>
                                   </div>
@@ -590,9 +818,18 @@ export default function EarningsCalendar() {
 
                                 {inPortfolio && (
                                   <div className="mt-3 flex items-center gap-2 rounded-xl border border-amber-500/20 bg-amber-500/5 px-4 py-2.5">
-                                    <AlertTriangle size={12} className="shrink-0 text-amber-400" />
+                                    <AlertTriangle
+                                      size={12}
+                                      className="shrink-0 text-amber-400"
+                                    />
                                     <p className="text-xs text-amber-300">
-                                      You hold <span className="font-black">{entry.ticker}</span> in your portfolio. Consider reviewing your position size and setting stop-losses before the earnings release.
+                                      You hold{" "}
+                                      <span className="font-black">
+                                        {entry.ticker}
+                                      </span>{" "}
+                                      in your portfolio. Consider reviewing your
+                                      position size and setting stop-losses
+                                      before the earnings release.
                                     </p>
                                   </div>
                                 )}
@@ -611,12 +848,16 @@ export default function EarningsCalendar() {
 
         {/* ── Footer disclaimer ──────────────────────────────────────────────── */}
         <div className="flex items-start gap-3 rounded-xl border border-border/40 bg-card p-4">
-          <Info size={13} className="mt-0.5 shrink-0 text-muted-foreground/60" />
+          <Info
+            size={13}
+            className="mt-0.5 shrink-0 text-muted-foreground/60"
+          />
           <p className="text-xs uppercase tracking-wide text-muted-foreground/50">
-            Earnings dates and estimates are illustrative. Live data sourced from Alpha Vantage free tier when available. Always verify dates with official filings before making trading decisions.
+            Earnings dates and estimates are illustrative. Live data sourced
+            from Alpha Vantage free tier when available. Always verify dates
+            with official filings before making trading decisions.
           </p>
         </div>
-
       </div>
     </DashboardLayout>
   );

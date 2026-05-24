@@ -144,17 +144,26 @@ export default function Screener() {
 
   // ─── Screener query ────────────────────────────────────────────────────────
 
-  const { data: screenData, isLoading, isFetching } = useQuery({
+  const {
+    data: screenData,
+    isLoading,
+    isFetching,
+  } = useQuery({
     queryKey: ["screener", filters, runTrigger],
     queryFn: async () => {
-      if (runTrigger === 0) return { results: [], total_matched: 0, message: "" };
+      if (runTrigger === 0)
+        return { results: [], total_matched: 0, message: "" };
 
       const parsedFilters: Record<string, number | undefined> = {
         min_price: filters.min_price ? Number(filters.min_price) : undefined,
         max_price: filters.max_price ? Number(filters.max_price) : undefined,
         min_volume: filters.min_volume ? Number(filters.min_volume) : undefined,
-        min_change_pct: filters.min_change_pct ? Number(filters.min_change_pct) : undefined,
-        max_change_pct: filters.max_change_pct ? Number(filters.max_change_pct) : undefined,
+        min_change_pct: filters.min_change_pct
+          ? Number(filters.min_change_pct)
+          : undefined,
+        max_change_pct: filters.max_change_pct
+          ? Number(filters.max_change_pct)
+          : undefined,
       };
 
       // Remove undefined keys
@@ -221,7 +230,10 @@ export default function Screener() {
 
   const deletePresetMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("screener_presets").delete().eq("id", id);
+      const { error } = await supabase
+        .from("screener_presets")
+        .delete()
+        .eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -241,7 +253,10 @@ export default function Screener() {
   }
 
   function applyUserPreset(preset: SavedPreset) {
-    setFilters({ ...EMPTY_FILTERS, ...(preset.filters as Partial<ScreenerFilters>) });
+    setFilters({
+      ...EMPTY_FILTERS,
+      ...(preset.filters as Partial<ScreenerFilters>),
+    });
     setActivePreset(preset.name);
   }
 
@@ -268,7 +283,7 @@ export default function Screener() {
 
   return (
     <DashboardLayout>
-      <div className="flex flex-col gap-6 p-6">
+      <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
@@ -320,52 +335,72 @@ export default function Screener() {
             <div className="px-4 pb-4 border-t border-border">
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mt-4">
                 <div>
-                  <label className="text-xs text-muted-foreground mb-1 block">Min Price ($)</label>
+                  <label className="text-xs text-muted-foreground mb-1 block">
+                    Min Price ($)
+                  </label>
                   <Input
                     type="number"
                     placeholder="0"
                     value={filters.min_price}
-                    onChange={(e) => handleFilterChange("min_price", e.target.value)}
+                    onChange={(e) =>
+                      handleFilterChange("min_price", e.target.value)
+                    }
                     className="h-8 text-sm font-mono"
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-muted-foreground mb-1 block">Max Price ($)</label>
+                  <label className="text-xs text-muted-foreground mb-1 block">
+                    Max Price ($)
+                  </label>
                   <Input
                     type="number"
                     placeholder="∞"
                     value={filters.max_price}
-                    onChange={(e) => handleFilterChange("max_price", e.target.value)}
+                    onChange={(e) =>
+                      handleFilterChange("max_price", e.target.value)
+                    }
                     className="h-8 text-sm font-mono"
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-muted-foreground mb-1 block">Min Volume</label>
+                  <label className="text-xs text-muted-foreground mb-1 block">
+                    Min Volume
+                  </label>
                   <Input
                     type="number"
                     placeholder="0"
                     value={filters.min_volume}
-                    onChange={(e) => handleFilterChange("min_volume", e.target.value)}
+                    onChange={(e) =>
+                      handleFilterChange("min_volume", e.target.value)
+                    }
                     className="h-8 text-sm font-mono"
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-muted-foreground mb-1 block">Min Chg%</label>
+                  <label className="text-xs text-muted-foreground mb-1 block">
+                    Min Chg%
+                  </label>
                   <Input
                     type="number"
                     placeholder="-100"
                     value={filters.min_change_pct}
-                    onChange={(e) => handleFilterChange("min_change_pct", e.target.value)}
+                    onChange={(e) =>
+                      handleFilterChange("min_change_pct", e.target.value)
+                    }
                     className="h-8 text-sm font-mono"
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-muted-foreground mb-1 block">Max Chg%</label>
+                  <label className="text-xs text-muted-foreground mb-1 block">
+                    Max Chg%
+                  </label>
                   <Input
                     type="number"
                     placeholder="100"
                     value={filters.max_change_pct}
-                    onChange={(e) => handleFilterChange("max_change_pct", e.target.value)}
+                    onChange={(e) =>
+                      handleFilterChange("max_change_pct", e.target.value)
+                    }
                     className="h-8 text-sm font-mono"
                   />
                 </div>
@@ -430,7 +465,10 @@ export default function Screener() {
         {hasRun && !isBusy && results.length > 0 && (
           <div className="flex flex-wrap gap-4 text-sm">
             <span className="text-muted-foreground">
-              <span className="text-foreground font-mono font-medium">{results.length}</span> results
+              <span className="text-foreground font-mono font-medium">
+                {results.length}
+              </span>{" "}
+              results
             </span>
             <span className="text-muted-foreground">
               Avg Change:{" "}
@@ -551,7 +589,9 @@ export default function Screener() {
                           variant="outline"
                           size="sm"
                           className="h-6 px-2 text-xs gap-1"
-                          onClick={() => navigate(`/chart?ticker=${row.ticker}`)}
+                          onClick={() =>
+                            navigate(`/chart?ticker=${row.ticker}`)
+                          }
                         >
                           <BarChart2 className="w-3 h-3" />
                           Chart
@@ -569,7 +609,9 @@ export default function Screener() {
                           variant="outline"
                           size="sm"
                           className="h-6 px-2 text-xs gap-1"
-                          onClick={() => toast.success(`Added ${row.ticker} to watchlist`)}
+                          onClick={() =>
+                            toast.success(`Added ${row.ticker} to watchlist`)
+                          }
                         >
                           <Star className="w-3 h-3" />
                           Watch
@@ -591,7 +633,9 @@ export default function Screener() {
             <DialogTitle>Save Screener Preset</DialogTitle>
           </DialogHeader>
           <div className="py-2">
-            <label className="text-sm text-muted-foreground mb-2 block">Preset name</label>
+            <label className="text-sm text-muted-foreground mb-2 block">
+              Preset name
+            </label>
             <Input
               placeholder="e.g. My Momentum Setup"
               value={presetName}

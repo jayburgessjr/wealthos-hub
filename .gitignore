@@ -2,6 +2,10 @@
 .claude/
 .codex/
 .gemini/
+.superpowers/
+.playwright-mcp/
+SESSION_LOG.md
+temp_*.sql
 
 # Logs
 logs
@@ -16,6 +20,15 @@ node_modules
 dist
 dist-ssr
 *.local
+
+# Environment / secrets — never commit
+.env
+.env.*
+!.env.example
+
+# Supabase local state
+supabase/.temp/
+supabase/.branches/
 
 # Editor directories and files
 .vscode/*

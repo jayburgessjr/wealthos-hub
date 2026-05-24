@@ -177,7 +177,9 @@ function ProfileIdeaCard({
           {idea.entry_price && (
             <span>
               <span className="text-muted-foreground">Entry </span>
-              <span className="text-foreground">${idea.entry_price.toFixed(2)}</span>
+              <span className="text-foreground">
+                ${idea.entry_price.toFixed(2)}
+              </span>
             </span>
           )}
           {idea.entry_price && idea.target_price && (
@@ -186,7 +188,9 @@ function ProfileIdeaCard({
           {idea.target_price && (
             <span>
               <span className="text-muted-foreground">Target </span>
-              <span className="text-bullish">${idea.target_price.toFixed(2)}</span>
+              <span className="text-bullish">
+                ${idea.target_price.toFixed(2)}
+              </span>
             </span>
           )}
           {idea.stop_price && (
@@ -194,7 +198,9 @@ function ProfileIdeaCard({
               <span className="text-muted-foreground">|</span>
               <span>
                 <span className="text-muted-foreground">Stop </span>
-                <span className="text-bearish">${idea.stop_price.toFixed(2)}</span>
+                <span className="text-bearish">
+                  ${idea.stop_price.toFixed(2)}
+                </span>
               </span>
             </>
           )}
@@ -281,7 +287,7 @@ export default function Profile() {
       const now = new Date();
       const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
       const ideasThisMonth = ideas.filter(
-        (i) => new Date(i.created_at) >= thisMonthStart
+        (i) => new Date(i.created_at) >= thisMonthStart,
       ).length;
 
       const validRR = ideas.filter((i) => i.risk_reward != null);
@@ -379,7 +385,8 @@ export default function Profile() {
       }
     },
     onError: (err: Error) => {
-      if (err.message === "not-authenticated") toast.error("Sign in to like ideas");
+      if (err.message === "not-authenticated")
+        toast.error("Sign in to like ideas");
       else toast.error("Failed to update like");
     },
     onSuccess: () => {
@@ -398,7 +405,7 @@ export default function Profile() {
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
     <DashboardLayout>
-      <div className="space-y-6 max-w-3xl mx-auto">
+      <div className="space-y-6">
         {/* Back button */}
         <button
           onClick={() => navigate(-1)}
@@ -500,7 +507,9 @@ export default function Profile() {
               >
                 <span className="text-muted-foreground shrink-0">{s.icon}</span>
                 <div className="min-w-0">
-                  <p className="text-xs text-muted-foreground truncate">{s.label}</p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {s.label}
+                  </p>
                   <p className="font-mono font-semibold text-foreground text-sm">
                     {s.value}
                   </p>

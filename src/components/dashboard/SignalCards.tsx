@@ -4,8 +4,12 @@ import { useDemo } from "@/components/DemoProvider";
 import { sandboxSignals } from "@/data/sandboxData";
 
 const ACTION_LABELS: Record<string, string> = {
-  strong_buy: "Strong Buy", buy: "Buy", hold: "Hold",
-  watch: "Watch", exit: "Exit", strong_exit: "Strong Exit",
+  strong_buy: "Strong Buy",
+  buy: "Buy",
+  hold: "Hold",
+  watch: "Watch",
+  exit: "Exit",
+  strong_exit: "Strong Exit",
 };
 
 const actionColor: Record<string, string> = {
@@ -18,20 +22,28 @@ const actionColor: Record<string, string> = {
 };
 
 const barColor: Record<string, string> = {
-  strong_buy: "bg-bullish", buy: "bg-neutral", hold: "bg-muted-foreground",
-  watch: "bg-watch", exit: "bg-bearish", strong_exit: "bg-bearish",
+  strong_buy: "bg-bullish",
+  buy: "bg-neutral",
+  hold: "bg-muted-foreground",
+  watch: "bg-watch",
+  exit: "bg-bearish",
+  strong_exit: "bg-bearish",
 };
 
-export default function SignalCards({ onSelectTicker }: { onSelectTicker?: (ticker: string) => void }) {
+export default function SignalCards({
+  onSelectTicker,
+}: {
+  onSelectTicker?: (ticker: string) => void;
+}) {
   const { isDemoMode } = useDemo();
   const { data: signals = [], isLoading } = useQuery({
-    queryKey: ['signals', isDemoMode ? 'demo' : 'live'],
+    queryKey: ["signals", isDemoMode ? "demo" : "live"],
     queryFn: async () => {
       if (isDemoMode) return sandboxSignals;
       const { data } = await supabase
-        .from('signals')
-        .select('*')
-        .order('signal_score', { ascending: false })
+        .from("signals")
+        .select("id, ticker, action, signal_score, reasoning")
+        .order("signal_score", { ascending: false })
         .limit(4);
       return data ?? [];
     },
@@ -41,7 +53,10 @@ export default function SignalCards({ onSelectTicker }: { onSelectTicker?: (tick
     return (
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-36 animate-pulse rounded-lg border border-border bg-card" />
+          <div
+            key={i}
+            className="h-36 animate-pulse rounded-lg border border-border bg-card"
+          />
         ))}
       </div>
     );
@@ -50,7 +65,9 @@ export default function SignalCards({ onSelectTicker }: { onSelectTicker?: (tick
   if (!signals.length) {
     return (
       <div className="rounded-lg border border-border bg-card p-6 text-center">
-        <p className="text-sm text-muted-foreground">No signals yet — go to Signals page to generate them.</p>
+        <p className="text-sm text-muted-foreground">
+          No signals yet — go to Signals page to generate them.
+        </p>
       </div>
     );
   }
@@ -58,13 +75,13 @@ export default function SignalCards({ onSelectTicker }: { onSelectTicker?: (tick
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {signals.map((s) => {
-        const action = s.action ?? 'hold';
+        const action = s.action ?? "hold";
         const reasons = (s.reasoning as string[] | null) ?? [];
         return (
           <div
             key={s.id}
             onClick={() => onSelectTicker?.(s.ticker)}
-            className={`rounded-lg border p-4 transition-fast hover:scale-[1.02] ${actionColor[action] ?? ''} cursor-pointer`}
+            className={`rounded-lg border p-4 transition-fast hover:scale-[1.02] ${actionColor[action] ?? ""} cursor-pointer`}
           >
             <div className="flex items-center justify-between">
               <span className="font-mono text-lg font-bold">{s.ticker}</span>
@@ -74,7 +91,9 @@ export default function SignalCards({ onSelectTicker }: { onSelectTicker?: (tick
             </div>
             <div className="mt-4 flex items-center justify-between">
               <span className="text-xs opacity-70">Signal Score</span>
-              <span className="font-mono text-lg font-bold">{s.signal_score}</span>
+              <span className="font-mono text-lg font-bold">
+                {s.signal_score}
+              </span>
             </div>
             <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-background/50">
               <div
@@ -83,7 +102,9 @@ export default function SignalCards({ onSelectTicker }: { onSelectTicker?: (tick
               />
             </div>
             {reasons[0] && (
-              <p className="mt-2 text-xs text-muted-foreground line-clamp-1">{reasons[0]}</p>
+              <p className="mt-2 text-xs text-muted-foreground line-clamp-1">
+                {reasons[0]}
+              </p>
             )}
           </div>
         );

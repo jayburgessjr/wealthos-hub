@@ -166,7 +166,7 @@ export default function TopRecommendation() {
         )}
         <button
           onClick={() => setOpen(true)}
-          className="mt-4 w-full rounded-lg bg-bullish py-2.5 font-body text-sm font-semibold text-primary-foreground transition-fast hover:brightness-110"
+          className="mt-4 w-full rounded-lg bg-primary py-2.5 font-body text-sm font-semibold text-primary-foreground transition-fast hover:brightness-110"
         >
           Execute Trade
         </button>
@@ -210,7 +210,7 @@ export default function TopRecommendation() {
             <button
               onClick={() => executeTrade()}
               disabled={isPending}
-              className="w-full rounded-lg bg-bullish py-2.5 font-body text-sm font-semibold text-primary-foreground transition-fast hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full rounded-lg bg-primary py-2.5 font-body text-sm font-semibold text-primary-foreground transition-fast hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isPending ? "Opening Position…" : "Confirm Trade"}
             </button>

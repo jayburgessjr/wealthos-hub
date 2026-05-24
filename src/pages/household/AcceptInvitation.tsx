@@ -48,7 +48,7 @@ export default function AcceptInvitation() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-lg mx-auto mt-8 space-y-6">
+      <div className="space-y-6">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
             <span className="text-xs uppercase tracking-widest text-muted-foreground">
@@ -82,7 +82,7 @@ export default function AcceptInvitation() {
                 </p>
               )}
               <Button
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                className="w-full"
                 disabled={!canAccept || busy}
                 onClick={onAccept}
               >

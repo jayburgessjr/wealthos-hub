@@ -96,7 +96,7 @@ export default function HouseholdQuarterlyReview() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-3xl mx-auto space-y-6 p-4 md:p-6">
+      <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center gap-4">
           <Button
@@ -267,7 +267,7 @@ export default function HouseholdQuarterlyReview() {
           <Button
             onClick={handleSave}
             disabled={saving || !householdId}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white"
+            className=""
           >
             {saving ? "Saving…" : "Save Quarterly Review"}
           </Button>

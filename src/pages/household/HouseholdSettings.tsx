@@ -5,6 +5,7 @@ import { InviteMemberForm } from "@/components/household/household/InviteMemberF
 import { EmailPreferencesCard } from "@/components/household/settings/EmailPreferencesCard";
 import { CustomizationCard } from "@/components/household/settings/CustomizationCard";
 import { DashboardSettingsCard } from "@/components/household/settings/DashboardSettingsCard";
+import { HouseholdDataImport } from "@/components/household/HouseholdDataImport";
 import { useHouseholdBudget } from "@/context/HouseholdBudgetContext";
 import { useAuth } from "@/components/AuthProvider";
 import {
@@ -558,6 +559,9 @@ export default function HouseholdSettings() {
 
         {/* Dashboard Settings Card */}
         <DashboardSettingsCard />
+
+        {/* Data Import */}
+        <HouseholdDataImport />
 
         {/* Email Preferences Card */}
         <EmailPreferencesCard
