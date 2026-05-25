@@ -1,14 +1,21 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, Sparkles, LayoutDashboard, TrendingUp, Shield, Brain } from "lucide-react";
+import {
+  ArrowRight,
+  Sparkles,
+  LayoutDashboard,
+  TrendingUp,
+  Brain,
+  Home,
+} from "lucide-react";
 import { useDemo } from "../DemoProvider";
 
 const stats = [
-  { label: "Asset Classes", value: "10+" },
-  { label: "Market Tools", value: "50+" },
+  { label: "Invest Tools", value: "50+" },
+  { label: "Household Modules", value: "18" },
+  { label: "Wealth Sections", value: "9" },
   { label: "AI Models", value: "Multi" },
-  { label: "Data Sources", value: "15+" },
 ];
 
 export default function LandingHero() {
@@ -17,7 +24,7 @@ export default function LandingHero() {
 
   const handleDemo = () => {
     setDemoMode(true);
-    navigate("/dashboard");
+    navigate("/invs/dashboard");
   };
 
   return (
@@ -36,7 +43,9 @@ export default function LandingHero() {
           >
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
               <Sparkles className="h-4 w-4" />
-              <span>Build Wealth Here — Your Personal Hedge Fund OS</span>
+              <span>
+                Build Wealth Here — Your Complete Financial Operating System
+              </span>
             </div>
           </motion.div>
 
@@ -46,9 +55,10 @@ export default function LandingHero() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="font-display text-5xl font-bold tracking-tight sm:text-7xl lg:text-8xl"
           >
-            Compound Wealth with <br />
+            One Platform. Every Dimension
+            <br />
             <span className="bg-gradient-to-r from-primary via-neutral to-primary bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient">
-              AI Precision.
+              of Your Financial Life.
             </span>
           </motion.h1>
 
@@ -58,9 +68,9 @@ export default function LandingHero() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mt-8 text-lg text-muted-foreground sm:text-xl lg:text-2xl max-w-3xl mx-auto"
           >
-            Signals, risk controls, AI advisors, prediction markets, and 30+ tools —
-            everything a sophisticated investor needs to{" "}
-            <span className="text-foreground font-medium">inform, strategize, execute, and decide</span>.
+            Invest like a hedge fund. Manage your household like a CFO. Build
+            long-term wealth with precision. BWH brings all three together in
+            one AI-powered system.
           </motion.p>
 
           <motion.div
@@ -69,7 +79,11 @@ export default function LandingHero() {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
           >
-            <Button asChild size="lg" className="h-12 rounded-full px-8 text-base">
+            <Button
+              asChild
+              size="lg"
+              className="h-12 rounded-full px-8 text-base"
+            >
               <Link to="/signup" className="flex items-center gap-2">
                 Start For Free <ArrowRight className="h-4 w-4" />
               </Link>
@@ -92,8 +106,8 @@ export default function LandingHero() {
             className="mt-8 flex flex-wrap items-center justify-center gap-3"
           >
             {[
-              { icon: Shield, text: "No broker required" },
               { icon: Brain, text: "AI-powered decisions" },
+              { icon: Home, text: "Household + Wealth" },
               { icon: TrendingUp, text: "10+ asset classes" },
             ].map(({ icon: Icon, text }) => (
               <div
@@ -122,12 +136,17 @@ export default function LandingHero() {
 
               <img
                 src="/dashboardimage.png"
-                alt="AJE Dashboard"
+                alt="BWH Dashboard"
                 className="w-full object-cover object-top"
                 onError={(e) => {
                   // Fallback to a dark placeholder if image not yet saved
                   (e.target as HTMLImageElement).style.display = "none";
-                  (e.target as HTMLImageElement).parentElement!.classList.add("min-h-[420px]", "flex", "items-center", "justify-center");
+                  (e.target as HTMLImageElement).parentElement!.classList.add(
+                    "min-h-[420px]",
+                    "flex",
+                    "items-center",
+                    "justify-center",
+                  );
                 }}
               />
 
@@ -136,20 +155,24 @@ export default function LandingHero() {
                 <div className="flex items-center gap-2 rounded-xl border border-primary/30 bg-background/80 backdrop-blur-sm px-3 py-2 text-xs">
                   <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
                   <span className="text-primary font-medium">LIVE</span>
-                  <span className="text-muted-foreground">Decision Hub Active</span>
+                  <span className="text-muted-foreground">
+                    Decision Hub Active
+                  </span>
                 </div>
               </div>
 
               <div className="absolute top-6 right-6 z-20 hidden md:block">
                 <div className="rounded-xl border border-watch/30 bg-background/80 backdrop-blur-sm px-3 py-2 text-xs">
-                  <div className="text-watch font-medium">BULL Market Regime</div>
+                  <div className="text-watch font-medium">
+                    BULL Market Regime
+                  </div>
                   <div className="text-muted-foreground">Risk-On · VIX 15</div>
                 </div>
               </div>
 
               <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20">
                 <span className="rounded-full border border-border/60 bg-background/80 px-4 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur-sm tracking-widest uppercase">
-                  AJE Dashboard
+                  BWH Dashboard
                 </span>
               </div>
             </div>
@@ -163,9 +186,16 @@ export default function LandingHero() {
             className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-4"
           >
             {stats.map((stat) => (
-              <div key={stat.label} className="rounded-2xl border border-border/40 bg-card/50 px-4 py-5 text-center">
-                <div className="font-display text-3xl font-black text-primary">{stat.value}</div>
-                <div className="mt-1 text-xs text-muted-foreground">{stat.label}</div>
+              <div
+                key={stat.label}
+                className="rounded-2xl border border-border/40 bg-card/50 px-4 py-5 text-center"
+              >
+                <div className="font-display text-3xl font-black text-primary">
+                  {stat.value}
+                </div>
+                <div className="mt-1 text-xs text-muted-foreground">
+                  {stat.label}
+                </div>
               </div>
             ))}
           </motion.div>

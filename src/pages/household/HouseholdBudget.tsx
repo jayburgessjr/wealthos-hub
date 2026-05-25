@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useHouseholdBudget } from "@/context/HouseholdBudgetContext";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import TabNav from "@/components/layout/TabNav";
 import { ExpenseForm } from "@/components/household/budget/ExpenseForm";
 import { CsvImportDialog } from "@/components/household/import/CsvImportDialog";
 import { Button } from "@/components/ui/button";
@@ -331,6 +332,7 @@ export default function HouseholdBudget() {
 
   return (
     <DashboardLayout>
+      <TabNav group="household-money-out" />
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
@@ -542,7 +544,7 @@ export default function HouseholdBudget() {
         </div>
 
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between border-2 border-border p-4 bg-card">
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between border-b border-border/20 pb-4">
           <div className="flex items-center gap-4">
             <div className="space-y-1">
               <label className="text-xs font-mono uppercase text-muted-foreground">
@@ -585,30 +587,30 @@ export default function HouseholdBudget() {
             const dateTotal = expenses.reduce((sum, e) => sum + e.amount, 0);
             return (
               <div key={date}>
-                <div className="flex items-center justify-between mb-3 pb-2 border-b-2 border-border">
-                  <h3 className="font-bold">
+                <div className="flex items-center justify-between mb-1 pb-2 border-b border-border/30">
+                  <h3 className="text-[12px] font-bold uppercase tracking-[0.1em] text-muted-foreground/60">
                     {format(new Date(date), "EEEE, MMMM d")}
                   </h3>
-                  <span className="font-mono text-sm">
+                  <span className="text-[12px] font-mono text-muted-foreground/60">
                     ${dateTotal.toFixed(2)}
                   </span>
                 </div>
-                <div className="space-y-2">
+                <div>
                   {expenses.map((expense) => {
                     const category = getCategoryById(expense.categoryId);
                     const typeBadge = getExpenseTypeBadge(expense);
                     return (
                       <div
                         key={expense.id}
-                        className="flex items-center justify-between p-4 border-2 border-border bg-card hover:bg-secondary transition-colors"
+                        className="flex items-center justify-between px-2 py-3.5 border-b border-border/10 hover:bg-foreground/[0.02] transition-colors"
                       >
                         <div className="flex items-center gap-3">
-                          <span className="text-xl">
+                          <span className="text-lg w-6 text-center">
                             {category?.icon || "📦"}
                           </span>
                           <div>
                             <div className="flex items-center gap-2">
-                              <p className="font-medium">
+                              <p className="text-[13px] font-medium">
                                 {expense.description ||
                                   category?.name ||
                                   "Expense"}
@@ -623,30 +625,36 @@ export default function HouseholdBudget() {
                                 </Badge>
                               )}
                             </div>
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground/60">
                               <span>{category?.name}</span>
-                              <span>•</span>
-                              <span>{expense.userName}</span>
+                              {expense.userName && (
+                                <>
+                                  <span>·</span>
+                                  <span>{expense.userName}</span>
+                                </>
+                              )}
                             </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <p className="font-mono font-bold">
+                        <div className="flex items-center gap-1">
+                          <p className="font-mono text-[13px] font-medium mr-2">
                             ${expense.amount.toFixed(2)}
                           </p>
                           <Button
                             variant="ghost"
                             size="icon"
+                            className="h-7 w-7 text-muted-foreground/40 hover:text-foreground"
                             onClick={() => openEdit(expense.id)}
                           >
-                            <Pencil className="h-4 w-4" />
+                            <Pencil className="h-3.5 w-3.5" />
                           </Button>
                           <Button
                             variant="ghost"
                             size="icon"
+                            className="h-7 w-7 text-muted-foreground/40 hover:text-destructive"
                             onClick={() => handleDelete(expense.id)}
                           >
-                            <Trash2 className="h-4 w-4 text-destructive" />
+                            <Trash2 className="h-3.5 w-3.5" />
                           </Button>
                         </div>
                       </div>

@@ -1,4 +1,5 @@
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import TabNav from "@/components/layout/TabNav";
 import { DemoBanner } from "@/components/household/layout/DemoBanner";
 import { useDemoMode } from "@/hooks/useHouseholdDemoMode";
 import { InviteMemberForm } from "@/components/household/household/InviteMemberForm";
@@ -309,6 +310,7 @@ export default function HouseholdSettings() {
 
   return (
     <DashboardLayout>
+      <TabNav group="household-manage" />
       <div className="space-y-6">
         {demoMode && <DemoBanner />}
         <div>

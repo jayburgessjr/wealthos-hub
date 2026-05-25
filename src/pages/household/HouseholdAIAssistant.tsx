@@ -1,5 +1,6 @@
 import { useState } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import TabNav from "@/components/layout/TabNav";
 import {
   Card,
   CardContent,
@@ -224,6 +225,7 @@ export default function HouseholdAIAssistant() {
 
   return (
     <DashboardLayout>
+      <TabNav group="household-insights" />
       <div className="space-y-6" role="region" aria-labelledby="advisor-title">
         {/* Header */}
         <div>

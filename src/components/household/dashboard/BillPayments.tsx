@@ -60,6 +60,14 @@ import {
   type AdvancedDebtValues,
   calculateDebtMetrics,
 } from "@/components/household/bills/AdvancedDebtDetails";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+} from "@/components/ui/table";
 
 type StatusFilter = "all" | "unpaid" | "partial" | "paid";
 type FrequencyFilter =
@@ -791,7 +799,7 @@ export function BillPayments() {
       </div>
 
       {budget.bills.length === 0 && (
-        <div className="border-2 border-border p-4 bg-secondary flex items-center justify-between">
+        <div className="border border-border/20 rounded-lg p-4 flex items-center justify-between">
           <p className="text-sm">
             No bills yet. Add your first bill or import from CSV.
           </p>
@@ -941,7 +949,7 @@ export function BillPayments() {
         </Card>
       </div>
 
-      <div className="flex flex-wrap gap-3 items-center justify-between p-4 border-2 border-border bg-card">
+      <div className="flex flex-wrap gap-3 items-center justify-between py-3 border-b border-border/20">
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4 text-muted-foreground" />
@@ -1048,90 +1056,106 @@ export function BillPayments() {
         </div>
       </div>
 
-      <Card className="border-2">
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <div>
-              <CardTitle>Bills</CardTitle>
-              <CardDescription>
-                Showing {filteredBills.length} of {budget.bills.length} bills
-              </CardDescription>
-            </div>
-            <CsvImportDialog
-              trigger={
-                <Button variant="outline" size="sm">
-                  <Upload className="h-4 w-4 mr-2" />
-                  Import CSV
-                </Button>
-              }
-              title="Import Bills from CSV"
-              template={{
-                filename: "bills_template.csv",
-                headers: ["name", "amount", "due_date", "category", "notes"],
-                sampleRows: [
-                  ["Rent", "1500", "2025-01-01", "Housing", "January rent"],
-                ],
-              }}
-              fields={[
-                { key: "name", label: "Name" },
-                { key: "amount", label: "Amount", type: "number" },
-                { key: "due_date", label: "Due Date", type: "date" },
-                { key: "category", label: "Category", optional: true },
-                { key: "notes", label: "Notes", optional: true },
-              ]}
-              synonyms={{
-                name: ["name", "bill", "title"],
-                amount: ["amount", "total", "price"],
-                due_date: ["duedate", "due", "date"],
-                category: ["category", "categoryname"],
-                notes: ["notes", "note", "memo"],
-              }}
-              storageKey="import:bills"
-              onImport={async (rows) => {
-                const errors: { row: number; reason: string }[] = [];
-                const validRows = rows.filter((r, i) => {
-                  if (!r.name || isNaN(Number(r.amount)) || !r.due_date) {
-                    errors.push({
-                      row: i + 1,
-                      reason: "Missing required fields",
-                    });
-                    return false;
-                  }
-                  return true;
-                });
-                const res = await runImportRows(validRows);
-                return { ok: res.ok, fail: res.fail + errors.length, errors };
-              }}
-              extraControls={
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={autoCreateCats}
-                    onChange={(e) => setAutoCreateCats(e.target.checked)}
-                  />
-                  Auto-create categories
-                </label>
-              }
-            />
+      <div>
+        <div className="flex justify-between items-center mb-3">
+          <p className="text-sm text-muted-foreground">
+            Showing {filteredBills.length} of {budget.bills.length} bills
+          </p>
+          <CsvImportDialog
+            trigger={
+              <Button variant="outline" size="sm">
+                <Upload className="h-4 w-4 mr-2" />
+                Import CSV
+              </Button>
+            }
+            title="Import Bills from CSV"
+            template={{
+              filename: "bills_template.csv",
+              headers: ["name", "amount", "due_date", "category", "notes"],
+              sampleRows: [
+                ["Rent", "1500", "2025-01-01", "Housing", "January rent"],
+              ],
+            }}
+            fields={[
+              { key: "name", label: "Name" },
+              { key: "amount", label: "Amount", type: "number" },
+              { key: "due_date", label: "Due Date", type: "date" },
+              { key: "category", label: "Category", optional: true },
+              { key: "notes", label: "Notes", optional: true },
+            ]}
+            synonyms={{
+              name: ["name", "bill", "title"],
+              amount: ["amount", "total", "price"],
+              due_date: ["duedate", "due", "date"],
+              category: ["category", "categoryname"],
+              notes: ["notes", "note", "memo"],
+            }}
+            storageKey="import:bills"
+            onImport={async (rows) => {
+              const errors: { row: number; reason: string }[] = [];
+              const validRows = rows.filter((r, i) => {
+                if (!r.name || isNaN(Number(r.amount)) || !r.due_date) {
+                  errors.push({
+                    row: i + 1,
+                    reason: "Missing required fields",
+                  });
+                  return false;
+                }
+                return true;
+              });
+              const res = await runImportRows(validRows);
+              return { ok: res.ok, fail: res.fail + errors.length, errors };
+            }}
+            extraControls={
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={autoCreateCats}
+                  onChange={(e) => setAutoCreateCats(e.target.checked)}
+                />
+                Auto-create categories
+              </label>
+            }
+          />
+        </div>
+
+        {filteredBills.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground mb-4">
+              {budget.bills.length === 0
+                ? "No bills added yet"
+                : "No bills match the current filters"}
+            </p>
+            {budget.bills.length === 0 && (
+              <Button onClick={() => setShowAddForm(true)} variant="outline">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Your First Bill
+              </Button>
+            )}
           </div>
-        </CardHeader>
-        <CardContent>
-          {filteredBills.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground mb-4">
-                {budget.bills.length === 0
-                  ? "No bills added yet"
-                  : "No bills match the current filters"}
-              </p>
-              {budget.bills.length === 0 && (
-                <Button onClick={() => setShowAddForm(true)} variant="outline">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Your First Bill
-                </Button>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-4">
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow className="border-b border-border/10 hover:bg-transparent">
+                <TableHead className="px-4 py-4 text-[12px] font-medium text-muted-foreground/60 uppercase tracking-[0.08em]">
+                  Name <span className="text-muted-foreground/40">↑↓</span>
+                </TableHead>
+                <TableHead className="px-4 py-4 text-[12px] font-medium text-muted-foreground/60 uppercase tracking-[0.08em]">
+                  Amount <span className="text-muted-foreground/40">↑↓</span>
+                </TableHead>
+                <TableHead className="px-4 py-4 text-[12px] font-medium text-muted-foreground/60 uppercase tracking-[0.08em]">
+                  Due Date{" "}
+                  <span className="text-muted-foreground/40">↑���</span>
+                </TableHead>
+                <TableHead className="px-4 py-4 text-[12px] font-medium text-muted-foreground/60 uppercase tracking-[0.08em]">
+                  Frequency <span className="text-muted-foreground/40">↑↓</span>
+                </TableHead>
+                <TableHead className="px-4 py-4 text-[12px] font-medium text-muted-foreground/60 uppercase tracking-[0.08em] text-right">
+                  Actions
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {filteredBills.map((bill) => {
                 const billDueDate = new Date(bill.dueDate);
                 const today = new Date();
@@ -1144,237 +1168,124 @@ export function BillPayments() {
                   ) <= 7 && bill.paymentStatus !== "paid";
 
                 return (
-                  <div
+                  <TableRow
                     key={bill.id}
-                    className={`border-2 rounded-lg p-4 ${
-                      bill.isActive === false
-                        ? "opacity-60 bg-muted"
-                        : isOverdue
-                          ? "border-destructive bg-destructive/5"
-                          : isDueSoon
-                            ? "border-yellow-500 bg-yellow-500/5"
-                            : bill.paymentStatus === "paid"
-                              ? "border-green-500 bg-green-500/5"
-                              : "border-border"
+                    className={`border-b border-border/10 last:border-0 hover:bg-foreground/[0.02] transition-colors ${
+                      bill.isActive === false ? "opacity-50" : ""
                     }`}
                   >
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="font-semibold text-lg">{bill.name}</h3>
-                          <Badge
-                            variant={
-                              bill.paymentStatus === "paid"
-                                ? "default"
-                                : bill.paymentStatus === "partial"
-                                  ? "secondary"
-                                  : "destructive"
-                            }
-                            className="text-xs font-mono"
-                          >
-                            {bill.paymentStatus === "paid"
-                              ? "Paid"
+                    <TableCell className="px-4 py-4">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-medium">{bill.name}</span>
+                        <Badge
+                          variant={
+                            bill.paymentStatus === "paid"
+                              ? "default"
                               : bill.paymentStatus === "partial"
-                                ? "Partial"
-                                : "Unpaid"}
-                          </Badge>
-                          {bill.isAutoPay && (
-                            <Badge
-                              variant="outline"
-                              className="text-xs font-mono"
-                            >
-                              Auto-Pay
-                            </Badge>
-                          )}
-                          {bill.isActive === false && (
-                            <Badge
-                              variant="secondary"
-                              className="text-xs font-mono"
-                            >
-                              Inactive
-                            </Badge>
-                          )}
+                                ? "secondary"
+                                : "destructive"
+                          }
+                          className="text-xs font-mono"
+                        >
+                          {bill.paymentStatus === "paid"
+                            ? "Paid"
+                            : bill.paymentStatus === "partial"
+                              ? "Partial"
+                              : "Unpaid"}
+                        </Badge>
+                        {bill.isAutoPay && (
                           <Badge
                             variant="outline"
                             className="text-xs font-mono"
                           >
-                            {bill.isRecurring
-                              ? bill.frequency || "Monthly"
-                              : "One-time"}
+                            Auto-Pay
                           </Badge>
-                          {billToDebtMap.has(bill.id) && (
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Badge
-                                    variant="secondary"
-                                    className="text-xs font-mono gap-1"
-                                  >
-                                    <Landmark className="h-3 w-3" />
-                                    Debt: {billToDebtMap.get(bill.id)!.name}
-                                  </Badge>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p className="font-mono text-xs">
-                                    Remaining: $
-                                    {billToDebtMap
-                                      .get(bill.id)!
-                                      .currentBalance.toLocaleString()}{" "}
-                                    / $
-                                    {billToDebtMap
-                                      .get(bill.id)!
-                                      .totalBalance.toLocaleString()}
-                                  </p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          )}
-                        </div>
-                        <div className="mt-2 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                          <div>
-                            <p className="text-muted-foreground">Amount</p>
-                            <p className="font-semibold font-mono">
-                              ${bill.amount.toFixed(2)}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-muted-foreground">Due Date</p>
-                            <p className="font-semibold font-mono">
-                              {billDueDate.toLocaleDateString()}
-                              {isOverdue && (
-                                <span className="text-destructive ml-1">
-                                  (Overdue)
-                                </span>
-                              )}
-                              {isDueSoon && !isOverdue && (
-                                <span className="text-yellow-600 ml-1">
-                                  (Soon)
-                                </span>
-                              )}
-                            </p>
-                          </div>
-                          {bill.totalBalance > 0 &&
-                            bill.totalBalance !== bill.amount && (
-                              <div>
-                                <p className="text-muted-foreground">
-                                  Total Balance
-                                </p>
-                                <p className="font-semibold font-mono">
-                                  ${bill.totalBalance.toFixed(2)}
-                                </p>
-                              </div>
-                            )}
-                          {bill.apr != null && (
-                            <div>
-                              <p className="text-muted-foreground">APR</p>
-                              <p className="font-semibold font-mono">
-                                {(bill.apr * 100).toFixed(2)}%
-                              </p>
-                            </div>
-                          )}
-                          {bill.idealPayment != null && (
-                            <div>
-                              <p className="text-muted-foreground">
-                                Ideal Payment
-                              </p>
-                              <p className="font-semibold font-mono">
-                                ${bill.idealPayment.toFixed(2)}
-                              </p>
-                            </div>
-                          )}
-                          {!(
-                            bill.totalBalance > 0 &&
-                            bill.totalBalance !== bill.amount
-                          ) &&
-                            !bill.apr &&
-                            !bill.idealPayment && (
-                              <>
-                                <div>
-                                  <p className="text-muted-foreground">Paid</p>
-                                  <p className="font-semibold font-mono">
-                                    ${(bill.amountPaid || 0).toFixed(2)}
-                                  </p>
-                                </div>
-                                <div>
-                                  <p className="text-muted-foreground">
-                                    Balance
-                                  </p>
-                                  <p className="font-semibold font-mono">
-                                    $
-                                    {(
-                                      bill.amount - (bill.amountPaid || 0)
-                                    ).toFixed(2)}
-                                  </p>
-                                </div>
-                              </>
-                            )}
-                        </div>
-                        {bill.creditLimit != null &&
-                          bill.creditLimit > 0 &&
-                          bill.totalBalance > 0 && (
-                            <div className="mt-2 flex items-center gap-2 text-xs">
-                              <Percent className="h-3 w-3 text-muted-foreground" />
-                              <span className="text-muted-foreground">
-                                Utilization:
-                              </span>
-                              <span
-                                className={`font-mono font-semibold ${
-                                  (bill.totalBalance / bill.creditLimit) * 100 >
-                                  30
-                                    ? "text-destructive"
-                                    : "text-green-600"
-                                }`}
-                              >
-                                {(
-                                  (bill.totalBalance / bill.creditLimit) *
-                                  100
-                                ).toFixed(1)}
-                                %
-                              </span>
-                              <span className="text-muted-foreground">
-                                of ${bill.creditLimit.toLocaleString()}
-                              </span>
-                            </div>
-                          )}
-                        {(bill.notes ||
-                          (bill.categoryId &&
-                            budget.categories.find(
-                              (c) => c.id === bill.categoryId,
-                            ))) && (
-                          <div className="mt-2 text-xs text-muted-foreground flex gap-3">
-                            {bill.categoryId && (
-                              <span className="flex items-center gap-1">
-                                <span className="font-mono">Category:</span>{" "}
-                                {
-                                  budget.categories.find(
-                                    (c) => c.id === bill.categoryId,
-                                  )?.name
-                                }
-                              </span>
-                            )}
-                            {bill.notes && (
-                              <span className="flex items-center gap-1">
-                                <span className="font-mono">Note:</span>{" "}
-                                {bill.notes}
-                              </span>
-                            )}
-                          </div>
                         )}
-                        {bill.paymentAccountId &&
-                          budget.bankAccounts.find(
-                            (a) => a.id === bill.paymentAccountId,
-                          ) && (
-                            <div className="mt-1 text-xs text-muted-foreground">
-                              <span className="font-mono">Pay from:</span>{" "}
+                        <Badge variant="outline" className="text-xs font-mono">
+                          {bill.isRecurring
+                            ? bill.frequency || "Monthly"
+                            : "One-time"}
+                        </Badge>
+                        {billToDebtMap.has(bill.id) && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Badge
+                                  variant="secondary"
+                                  className="text-xs font-mono gap-1"
+                                >
+                                  <Landmark className="h-3 w-3" />
+                                  Debt: {billToDebtMap.get(bill.id)!.name}
+                                </Badge>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="font-mono text-xs">
+                                  Remaining: $
+                                  {billToDebtMap
+                                    .get(bill.id)!
+                                    .currentBalance.toLocaleString()}{" "}
+                                  / $
+                                  {billToDebtMap
+                                    .get(bill.id)!
+                                    .totalBalance.toLocaleString()}
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
+                        {isOverdue && (
+                          <span className="text-xs text-destructive font-mono">
+                            Overdue
+                          </span>
+                        )}
+                        {isDueSoon && !isOverdue && (
+                          <span className="text-xs text-yellow-500 font-mono">
+                            Due soon
+                          </span>
+                        )}
+                      </div>
+                      {(bill.notes ||
+                        (bill.categoryId &&
+                          budget.categories.find(
+                            (c) => c.id === bill.categoryId,
+                          ))) && (
+                        <div className="mt-1 text-xs text-muted-foreground flex gap-3">
+                          {bill.categoryId && (
+                            <span className="font-mono">
                               {
-                                budget.bankAccounts.find(
-                                  (a) => a.id === bill.paymentAccountId,
+                                budget.categories.find(
+                                  (c) => c.id === bill.categoryId,
                                 )?.name
                               }
-                            </div>
+                            </span>
                           )}
-                      </div>
-                      <div className="flex flex-col gap-2">
+                          {bill.notes && (
+                            <span className="italic">{bill.notes}</span>
+                          )}
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className="px-4 py-4 font-mono">
+                      ${bill.amount.toFixed(2)}
+                    </TableCell>
+                    <TableCell
+                      className={`px-4 py-4 font-mono ${
+                        isOverdue
+                          ? "text-destructive"
+                          : isDueSoon
+                            ? "text-yellow-500"
+                            : ""
+                      }`}
+                    >
+                      {billDueDate.toLocaleDateString()}
+                    </TableCell>
+                    <TableCell className="px-4 py-4 font-mono text-sm">
+                      {bill.isRecurring
+                        ? bill.frequency || "monthly"
+                        : "One-time"}
+                    </TableCell>
+                    <TableCell className="px-4 py-4 text-right">
+                      <div className="flex items-center gap-2 justify-end">
                         {bill.paymentStatus !== "paid" &&
                           bill.isActive !== false && (
                             <Button
@@ -1384,32 +1295,30 @@ export function BillPayments() {
                               Record Payment
                             </Button>
                           )}
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => openEdit(bill.id)}
-                          >
-                            Edit
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-destructive hover:bg-destructive/10"
-                            onClick={() => handleDelete(bill.id)}
-                          >
-                            Delete
-                          </Button>
-                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => openEdit(bill.id)}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-destructive hover:bg-destructive/10"
+                          onClick={() => handleDelete(bill.id)}
+                        >
+                          Delete
+                        </Button>
                       </div>
-                    </div>
-                  </div>
+                    </TableCell>
+                  </TableRow>
                 );
               })}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            </TableBody>
+          </Table>
+        )}
+      </div>
 
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent>

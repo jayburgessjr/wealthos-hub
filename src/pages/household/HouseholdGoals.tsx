@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useHouseholdBudget } from "@/context/HouseholdBudgetContext";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import TabNav from "@/components/layout/TabNav";
 import { GoalCard } from "@/components/household/budget/GoalCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -178,6 +179,7 @@ export default function HouseholdGoals() {
   if (isLoading) {
     return (
       <DashboardLayout>
+        <TabNav group="household-future" />
         <div className="min-h-[40vh] flex items-center justify-center text-muted-foreground font-mono">
           Loading goals…
         </div>
@@ -188,6 +190,7 @@ export default function HouseholdGoals() {
   if (error) {
     return (
       <DashboardLayout>
+        <TabNav group="household-future" />
         <div className="min-h-[40vh] flex items-center justify-center">
           <div className="border-2 border-destructive p-4 bg-card max-w-lg">
             <p className="font-bold mb-1">Failed to load goals</p>
@@ -214,6 +217,7 @@ export default function HouseholdGoals() {
 
   return (
     <DashboardLayout>
+      <TabNav group="household-future" />
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">

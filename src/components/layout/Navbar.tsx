@@ -4,7 +4,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import AjeLogo from "@/components/AjeLogo";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,18 +14,6 @@ import {
 import { Settings, LogOut, TrendingUp, Landmark, Home } from "lucide-react";
 import { toast } from "sonner";
 
-const WEALTH_ROUTES = new Set([
-  "/retirement",
-  "/dividend-tracker",
-  "/real-estate",
-  "/collectibles",
-  "/insurance",
-  "/tax-harvesting",
-  "/estate-planning",
-  "/entity-structure",
-  "/fundraising",
-]);
-
 const StatItem = ({
   label,
   value,
@@ -36,12 +23,12 @@ const StatItem = ({
   value: string;
   color?: string;
 }) => (
-  <div className="flex flex-col items-center gap-0.5 px-3">
-    <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+  <div className="flex items-center gap-1.5 px-3">
+    <span className="text-[10px] uppercase tracking-wider text-muted-foreground/50">
       {label}
     </span>
     <span
-      className={`font-mono text-sm font-semibold ${color ?? "text-foreground"}`}
+      className={`font-mono text-[11px] font-semibold ${color ?? "text-foreground"}`}
     >
       {value}
     </span>
@@ -56,7 +43,7 @@ export default function Navbar() {
   const hasCreated = useRef(false);
 
   const isHousehold = location.pathname.startsWith("/household");
-  const isWealth = WEALTH_ROUTES.has(location.pathname);
+  const isWealth = location.pathname.startsWith("/wealth");
   const mode = isHousehold ? "household" : isWealth ? "wealth" : "invest";
 
   const handleLogout = async () => {
@@ -119,113 +106,95 @@ export default function Navbar() {
   const pnlLabel = `${totalPnl >= 0 ? "+" : ""}$${Math.abs(totalPnl).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
 
   return (
-    <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-border bg-background px-4 gap-4">
-      {/* Left — brand */}
-      <div className="flex items-center gap-2 shrink-0">
-        <AjeLogo size={28} />
-        <h1 className="font-display text-lg font-bold tracking-tight text-foreground">
-          AJE
-        </h1>
-        <span className="relative flex h-2.5 w-2.5 ml-1">
-          <span className="absolute inline-flex h-full w-full animate-pulse-green rounded-full bg-bullish opacity-75" />
-          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-bullish" />
-        </span>
+    <header className="sticky top-0 z-50 flex h-10 items-center justify-between border-b border-border/40 bg-background/95 backdrop-blur-sm px-3 gap-3">
+      {/* Left — mode switcher */}
+      <div className="flex items-center gap-0.5 shrink-0">
+        <button
+          onClick={() => navigate("/invs/dashboard")}
+          className={`flex items-center gap-1 rounded px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+            mode === "invest"
+              ? "bg-blue-600/15 text-blue-400"
+              : "text-muted-foreground/50 hover:text-foreground"
+          }`}
+        >
+          <TrendingUp className="h-3 w-3" />
+          <span>Invest</span>
+        </button>
+        <button
+          onClick={() => navigate("/wealth")}
+          className={`flex items-center gap-1 rounded px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+            mode === "wealth"
+              ? "bg-amber-500/15 text-amber-400"
+              : "text-muted-foreground/50 hover:text-foreground"
+          }`}
+        >
+          <Landmark className="h-3 w-3" />
+          <span>Wealth</span>
+        </button>
+        <button
+          onClick={() => navigate("/household")}
+          className={`flex items-center gap-1 rounded px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+            mode === "household"
+              ? "bg-emerald-600/15 text-emerald-400"
+              : "text-muted-foreground/50 hover:text-foreground"
+          }`}
+        >
+          <Home className="h-3 w-3" />
+          <span>Household</span>
+        </button>
       </div>
 
-      {/* Center — mode toggle + invest stats */}
-      <div className="flex flex-1 items-center justify-center gap-4">
-        {/* Mode toggle pill */}
-        <div className="flex items-center rounded-lg border border-border bg-muted/40 p-0.5 gap-0.5">
-          <button
-            onClick={() => navigate("/dashboard")}
-            className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
-              mode === "invest"
-                ? "bg-blue-600 text-white shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <TrendingUp className="h-3 w-3" />
-            <span className="hidden sm:inline">Invest</span>
-          </button>
-          <button
-            onClick={() => navigate("/retirement")}
-            className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
-              mode === "wealth"
-                ? "bg-amber-500 text-black shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Landmark className="h-3 w-3" />
-            <span className="hidden sm:inline">Wealth</span>
-          </button>
-          <button
-            onClick={() => navigate("/household")}
-            className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
-              mode === "household"
-                ? "bg-emerald-600 text-white shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Home className="h-3 w-3" />
-            <span className="hidden sm:inline">Household</span>
-          </button>
+      {/* Center — portfolio stats */}
+      {mode === "invest" && (
+        <div className="hidden items-center divide-x divide-border/40 xl:flex flex-1 justify-center">
+          {isLoading ? (
+            <div className="flex gap-3 px-2">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="h-4 w-12 animate-pulse rounded bg-muted"
+                />
+              ))}
+            </div>
+          ) : (
+            <>
+              <StatItem
+                label="Capital"
+                value={`$${totalCapital.toLocaleString()}`}
+              />
+              <StatItem label="P&L" value={pnlLabel} color={pnlColor} />
+              <StatItem
+                label="Return"
+                value={`${totalPnlPct.toFixed(1)}%`}
+                color={pnlColor}
+              />
+              <StatItem
+                label="Deployed"
+                value={`$${deployed.toLocaleString()}`}
+              />
+              <StatItem
+                label="Available"
+                value={`$${available.toLocaleString()}`}
+              />
+              <StatItem label="Win Rate" value={`${winRate}%`} />
+            </>
+          )}
         </div>
+      )}
 
-        {/* Portfolio stats — invest mode only */}
-        {mode === "invest" && (
-          <div className="hidden items-center divide-x divide-border xl:flex">
-            {isLoading ? (
-              <div className="flex gap-4 px-2">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="h-8 w-16 animate-pulse rounded bg-accent"
-                  />
-                ))}
-              </div>
-            ) : (
-              <>
-                <StatItem
-                  label="Total Capital"
-                  value={`$${totalCapital.toLocaleString()}`}
-                />
-                <StatItem label="P&L" value={pnlLabel} color={pnlColor} />
-                <StatItem
-                  label="Return"
-                  value={`${totalPnlPct.toFixed(1)}%`}
-                  color={pnlColor}
-                />
-                <StatItem
-                  label="Deployed"
-                  value={`$${deployed.toLocaleString()}`}
-                />
-                <StatItem
-                  label="Available"
-                  value={`$${available.toLocaleString()}`}
-                />
-                <StatItem label="Win Rate" value={`${winRate}%`} />
-              </>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Right — theme + avatar */}
-      <div className="flex items-center gap-3 shrink-0">
-        <div className="border-l border-border pl-3">
-          <ThemeToggle />
-        </div>
-
+      {/* Right — theme + user */}
+      <div className="flex items-center gap-2 shrink-0 ml-auto">
+        <ThemeToggle />
         {user && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex h-8 w-8 items-center justify-center rounded-full bg-bullish/15 text-bullish text-xs font-bold hover:bg-bullish/25 transition-colors focus:outline-none">
+              <button className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-primary text-[10px] font-bold hover:bg-primary/25 transition-colors focus:outline-none">
                 {user.email?.substring(0, 2).toUpperCase()}
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuContent align="end" className="w-52">
               <div className="px-3 py-2">
-                <p className="text-xs font-medium text-foreground truncate">
+                <p className="text-xs text-muted-foreground truncate">
                   {user.email}
                 </p>
               </div>

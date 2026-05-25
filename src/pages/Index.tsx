@@ -1,6 +1,7 @@
 import LandingNavbar from "@/components/landing/LandingNavbar";
 import LandingHero from "@/components/landing/LandingHero";
 import Marquee from "@/components/landing/Marquee";
+import ThreePillars from "@/components/landing/ThreePillars";
 import HowItWorks from "@/components/landing/HowItWorks";
 import SocialProof from "@/components/landing/SocialProof";
 import BentoGrid from "@/components/landing/BentoGrid";
@@ -25,7 +26,10 @@ const Index = () => {
         {/* 2. Dual-row live signal ticker */}
         <Marquee />
 
-        {/* 3. How it works — 4-step loop */}
+        {/* 3. Three pillars — Invest / Household / Wealth */}
+        <ThreePillars />
+
+        {/* 4. How it works — 4-step loop */}
         <HowItWorks />
 
         {/* 4. Social proof — stats + testimonials */}
@@ -60,12 +64,15 @@ const Index = () => {
               <h2 className="mb-6 font-display text-4xl font-bold tracking-tight sm:text-6xl">
                 Ready To Make Better
                 <br />
-                <span className="text-primary">Decisions With Your Capital?</span>
+                <span className="text-primary">
+                  Decisions With Your Capital?
+                </span>
               </h2>
 
               <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground">
-                Signals, AI advisors, risk controls, compound modeling, wealth planning, and 50+ tools —
-                all aligned to your mission, your portfolio, and your goals.
+                Signals, AI advisors, risk controls, compound modeling, wealth
+                planning, and 50+ tools — all aligned to your mission, your
+                portfolio, and your goals.
               </p>
 
               {/* Feature pills */}
@@ -86,7 +93,11 @@ const Index = () => {
               </div>
 
               <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-                <Button asChild size="lg" className="h-12 rounded-full px-10 text-base font-bold">
+                <Button
+                  asChild
+                  size="lg"
+                  className="h-12 rounded-full px-10 text-base font-bold"
+                >
                   <Link to="/signup" className="flex items-center gap-2">
                     Create Your Free Account <ArrowRight className="h-4 w-4" />
                   </Link>
@@ -102,7 +113,8 @@ const Index = () => {
               </div>
 
               <p className="mt-8 text-sm text-muted-foreground">
-                No credit card required · Free tier always available · Cancel anytime
+                No credit card required · Free tier always available · Cancel
+                anytime
               </p>
             </motion.div>
           </div>

@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import SignalCards from "@/components/dashboard/SignalCards";
-import PriceChart from "@/components/dashboard/PriceChart";
 import TopRecommendation from "@/components/dashboard/TopRecommendation";
 import PositionsTable from "@/components/dashboard/PositionsTable";
 import CompoundPanel from "@/components/dashboard/CompoundPanel";
@@ -16,12 +15,12 @@ export default function Dashboard() {
   const [selectedTicker, setSelectedTicker] = useState<string>("SPY");
 
   const { data: firstSignal } = useQuery({
-    queryKey: ['signals', 'first'],
+    queryKey: ["signals", "first"],
     queryFn: async () => {
       const { data } = await supabase
-        .from('signals')
-        .select('ticker')
-        .order('signal_score', { ascending: false })
+        .from("signals")
+        .select("ticker")
+        .order("signal_score", { ascending: false })
         .limit(1)
         .maybeSingle();
       return data;
@@ -37,31 +36,31 @@ export default function Dashboard() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        {/* Morning Pulse */}
-        <MorningPulse />
-
-        {/* Row 1 — Signal Cards */}
-        <SignalCards onSelectTicker={setSelectedTicker} />
-
-        {/* Row 2 — Chart + Top Recommendation */}
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_340px]">
-          <PriceChart ticker={selectedTicker} />
-          <TopRecommendation />
+        {/* ── 1. Open book + Compound growth ── */}
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_360px]">
+          <CompoundPanel />
+          <PositionsTable />
         </div>
 
-        {/* Row 3 — Positions, Compound, Watchlist/Sentiment */}
+        {/* ── 3. Signal cards (full width) ── */}
+        <SignalCards onSelectTicker={setSelectedTicker} />
+
+        {/* ── 4. Top pick + Allocation + Watchlist ── */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <PositionsTable />
-          <CompoundPanel />
+          <TopRecommendation />
+          <AllocationDonut />
           <WatchlistSentiment />
         </div>
 
-        {/* Row 4 — Portfolio Allocation + Prediction Market */}
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <AllocationDonut />
-          <div className="lg:col-span-2">
-            <PredictionMarket />
-          </div>
+        {/* ── 5. Prediction market ── */}
+        <PredictionMarket />
+
+        {/* ── 6. Daily briefing (morning pulse — context, not command) ── */}
+        <div>
+          <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground/40">
+            Daily Briefing
+          </p>
+          <MorningPulse />
         </div>
       </div>
     </DashboardLayout>

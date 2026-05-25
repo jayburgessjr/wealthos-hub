@@ -1,18 +1,17 @@
 import { NavLink as RouterNavLink, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { Pin, PinOff } from "lucide-react";
+import { Pin, PinOff, Search, ShieldAlert } from "lucide-react";
 import {
   LayoutDashboard,
   Radar,
   Briefcase,
   Zap,
   PieChart,
-  ShieldAlert,
+  ShieldCheck,
   Bot,
   Globe,
   BarChart3,
   Eye,
-  ShieldCheck,
   FileText,
   Bitcoin,
   Newspaper,
@@ -68,168 +67,155 @@ import {
 } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { toast } from "sonner";
-
-const WEALTH_ROUTES = new Set([
-  "/retirement",
-  "/dividend-tracker",
-  "/real-estate",
-  "/collectibles",
-  "/insurance",
-  "/tax-harvesting",
-  "/estate-planning",
-  "/entity-structure",
-  "/fundraising",
-]);
+import AjeLogo from "@/components/AjeLogo";
+import { useAuth } from "@/components/AuthProvider";
 
 const navSections = [
   {
-    label: "1 · Orient",
+    label: "Orient",
     items: [
-      { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-      { to: "/alerts", icon: Bell, label: "Alert Engine" },
+      { to: "/invs/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+      { to: "/invs/alerts", icon: Bell, label: "Alerts" },
     ],
   },
   {
-    label: "2 · Read the Market",
+    label: "Market",
     items: [
-      { to: "/markets", icon: Globe, label: "Markets Overview" },
-      { to: "/macro", icon: TrendingUp, label: "Macro" },
-      { to: "/market-regime", icon: Activity, label: "Market Regime" },
-      { to: "/financial-news", icon: Rss, label: "News Feed" },
-      { to: "/news", icon: Newspaper, label: "Market Intel" },
+      { to: "/invs/market", icon: Globe, label: "Market", tabbed: true },
+      { to: "/invs/news", icon: Newspaper, label: "News" },
     ],
   },
   {
-    label: "3 · Discover",
+    label: "Discover",
     items: [
-      { to: "/signals", icon: Radar, label: "Signals" },
-      { to: "/heat-map", icon: Map, label: "Heat Map" },
-      { to: "/options-flow", icon: Flame, label: "Options Flow" },
+      { to: "/invs/discover", icon: Radar, label: "Discover", tabbed: true },
+    ],
+  },
+  {
+    label: "Research",
+    items: [
+      { to: "/invs/chart", icon: CandlestickChart, label: "Chart" },
+      { to: "/invs/screener", icon: ScanSearch, label: "Screener" },
+      { to: "/invs/watchlist", icon: Eye, label: "Watchlist" },
+    ],
+  },
+  {
+    label: "Decide",
+    items: [
+      { to: "/invs/decisions", icon: Zap, label: "Decision Hub" },
+      { to: "/invs/trading-ai", icon: Bot, label: "Trading AI" },
       {
-        to: "/earnings-calendar",
-        icon: CalendarDays,
-        label: "Earnings Calendar",
+        to: "/invs/strategy",
+        icon: Brain,
+        label: "Strategy & Wealth",
+        tabbed: true,
       },
-      { to: "/ipo-tracker", icon: Rocket, label: "IPO Tracker" },
-      { to: "/insider-activity", icon: Landmark, label: "Insider Activity" },
     ],
   },
   {
-    label: "4 · Go Deep",
+    label: "Assets",
     items: [
-      { to: "/crypto", icon: Bitcoin, label: "Crypto" },
-      { to: "/forex", icon: DollarSign, label: "Forex" },
-      { to: "/commodities", icon: Wheat, label: "Commodities" },
-      { to: "/fixed-income", icon: LineChart, label: "Fixed Income" },
-      { to: "/private-equity", icon: Building2, label: "Private Equity" },
-      { to: "/mergers-acquisitions", icon: GitMerge, label: "M&A" },
+      { to: "/invs/assets", icon: Bitcoin, label: "Assets", tabbed: true },
     ],
   },
   {
-    label: "5 · Research",
+    label: "Execute",
     items: [
-      { to: "/chart", icon: CandlestickChart, label: "Chart" },
-      { to: "/screener", icon: ScanSearch, label: "Asset Screener" },
-      { to: "/watchlist", icon: Eye, label: "Watchlist" },
+      { to: "/invs/execute", icon: Briefcase, label: "Execute", tabbed: true },
+      { to: "/invs/bots", icon: Workflow, label: "Trading Bots" },
     ],
   },
   {
-    label: "6 · Decide",
+    label: "Review",
     items: [
-      { to: "/decisions", icon: Zap, label: "Decision Hub" },
-      { to: "/ai-advisor", icon: Bot, label: "Trading AI" },
-      { to: "/financial-advisor", icon: Brain, label: "Wealth AI" },
-      { to: "/strategy-123", icon: Crosshair, label: "1-2-3 Strategy" },
+      { to: "/invs/review", icon: BookOpen, label: "Review", tabbed: true },
+      { to: "/invs/documents", icon: FileText, label: "Documents" },
+    ],
+  },
+  {
+    label: "Engines",
+    items: [
       {
-        to: "/strategy-allocator",
-        icon: PieChart,
-        label: "Strategy Allocator",
+        to: "/invs/ai-engines",
+        icon: Infinity,
+        label: "AI Engines",
+        tabbed: true,
       },
-      { to: "/position-sizer", icon: Calculator, label: "Position Sizer" },
-    ],
-  },
-  {
-    label: "7 · Execute",
-    items: [
-      { to: "/paper-trading", icon: FlaskConical, label: "Paper Trading" },
-      { to: "/positions", icon: Briefcase, label: "Positions" },
-      { to: "/my-portfolio", icon: Layers, label: "My Portfolio" },
-    ],
-  },
-  {
-    label: "8 · Automate",
-    items: [{ to: "/bots", icon: Workflow, label: "Trading Bots" }],
-  },
-  {
-    label: "9 · Review",
-    items: [
-      { to: "/trading-journal", icon: BookOpen, label: "Trading Journal" },
-      { to: "/performance", icon: BarChart3, label: "Performance" },
-      { to: "/pnl-calendar", icon: BarChart2, label: "P&L Calendar" },
-      { to: "/weekly-briefing", icon: CalendarRange, label: "Weekly Briefing" },
-      { to: "/playbook", icon: BookMarked, label: "The Playbook" },
-      { to: "/documents", icon: FileText, label: "Documents" },
-    ],
-  },
-  {
-    label: "AI Engines",
-    items: [
-      { to: "/compound", icon: Infinity, label: "Compound Engine" },
-      { to: "/quantum", icon: Cpu, label: "Quantum Engine" },
-    ],
-  },
-  {
-    label: "Prediction Markets",
-    items: [
-      { to: "/kalshi", icon: Vote, label: "Kalshi" },
-      { to: "/polymarket", icon: CircleDot, label: "Polymarket" },
-      { to: "/sports-trading", icon: Trophy, label: "Sports Trading" },
-      { to: "/lottery-ev", icon: Ticket, label: "Lottery / EV" },
+      {
+        to: "/invs/prediction-markets",
+        icon: Vote,
+        label: "Prediction Markets",
+        tabbed: true,
+      },
     ],
   },
   {
     label: "Account",
     items: [
-      { to: "/security", icon: ShieldAlert, label: "Security & Audit" },
-      { to: "/community", icon: Users, label: "Community" },
+      { to: "/invs/security", icon: ShieldAlert, label: "Security & Audit" },
+      { to: "/invs/community", icon: Users, label: "Community" },
     ],
   },
   {
     label: "Admin",
     items: [
-      { to: "/admin", icon: ShieldCheck, label: "Admin Hub", adminOnly: true },
+      {
+        to: "/invs/admin",
+        icon: ShieldCheck,
+        label: "Admin Hub",
+        adminOnly: true,
+      },
     ],
   },
 ];
 
 const wealthNavSections = [
   {
+    label: "Overview",
+    items: [{ to: "/wealth", icon: LayoutDashboard, label: "Dashboard" }],
+  },
+  {
     label: "Long-term",
     items: [
-      { to: "/retirement", icon: PiggyBank, label: "Retirement" },
-      { to: "/estate-planning", icon: ScrollText, label: "Estate Planning" },
+      {
+        to: "/wealth/long-term",
+        icon: PiggyBank,
+        label: "Long-term",
+        tabbed: true,
+      },
     ],
   },
   {
     label: "Assets",
     items: [
-      { to: "/real-estate", icon: Home, label: "Real Estate" },
-      { to: "/collectibles", icon: Package, label: "Collectibles" },
-      { to: "/dividend-tracker", icon: Repeat, label: "Dividends" },
+      {
+        to: "/wealth/assets",
+        icon: Home,
+        label: "Assets",
+        tabbed: true,
+      },
     ],
   },
   {
     label: "Protection & Tax",
     items: [
-      { to: "/insurance", icon: Umbrella, label: "Insurance" },
-      { to: "/tax-harvesting", icon: Leaf, label: "Tax Harvesting" },
+      {
+        to: "/wealth/protection",
+        icon: Umbrella,
+        label: "Protection",
+        tabbed: true,
+      },
     ],
   },
   {
     label: "Business",
     items: [
-      { to: "/entity-structure", icon: Network, label: "Entity Structure" },
-      { to: "/fundraising", icon: HandCoins, label: "Fundraising" },
+      {
+        to: "/wealth/business",
+        icon: Network,
+        label: "Business",
+        tabbed: true,
+      },
     ],
   },
 ];
@@ -237,74 +223,62 @@ const wealthNavSections = [
 const householdNavSections = [
   {
     label: "Home",
-    items: [
-      { to: "/household", icon: LayoutDashboard, label: "Dashboard" },
-      { to: "/household/command-center", icon: Home, label: "Command Center" },
-    ],
+    items: [{ to: "/household", icon: LayoutDashboard, label: "Dashboard" }],
   },
   {
     label: "Money In",
     items: [
-      { to: "/household/income", icon: DollarSign, label: "Income" },
       {
-        to: "/household/bank-accounts",
-        icon: Landmark,
-        label: "Bank Accounts",
+        to: "/household/money-in",
+        icon: DollarSign,
+        label: "Money In",
+        tabbed: true,
       },
     ],
   },
   {
     label: "Money Out",
     items: [
-      { to: "/household/budget", icon: Wallet, label: "Budget & Expenses" },
-      { to: "/household/bills", icon: Receipt, label: "Bills" },
-      { to: "/household/subscriptions", icon: Repeat, label: "Subscriptions" },
-      { to: "/household/debts", icon: CreditCard, label: "Debts" },
+      {
+        to: "/household/money-out",
+        icon: Wallet,
+        label: "Money Out",
+        tabbed: true,
+      },
     ],
   },
   {
     label: "Future",
     items: [
-      { to: "/household/goals", icon: Target, label: "Goals" },
-      { to: "/household/net-worth", icon: Scale, label: "Net Worth" },
-      { to: "/household/simulator", icon: FlaskConical, label: "Simulator" },
+      { to: "/household/future", icon: Target, label: "Future", tabbed: true },
     ],
   },
   {
     label: "Insights",
     items: [
-      { to: "/household/ai-assistant", icon: Bot, label: "AI Assistant" },
-      { to: "/household/cfo-reports", icon: BarChart3, label: "CFO Reports" },
       {
-        to: "/household/weekly-meeting",
-        icon: CalendarCheck,
-        label: "Weekly Meeting",
-      },
-      {
-        to: "/household/monthly-closeout",
-        icon: CalendarRange,
-        label: "Monthly Closeout",
-      },
-      {
-        to: "/household/quarterly-review",
-        icon: CalendarDays,
-        label: "Quarterly Review",
+        to: "/household/insights",
+        icon: Brain,
+        label: "Insights",
+        tabbed: true,
       },
     ],
   },
   {
     label: "Life",
     items: [
-      { to: "/household/careers", icon: Briefcase, label: "Career Profiles" },
-      { to: "/household/vision", icon: Eye, label: "Vision Board" },
-      { to: "/household/tasks", icon: ListTodo, label: "Tasks" },
+      { to: "/household/life", icon: Rocket, label: "Life", tabbed: true },
     ],
   },
   {
-    label: "Household",
+    label: "Manage",
     items: [
-      { to: "/household/settings", icon: ShieldAlert, label: "Settings" },
-      { to: "/household/members", icon: Users, label: "Members & Invites" },
+      {
+        to: "/household/manage",
+        icon: ShieldAlert,
+        label: "Household",
+        tabbed: true,
+      },
     ],
   },
 ];
@@ -312,6 +286,7 @@ const householdNavSections = [
 export default function Sidebar() {
   const location = useLocation();
   const { isAdmin } = useSubscription();
+  const { user } = useAuth();
 
   const [isPinned, setIsPinned] = useState(
     () => localStorage.getItem("sidebar-pinned") === "true",
@@ -321,7 +296,7 @@ export default function Sidebar() {
   const isOpen = isPinned || isHovered;
 
   const isHousehold = location.pathname.startsWith("/household");
-  const isWealth = WEALTH_ROUTES.has(location.pathname);
+  const isWealth = location.pathname.startsWith("/wealth");
 
   const sections = isHousehold
     ? householdNavSections
@@ -330,10 +305,10 @@ export default function Sidebar() {
       : navSections;
 
   const sectionLabelColor = isHousehold
-    ? "text-emerald-500/70"
+    ? "text-emerald-500/50"
     : isWealth
-      ? "text-amber-500/70"
-      : "text-foreground/25";
+      ? "text-amber-500/50"
+      : "text-foreground/20";
 
   const togglePin = () => {
     const next = !isPinned;
@@ -341,48 +316,82 @@ export default function Sidebar() {
     localStorage.setItem("sidebar-pinned", String(next));
   };
 
+  const avatarInitials = user?.email?.substring(0, 2).toUpperCase() ?? "??";
+
   return (
     <aside
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`hidden shrink-0 lg:flex lg:flex-col overflow-y-auto overflow-x-hidden transition-all duration-200 ease-in-out
-        sidebar-scroll border-r border-black/[0.06] dark:border-white/[0.06]
-        bg-[#f2f2f2] dark:bg-[#111111]
-        ${isOpen ? "w-[220px]" : "w-[52px]"}`}
+      className={`hidden shrink-0 lg:flex lg:flex-col overflow-hidden transition-all duration-200 ease-in-out
+        border-r border-black/[0.06] dark:border-white/[0.06]
+        bg-[#f4f4f5] dark:bg-[#111111]
+        ${isOpen ? "w-[240px]" : "w-[52px]"}`}
     >
-      {/* Pin toggle */}
-      <div
-        className={`flex items-center px-3 pt-3 pb-2 ${isOpen ? "justify-end" : "justify-center"}`}
-      >
-        <button
-          onClick={togglePin}
-          title={isPinned ? "Unpin sidebar" : "Pin sidebar open"}
-          className="rounded-md p-1 text-foreground/20 hover:text-foreground/50 transition-colors"
-        >
-          {isPinned ? (
-            <PinOff className="h-3 w-3" />
-          ) : (
-            <Pin className="h-3 w-3" />
-          )}
-        </button>
+      {/* Header */}
+      <div className="shrink-0 border-b border-border/20">
+        {isOpen ? (
+          <div className="flex items-center gap-2 px-3 py-2.5">
+            <AjeLogo size={22} />
+            <div className="flex min-w-0 flex-1 flex-col">
+              <span className="text-[13px] font-bold leading-tight text-foreground">
+                BWH
+              </span>
+              <span className="text-[9px] leading-tight text-foreground/30">
+                Build Wealth Here
+              </span>
+            </div>
+            <button
+              onClick={togglePin}
+              title={isPinned ? "Unpin sidebar" : "Pin sidebar open"}
+              className="ml-auto shrink-0 rounded-md p-1 text-foreground/20 transition-colors hover:text-foreground/50"
+            >
+              {isPinned ? (
+                <PinOff className="h-3 w-3" />
+              ) : (
+                <Pin className="h-3 w-3" />
+              )}
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center justify-center py-3">
+            <AjeLogo size={22} />
+          </div>
+        )}
       </div>
 
-      <nav className="flex flex-col gap-1 px-2 pb-4">
+      {/* Search bar — only when open */}
+      <div
+        className={`shrink-0 overflow-hidden border-b border-border/20 transition-all duration-200 ${isOpen ? "max-h-12 opacity-100" : "max-h-0 opacity-0"}`}
+      >
+        <div className="px-3 py-2">
+          <div className="flex items-center gap-2 rounded-md bg-foreground/[0.05] px-3 py-1.5">
+            <Search className="h-[14px] w-[14px] shrink-0 text-foreground/30" />
+            <span className="flex-1 text-xs text-foreground/30">Search...</span>
+            <span className="text-[10px] text-foreground/20">⌘K</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Nav */}
+      <nav className="sidebar-scroll flex-1 overflow-y-auto px-2 py-2">
         {sections.map((section) => (
           <div key={section.label} className="mb-1">
-            {/* Section label — hidden when collapsed */}
+            {/* Section label */}
             <div
               className={`overflow-hidden transition-all duration-200 ${isOpen ? "max-h-8 opacity-100" : "max-h-0 opacity-0"}`}
             >
               <span
-                className={`mb-0.5 block px-2 text-[9px] font-bold uppercase tracking-widest ${sectionLabelColor}`}
+                className={`mb-0.5 block px-2 text-[9px] font-bold uppercase tracking-[0.14em] ${sectionLabelColor}`}
               >
                 {section.label}
               </span>
             </div>
 
             {section.items.map((item) => {
-              const active = location.pathname === item.to;
+              const isTabbed = (item as any).tabbed;
+              const active = isTabbed
+                ? location.pathname.startsWith(item.to)
+                : location.pathname === item.to;
               const isRestricted = (item as any).adminOnly && !isAdmin;
 
               return (
@@ -396,18 +405,18 @@ export default function Sidebar() {
                       toast.error("Admin permissions required");
                     }
                   }}
-                  className={`flex items-center rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors duration-100 ${
+                  className={`relative flex items-center rounded-md mx-1 px-2 py-[7px] text-[12.5px] font-medium transition-colors duration-100 ${
                     isOpen ? "gap-2.5" : "justify-center"
                   } ${
                     active
-                      ? "bg-foreground/[0.08] text-foreground"
+                      ? "bg-foreground/[0.07] text-foreground before:absolute before:left-0 before:top-[6px] before:bottom-[6px] before:w-[2px] before:rounded-r-full before:bg-primary before:content-['']"
                       : isRestricted
-                        ? "text-foreground/20 cursor-not-allowed"
-                        : "text-foreground/40 hover:bg-foreground/[0.05] hover:text-foreground/80"
+                        ? "text-foreground/15 cursor-not-allowed"
+                        : "text-foreground/35 hover:bg-foreground/[0.04] hover:text-foreground/70"
                   }`}
                 >
                   <item.icon
-                    className={`h-[15px] w-[15px] shrink-0 ${isRestricted ? "opacity-30" : ""}`}
+                    className={`h-[14px] w-[14px] shrink-0 ${isRestricted ? "opacity-30" : ""}`}
                   />
                   <span
                     className={`overflow-hidden whitespace-nowrap transition-all duration-200 ${
@@ -416,6 +425,13 @@ export default function Sidebar() {
                   >
                     {item.label}
                   </span>
+                  {isTabbed && isOpen && (
+                    <span className="ml-auto flex shrink-0 gap-[3px]">
+                      <span className="h-[3px] w-[3px] rounded-full bg-current opacity-25" />
+                      <span className="h-[3px] w-[3px] rounded-full bg-current opacity-25" />
+                      <span className="h-[3px] w-[3px] rounded-full bg-current opacity-25" />
+                    </span>
+                  )}
                   {isRestricted && isOpen && (
                     <ShieldAlert className="ml-auto h-3 w-3 shrink-0 opacity-30" />
                   )}
@@ -425,6 +441,26 @@ export default function Sidebar() {
           </div>
         ))}
       </nav>
+
+      {/* User footer */}
+      <div className="shrink-0 border-t border-border/20 p-3">
+        {isOpen ? (
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/15 text-[11px] font-bold text-primary">
+              {avatarInitials}
+            </div>
+            <span className="min-w-0 truncate text-[12px] text-foreground/60">
+              {user?.email ?? ""}
+            </span>
+          </div>
+        ) : (
+          <div className="flex justify-center">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-[11px] font-bold text-primary">
+              {avatarInitials}
+            </div>
+          </div>
+        )}
+      </div>
     </aside>
   );
 }

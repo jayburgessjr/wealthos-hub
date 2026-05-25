@@ -1,4 +1,5 @@
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import TabNav from "@/components/layout/TabNav";
 import { MonthlyCloseoutWizard } from "@/components/household/closeout/MonthlyCloseoutWizard";
 import { useHouseholdBudget } from "@/context/HouseholdBudgetContext";
 import { useCreateMonthlySummaryMutation } from "@/hooks/useHouseholdBudgetData";
@@ -39,6 +40,7 @@ export default function HouseholdMonthlyCloseout() {
 
   return (
     <DashboardLayout>
+      <TabNav group="household-insights" />
       <div className="space-y-6">
         <div>
           <div className="flex items-center gap-2 mb-1.5">

@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback } from "react";
 import { useHouseholdBudget } from "@/context/HouseholdBudgetContext";
 import { useHouseholdFinancialData } from "@/hooks/useHouseholdFinancialData";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import TabNav from "@/components/layout/TabNav";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import {
@@ -173,6 +174,7 @@ export default function HouseholdSimulator() {
 
   return (
     <DashboardLayout>
+      <TabNav group="household-future" />
       <div className="space-y-6">
         {/* Header */}
         <div className="border-4 border-border bg-secondary p-6">

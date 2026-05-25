@@ -1,39 +1,39 @@
 import { motion } from "framer-motion";
-import { Target, Zap, ShieldCheck, TrendingUp } from "lucide-react";
+import { Layers, Brain, Zap, TrendingUp } from "lucide-react";
 
 const steps = [
   {
     step: "01",
-    icon: Target,
+    icon: Layers,
     color: "text-primary",
     bg: "bg-primary/10",
     border: "border-primary/20",
     glow: "shadow-primary/20",
-    title: "Set Your Mission",
+    title: "Connect Your World",
     description:
-      "Define your starting capital, target goal, and timeframe. AJE aligns every signal, alert, and directive to get you there.",
+      "Link your portfolio, set your household budget, and map your wealth — BWH builds a unified picture of your entire financial life in minutes.",
   },
   {
     step: "02",
-    icon: Zap,
+    icon: Brain,
     color: "text-watch",
     bg: "bg-watch/10",
     border: "border-watch/20",
     glow: "shadow-watch/20",
-    title: "Get Ranked Signals",
+    title: "Get AI Clarity",
     description:
-      "AI scores trade ideas across stocks, crypto, options, and prediction markets — ranked by urgency with entries, exits, and sizing built in.",
+      "AI signals surface trade opportunities, AI CFO reports analyze your household health, and wealth tools project your long-term trajectory — all contextual to your situation.",
   },
   {
     step: "03",
-    icon: ShieldCheck,
+    icon: Zap,
     color: "text-neutral",
     bg: "bg-neutral/10",
     border: "border-neutral/20",
     glow: "shadow-neutral/20",
-    title: "Manage Risk",
+    title: "Execute With Discipline",
     description:
-      "Risk controls, drawdown limits, position sizing, and market regime awareness keep you disciplined so one bad trade doesn't define the year.",
+      "Act on ranked signals, pay bills on time, track debt payoff, and deploy capital — every action is guided, sized, and recorded.",
   },
   {
     step: "04",
@@ -44,7 +44,7 @@ const steps = [
     glow: "shadow-primary/20",
     title: "Compound & Review",
     description:
-      "Track every position, review P&L, and let the Compound Engine model how consistent execution grows your capital over time.",
+      "Weekly briefings, monthly closeouts, and performance analytics close the loop so each quarter builds on the last.",
   },
 ];
 
@@ -69,8 +69,8 @@ export default function HowItWorks() {
             <span className="text-primary">Four Steps.</span>
           </h2>
           <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-            AJE is built around a repeatable decision loop. Every tool on the platform
-            feeds into one of these four phases.
+            BWH is built around a repeatable growth loop. Every tool — invest,
+            household, or wealth — feeds into one of these four phases.
           </p>
         </motion.div>
 
@@ -93,16 +93,24 @@ export default function HowItWorks() {
                   className={`relative z-10 mb-6 flex h-[72px] w-[72px] items-center justify-center rounded-2xl border ${step.border} ${step.bg} shadow-lg ${step.glow}`}
                 >
                   <step.icon className={`h-7 w-7 ${step.color}`} />
-                  <div className={`absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full ${step.bg} border ${step.border} text-[10px] font-bold ${step.color}`}>
+                  <div
+                    className={`absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full ${step.bg} border ${step.border} text-[10px] font-bold ${step.color}`}
+                  >
                     {i + 1}
                   </div>
                 </div>
 
-                <div className={`mb-1 text-xs font-mono font-bold uppercase tracking-widest ${step.color} opacity-60`}>
+                <div
+                  className={`mb-1 text-xs font-mono font-bold uppercase tracking-widest ${step.color} opacity-60`}
+                >
                   Step {step.step}
                 </div>
-                <h3 className="mb-3 font-display text-xl font-bold">{step.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
+                <h3 className="mb-3 font-display text-xl font-bold">
+                  {step.title}
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {step.description}
+                </p>
               </motion.div>
             ))}
           </div>

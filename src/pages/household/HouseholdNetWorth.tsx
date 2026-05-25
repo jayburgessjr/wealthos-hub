@@ -1,4 +1,5 @@
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import TabNav from "@/components/layout/TabNav";
 import { useHouseholdBudget } from "@/context/HouseholdBudgetContext";
 import {
   Card,
@@ -21,6 +22,7 @@ export default function HouseholdNetWorth() {
 
   return (
     <DashboardLayout>
+      <TabNav group="household-future" />
       <div className="space-y-6" role="region" aria-labelledby="networth-title">
         <div>
           <div className="flex items-center gap-2 mb-1.5">

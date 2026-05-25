@@ -5,22 +5,10 @@ import Sidebar from "./Sidebar";
 import RightBar from "./RightBar";
 import DemoBanner from "../DemoBanner";
 
-const WEALTH_ROUTES = new Set([
-  "/retirement",
-  "/dividend-tracker",
-  "/real-estate",
-  "/collectibles",
-  "/insurance",
-  "/tax-harvesting",
-  "/estate-planning",
-  "/entity-structure",
-  "/fundraising",
-]);
-
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const isHousehold = location.pathname.startsWith("/household");
-  const isWealth = WEALTH_ROUTES.has(location.pathname);
+  const isWealth = location.pathname.startsWith("/wealth");
 
   const modeClass = isHousehold ? " household" : isWealth ? " wealth" : "";
 

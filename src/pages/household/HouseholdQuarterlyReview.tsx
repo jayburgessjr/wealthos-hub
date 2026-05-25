@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import TabNav from "@/components/layout/TabNav";
 import { useHouseholdBudget } from "@/context/HouseholdBudgetContext";
 import {
   Card,
@@ -96,6 +97,7 @@ export default function HouseholdQuarterlyReview() {
 
   return (
     <DashboardLayout>
+      <TabNav group="household-insights" />
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center gap-4">

@@ -19,6 +19,7 @@ import {
 import { CsvImportDialog } from "@/components/household/import/CsvImportDialog";
 import { useHouseholdBudget } from "@/context/HouseholdBudgetContext";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import TabNav from "@/components/layout/TabNav";
 import { DemoBanner } from "@/components/household/layout/DemoBanner";
 import { useDemoMode } from "@/hooks/useHouseholdDemoMode";
 import {
@@ -145,6 +146,7 @@ const HouseholdIncome = () => {
   if (isLoading) {
     return (
       <DashboardLayout>
+        <TabNav group="household-money-in" />
         <div className="min-h-[40vh] flex items-center justify-center text-muted-foreground font-mono">
           Loading income…
         </div>
@@ -154,6 +156,7 @@ const HouseholdIncome = () => {
   if (error) {
     return (
       <DashboardLayout>
+        <TabNav group="household-money-in" />
         <div className="min-h-[40vh] flex items-center justify-center">
           <div className="border-2 border-destructive p-4 bg-card max-w-lg">
             <p className="font-bold mb-1">Failed to load income</p>
@@ -500,6 +503,7 @@ const HouseholdIncome = () => {
 
   return (
     <DashboardLayout>
+      <TabNav group="household-money-in" />
       <div className="space-y-4 md:space-y-6">
         {demoMode && <DemoBanner />}
         {/* Header */}

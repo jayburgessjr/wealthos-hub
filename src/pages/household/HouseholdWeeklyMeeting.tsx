@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import TabNav from "@/components/layout/TabNav";
 import { DemoBanner } from "@/components/household/layout/DemoBanner";
 import { useDemoMode } from "@/hooks/useHouseholdDemoMode";
 import {
@@ -1877,6 +1878,7 @@ const HouseholdWeeklyMeeting = () => {
 
   return (
     <DashboardLayout>
+      <TabNav group="household-insights" />
       <div className="space-y-6">
         {demoMode && <DemoBanner />}
 

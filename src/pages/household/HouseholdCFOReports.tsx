@@ -1,4 +1,5 @@
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import TabNav from "@/components/layout/TabNav";
 import { CFODashboard } from "@/components/household/dashboard/CFODashboard";
 import { BillPaymentAllocation } from "@/components/household/bills/BillPaymentAllocation";
 import { useHouseholdBudget } from "@/context/HouseholdBudgetContext";
@@ -58,6 +59,7 @@ export default function HouseholdCFOReports() {
 
   return (
     <DashboardLayout>
+      <TabNav group="household-insights" />
       <div className="space-y-6">
         <div>
           <div className="flex items-center gap-2 mb-1.5">

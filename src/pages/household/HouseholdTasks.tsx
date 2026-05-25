@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import TabNav from "@/components/layout/TabNav";
 import { useHouseholdBudget } from "@/context/HouseholdBudgetContext";
 import { Button } from "@/components/ui/button";
 import {
@@ -129,6 +130,7 @@ export default function HouseholdTasks() {
 
   return (
     <DashboardLayout>
+      <TabNav group="household-life" />
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>

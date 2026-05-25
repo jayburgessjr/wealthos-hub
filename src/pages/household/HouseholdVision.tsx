@@ -1,5 +1,6 @@
 import { useState } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import TabNav from "@/components/layout/TabNav";
 import {
   Card,
   CardHeader,
@@ -113,6 +114,7 @@ export default function HouseholdVision() {
 
   return (
     <DashboardLayout>
+      <TabNav group="household-life" />
       <div className="space-y-6">
         <div className="flex items-end justify-between">
           <div>

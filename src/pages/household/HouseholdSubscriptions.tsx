@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import TabNav from "@/components/layout/TabNav";
 import { useHouseholdBudget } from "@/context/HouseholdBudgetContext";
 import {
   Card,
@@ -26,6 +27,14 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+} from "@/components/ui/table";
 import {
   Calendar,
   Plus,
@@ -185,6 +194,7 @@ export default function HouseholdSubscriptions() {
 
   return (
     <DashboardLayout>
+      <TabNav group="household-money-out" />
       <div
         className="space-y-6"
         role="region"
@@ -461,7 +471,7 @@ export default function HouseholdSubscriptions() {
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap gap-3 items-center p-4 border-2 border-border bg-card">
+        <div className="flex flex-wrap gap-3 items-center py-3 border-b border-border/20">
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm font-mono uppercase text-muted-foreground">
@@ -509,86 +519,102 @@ export default function HouseholdSubscriptions() {
           )}
         </div>
 
-        <Card className="border-2">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                <CardTitle className="text-lg">
-                  {frequencyFilter === "all"
-                    ? "All Subscriptions"
-                    : frequencyFilter === "monthly"
-                      ? "Monthly Subscriptions"
-                      : "Annual Subscriptions"}
-                </CardTitle>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                className="font-mono text-xs"
-                onClick={() => {
-                  if (householdId) {
-                    qc.invalidateQueries({
-                      queryKey: budgetKeys.subscriptions(householdId),
-                    });
-                    toast.success("Synced");
-                  }
-                }}
-              >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Sync
-              </Button>
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-5 w-5" />
+              <span className="font-semibold">
+                {frequencyFilter === "all"
+                  ? "All Subscriptions"
+                  : frequencyFilter === "monthly"
+                    ? "Monthly Subscriptions"
+                    : "Annual Subscriptions"}
+              </span>
+              <span className="text-sm text-muted-foreground">
+                ({filteredSubscriptions.length} of {budget.subscriptions.length}
+                )
+              </span>
             </div>
-            <CardDescription>
-              Showing {filteredSubscriptions.length} of{" "}
-              {budget.subscriptions.length} subscriptions
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="space-y-2">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center justify-between p-3 border-2 border-border bg-card"
-                  >
-                    <div>
-                      <Skeleton className="h-4 w-32 mb-2" />
-                      <Skeleton className="h-3 w-48" />
-                    </div>
-                    <Skeleton className="h-7 w-24" />
+            <Button
+              variant="outline"
+              size="sm"
+              className="font-mono text-xs"
+              onClick={() => {
+                if (householdId) {
+                  qc.invalidateQueries({
+                    queryKey: budgetKeys.subscriptions(householdId),
+                  });
+                  toast.success("Synced");
+                }
+              }}
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Sync
+            </Button>
+          </div>
+
+          {isLoading ? (
+            <div className="space-y-2">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between border-b border-border/10 py-4 px-4"
+                >
+                  <div>
+                    <Skeleton className="h-4 w-32 mb-2" />
+                    <Skeleton className="h-3 w-48" />
                   </div>
-                ))}
-              </div>
-            ) : filteredSubscriptions.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                {budget.subscriptions.length === 0
-                  ? "No subscriptions yet"
-                  : "No subscriptions match the current filters"}
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {upcoming.map((s: any) => (
-                  <div
-                    key={s.id}
-                    className="flex items-center justify-between p-3 border-2 border-border bg-card"
-                  >
-                    <div className="flex items-center gap-3">
-                      <button
-                        aria-label="Edit subscription"
-                        className="p-1 border-2 border-border hover:bg-secondary"
-                        onClick={() => openEdit(s.id)}
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                      <div>
-                        <p className="font-medium flex items-center gap-2">
+                  <Skeleton className="h-7 w-24" />
+                </div>
+              ))}
+            </div>
+          ) : filteredSubscriptions.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              {budget.subscriptions.length === 0
+                ? "No subscriptions yet"
+                : "No subscriptions match the current filters"}
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow className="border-b border-border/10 hover:bg-transparent">
+                  <TableHead className="px-4 py-4 text-[12px] font-medium text-muted-foreground/60 uppercase tracking-[0.08em]">
+                    Name <span className="text-muted-foreground/40">↑↓</span>
+                  </TableHead>
+                  <TableHead className="px-4 py-4 text-[12px] font-medium text-muted-foreground/60 uppercase tracking-[0.08em]">
+                    Amount <span className="text-muted-foreground/40">↑↓</span>
+                  </TableHead>
+                  <TableHead className="px-4 py-4 text-[12px] font-medium text-muted-foreground/60 uppercase tracking-[0.08em]">
+                    Next Date{" "}
+                    <span className="text-muted-foreground/40">↑↓</span>
+                  </TableHead>
+                  <TableHead className="px-4 py-4 text-[12px] font-medium text-muted-foreground/60 uppercase tracking-[0.08em]">
+                    Category{" "}
+                    <span className="text-muted-foreground/40">↑↓</span>
+                  </TableHead>
+                  <TableHead className="px-4 py-4 text-[12px] font-medium text-muted-foreground/60 uppercase tracking-[0.08em] text-right">
+                    Actions
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {upcoming.map((s: any) => {
+                  const category = budget.categories.find(
+                    (c: any) => c.id === s.categoryId,
+                  );
+                  return (
+                    <TableRow
+                      key={s.id}
+                      className="border-b border-border/10 last:border-0 hover:bg-foreground/[0.02] transition-colors"
+                    >
+                      <TableCell className="px-4 py-4">
+                        <div className="flex items-center gap-2 flex-wrap">
                           {s.confirmed ? (
-                            <CheckCircle2 className="w-4 h-4 text-green-500" />
+                            <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
                           ) : (
-                            <Circle className="w-4 h-4 text-muted-foreground" />
+                            <Circle className="w-4 h-4 text-muted-foreground shrink-0" />
                           )}
-                          {s.name}
+                          <span className="font-medium">{s.name}</span>
                           <Badge
                             variant={
                               (s.frequency || "monthly") === "annual"
@@ -609,69 +635,90 @@ export default function HouseholdSubscriptions() {
                               <Zap className="h-3 w-3" /> Auto-Pay
                             </Badge>
                           )}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {new Date(s.nextDate).toLocaleDateString()} •{" "}
-                          {formatCurrency(Number(s.amount), {
-                            minimumFractionDigits: 2,
-                          })}
-                          {s.frequency === "annual" && (
-                            <span className="ml-1">
-                              (≈{" "}
-                              {formatCurrency(Number(s.amount) / 12, {
-                                minimumFractionDigits: 2,
-                              })}
-                              /mo)
-                            </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-4 py-4 font-mono">
+                        {formatCurrency(Number(s.amount), {
+                          minimumFractionDigits: 2,
+                        })}
+                        {s.frequency === "annual" && (
+                          <span className="ml-1 text-xs text-muted-foreground">
+                            (≈{" "}
+                            {formatCurrency(Number(s.amount) / 12, {
+                              minimumFractionDigits: 2,
+                            })}
+                            /mo)
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell className="px-4 py-4 font-mono text-sm">
+                        {new Date(s.nextDate).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="px-4 py-4 text-sm text-muted-foreground">
+                        {category
+                          ? `${category.icon ?? ""} ${category.name}`.trim()
+                          : "—"}
+                      </TableCell>
+                      <TableCell className="px-4 py-4 text-right">
+                        <div className="flex items-center gap-2 justify-end">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label="Edit subscription"
+                            onClick={() => openEdit(s.id)}
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          {!s.confirmed && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="font-mono text-xs"
+                              onClick={() =>
+                                updateSubscription(s.id, {
+                                  confirmed: !s.confirmed,
+                                })
+                              }
+                            >
+                              Confirm
+                            </Button>
                           )}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="font-mono text-xs"
-                        onClick={() => {
-                          const months = s.frequency === "annual" ? 12 : 1;
-                          updateSubscription(s.id, {
-                            nextDate: new Date(
-                              new Date(s.nextDate).setMonth(
-                                new Date(s.nextDate).getMonth() + months,
-                              ),
-                            )
-                              .toISOString()
-                              .slice(0, 10),
-                          });
-                        }}
-                      >
-                        Skip
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="font-mono text-xs"
-                        onClick={() =>
-                          updateSubscription(s.id, { confirmed: !s.confirmed })
-                        }
-                      >
-                        {s.confirmed ? "Unconfirm" : "Confirm"}
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        className="font-mono text-xs"
-                        onClick={() => deleteSubscription(s.id)}
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="font-mono text-xs"
+                            onClick={() => {
+                              const months = s.frequency === "annual" ? 12 : 1;
+                              updateSubscription(s.id, {
+                                nextDate: new Date(
+                                  new Date(s.nextDate).setMonth(
+                                    new Date(s.nextDate).getMonth() + months,
+                                  ),
+                                )
+                                  .toISOString()
+                                  .slice(0, 10),
+                              });
+                            }}
+                          >
+                            Skip
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            className="font-mono text-xs"
+                            onClick={() => deleteSubscription(s.id)}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          )}
+        </div>
 
         {/* Edit Dialog */}
         <Dialog open={editOpen} onOpenChange={setEditOpen}>

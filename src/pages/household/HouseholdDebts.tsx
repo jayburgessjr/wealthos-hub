@@ -1,4 +1,5 @@
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import TabNav from "@/components/layout/TabNav";
 import { Progress } from "@/components/ui/progress";
 import {
   Card,
@@ -34,6 +35,14 @@ import {
   useCreateBillMutation,
   useUpdateBillMutation,
 } from "@/hooks/useHouseholdBudgetData";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+} from "@/components/ui/table";
 
 export default function HouseholdDebts() {
   const { householdId, budget } = useHouseholdBudget();
@@ -154,6 +163,7 @@ export default function HouseholdDebts() {
 
   return (
     <DashboardLayout>
+      <TabNav group="household-money-out" />
       <div className="space-y-6" role="region" aria-labelledby="debts-title">
         <div className="flex items-end justify-between">
           <div>
@@ -251,251 +261,275 @@ export default function HouseholdDebts() {
                 No outstanding debts
               </div>
             ) : (
-              <div className="space-y-2">
-                {debts.map((d: any) => {
-                  const extraNum = parseFloat(extra) || 0;
-                  let months = 0;
-                  if (strategy === "none") {
-                    months = monthsSimple(
-                      Number(d.current_balance || 0),
-                      Number(d.monthly_payment || 0),
-                      Number(d.interest_rate || 0),
-                      extraNum / Math.max(debts.length, 1),
-                    );
-                  } else {
-                    const map = simulate(debts, extraNum, strategy);
-                    months =
-                      map.get(d.id) ||
-                      monthsSimple(
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-b border-border/10 hover:bg-transparent">
+                    <TableHead className="px-4 py-4 text-[12px] font-medium text-muted-foreground/60 uppercase tracking-[0.08em]">
+                      Name <span className="text-muted-foreground/40">↑↓</span>
+                    </TableHead>
+                    <TableHead className="px-4 py-4 text-[12px] font-medium text-muted-foreground/60 uppercase tracking-[0.08em]">
+                      Monthly Payment{" "}
+                      <span className="text-muted-foreground/40">↑↓</span>
+                    </TableHead>
+                    <TableHead className="px-4 py-4 text-[12px] font-medium text-muted-foreground/60 uppercase tracking-[0.08em]">
+                      Est. Months{" "}
+                      <span className="text-muted-foreground/40">↑↓</span>
+                    </TableHead>
+                    <TableHead className="px-4 py-4 text-[12px] font-medium text-muted-foreground/60 uppercase tracking-[0.08em]">
+                      Est. Payoff{" "}
+                      <span className="text-muted-foreground/40">↑↓</span>
+                    </TableHead>
+                    <TableHead className="px-4 py-4 text-[12px] font-medium text-muted-foreground/60 uppercase tracking-[0.08em] text-right">
+                      Actions
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {debts.map((d: any) => {
+                    const extraNum = parseFloat(extra) || 0;
+                    let months = 0;
+                    if (strategy === "none") {
+                      months = monthsSimple(
                         Number(d.current_balance || 0),
                         Number(d.monthly_payment || 0),
                         Number(d.interest_rate || 0),
+                        extraNum / Math.max(debts.length, 1),
                       );
-                  }
-                  const payoffDate = new Date();
-                  payoffDate.setMonth(
-                    payoffDate.getMonth() + (isFinite(months) ? months : 0),
-                  );
-                  const nearPayoff = months <= 3;
-                  return (
-                    <div
-                      key={d.id}
-                      className="grid grid-cols-1 md:grid-cols-5 gap-3 p-3 border-2 border-border bg-card"
-                    >
-                      <div>
-                        <p className="font-medium">{d.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          Current ${Number(d.current_balance).toFixed(2)} •
-                          Original ${Number(d.total_balance).toFixed(2)}
-                        </p>
-                        <div className="mt-2 mb-1">
-                          <div className="flex justify-between text-[10px] mb-1">
-                            <span className="text-muted-foreground">
-                              Progress
-                            </span>
-                            <span className="font-mono">
-                              {Math.round(
+                    } else {
+                      const map = simulate(debts, extraNum, strategy);
+                      months =
+                        map.get(d.id) ||
+                        monthsSimple(
+                          Number(d.current_balance || 0),
+                          Number(d.monthly_payment || 0),
+                          Number(d.interest_rate || 0),
+                        );
+                    }
+                    const payoffDate = new Date();
+                    payoffDate.setMonth(
+                      payoffDate.getMonth() + (isFinite(months) ? months : 0),
+                    );
+                    const nearPayoff = months <= 3;
+                    return (
+                      <TableRow
+                        key={d.id}
+                        className="border-b border-border/10 last:border-0 hover:bg-foreground/[0.02] transition-colors"
+                      >
+                        <TableCell className="px-4 py-4">
+                          <p className="font-medium">{d.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Current ${Number(d.current_balance).toFixed(2)} •
+                            Original ${Number(d.total_balance).toFixed(2)}
+                          </p>
+                          <div className="mt-2 mb-1 max-w-[200px]">
+                            <div className="flex justify-between text-[10px] mb-1">
+                              <span className="text-muted-foreground">
+                                Progress
+                              </span>
+                              <span className="font-mono">
+                                {Math.round(
+                                  ((Number(d.total_balance) -
+                                    Number(d.current_balance)) /
+                                    Number(d.total_balance)) *
+                                    100,
+                                )}
+                                %
+                              </span>
+                            </div>
+                            <Progress
+                              value={
                                 ((Number(d.total_balance) -
                                   Number(d.current_balance)) /
                                   Number(d.total_balance)) *
-                                  100,
-                              )}
-                              %
-                            </span>
+                                100
+                              }
+                              className="h-1.5"
+                            />
                           </div>
-                          <Progress
-                            value={
-                              ((Number(d.total_balance) -
-                                Number(d.current_balance)) /
-                                Number(d.total_balance)) *
-                              100
-                            }
-                            className="h-1.5"
-                          />
-                        </div>
-                        {nearPayoff && (
-                          <span className="text-[10px] font-mono px-1 py-[1px] border border-yellow-600 text-yellow-700">
-                            Nearly paid off
-                          </span>
-                        )}
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">
-                          Monthly Payment
-                        </p>
-                        <span className="font-mono font-bold">
+                          {nearPayoff && (
+                            <span className="text-[10px] font-mono px-1 py-[1px] border border-yellow-600 text-yellow-700">
+                              Nearly paid off
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell className="px-4 py-4 font-mono font-bold">
                           ${Number(d.monthly_payment).toFixed(2)}/mo
-                        </span>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">
-                          Est. Months
-                        </p>
-                        <span className="font-mono font-bold">
+                        </TableCell>
+                        <TableCell className="px-4 py-4 font-mono font-bold">
                           {isFinite(months) ? months : "∞"}
-                        </span>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">
-                          Est. Payoff Date
-                        </p>
-                        <span className="font-mono font-bold">
+                        </TableCell>
+                        <TableCell className="px-4 py-4 font-mono font-bold">
                           {isFinite(months)
                             ? payoffDate.toLocaleDateString()
                             : "—"}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 justify-end">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="font-mono text-xs"
-                          onClick={() => {
-                            setScheduleDebtId(d.id as string);
-                            setScheduleOpen(true);
-                          }}
-                        >
-                          Schedule
-                        </Button>
-                        {d.payment_bill_id && (
-                          <label className="text-[11px] font-mono flex items-center gap-2 mr-2">
-                            <input
-                              type="checkbox"
-                              checked={(d.sync_to_bill ?? true) as boolean}
-                              onChange={async (e) => {
-                                try {
-                                  await updateDebt.mutateAsync({
-                                    id: d.id as string,
-                                    updates: { syncToBill: e.target.checked },
+                        </TableCell>
+                        <TableCell className="px-4 py-4 text-right">
+                          <div className="flex items-center gap-2 justify-end flex-wrap">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="font-mono text-xs"
+                              onClick={() => {
+                                setScheduleDebtId(d.id as string);
+                                setScheduleOpen(true);
+                              }}
+                            >
+                              Schedule
+                            </Button>
+                            {d.payment_bill_id && (
+                              <label className="text-[11px] font-mono flex items-center gap-2 mr-2">
+                                <input
+                                  type="checkbox"
+                                  checked={(d.sync_to_bill ?? true) as boolean}
+                                  onChange={async (e) => {
+                                    try {
+                                      await updateDebt.mutateAsync({
+                                        id: d.id as string,
+                                        updates: {
+                                          syncToBill: e.target.checked,
+                                        },
+                                      });
+                                      toast.success(
+                                        e.target.checked
+                                          ? "Enabled bill sync"
+                                          : "Disabled bill sync",
+                                      );
+                                    } catch {
+                                      toast.error(
+                                        "Failed to update sync setting",
+                                      );
+                                    }
+                                  }}
+                                />
+                                Sync to bill
+                              </label>
+                            )}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="font-mono text-xs"
+                              onClick={async () => {
+                                const val = prompt(
+                                  "New monthly payment",
+                                  String(d.monthly_payment || 0),
+                                );
+                                if (val === null) return;
+                                const newPay = parseFloat(val) || 0;
+                                await updateDebt.mutateAsync({
+                                  id: d.id,
+                                  updates: { monthlyPayment: newPay },
+                                });
+                                if (
+                                  d.payment_bill_id &&
+                                  (d.sync_to_bill ?? true)
+                                ) {
+                                  updateBill.mutate({
+                                    id: d.payment_bill_id as string,
+                                    updates: { amount: newPay },
                                   });
-                                  toast.success(
-                                    e.target.checked
-                                      ? "Enabled bill sync"
-                                      : "Disabled bill sync",
-                                  );
-                                } catch {
-                                  toast.error("Failed to update sync setting");
                                 }
                               }}
-                            />
-                            Sync to bill
-                          </label>
-                        )}
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="font-mono text-xs"
-                          onClick={async () => {
-                            const val = prompt(
-                              "New monthly payment",
-                              String(d.monthly_payment || 0),
-                            );
-                            if (val === null) return;
-                            const newPay = parseFloat(val) || 0;
-                            await updateDebt.mutateAsync({
-                              id: d.id,
-                              updates: { monthlyPayment: newPay },
-                            });
-                            if (d.payment_bill_id && (d.sync_to_bill ?? true)) {
-                              updateBill.mutate({
-                                id: d.payment_bill_id as string,
-                                updates: { amount: newPay },
-                              });
-                            }
-                          }}
-                        >
-                          Edit
-                        </Button>
-                        {!d.payment_bill_id && (
-                          <Select
-                            onValueChange={async (value) => {
-                              try {
-                                if (!householdId) {
-                                  toast.error("Sign in to link a bill");
-                                  return;
-                                }
-                                if (value === "__create_new__") {
-                                  const bill = await createBill.mutateAsync({
-                                    name: (d.name as string) || "Debt Payment",
-                                    amount: Number(d.monthly_payment || 0) || 0,
-                                    dueDate: new Date()
-                                      .toISOString()
-                                      .slice(0, 10),
-                                    categoryId:
-                                      (d.category_id as string) || null,
-                                    isRecurring: true,
-                                    frequency: "monthly",
-                                    paymentStatus: "unpaid",
-                                    amountPaid: 0,
-                                    totalBalance:
-                                      Number(d.current_balance || 0) || 0,
-                                  });
-                                  await updateDebt.mutateAsync({
-                                    id: d.id as string,
-                                    updates: {
-                                      paymentBillId: bill.id as string,
-                                      syncToBill: true,
-                                    },
-                                  });
-                                  toast.success("Linked to new bill");
-                                } else {
-                                  await updateDebt.mutateAsync({
-                                    id: d.id as string,
-                                    updates: {
-                                      paymentBillId: value,
-                                      syncToBill: true,
-                                    },
-                                  });
-                                  toast.success("Linked to existing bill");
-                                }
-                              } catch {
-                                toast.error("Failed to link bill");
-                              }
-                            }}
-                          >
-                            <SelectTrigger className="w-[110px] h-8 font-mono text-xs">
-                              <SelectValue placeholder="Link Bill" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="__create_new__">
-                                + Create New Bill
-                              </SelectItem>
-                              {budget.bills
-                                .filter((b) => b.isActive !== false)
-                                .map((b) => (
-                                  <SelectItem key={b.id} value={b.id}>
-                                    {b.name} (${Number(b.amount).toFixed(0)})
+                            >
+                              Edit
+                            </Button>
+                            {!d.payment_bill_id && (
+                              <Select
+                                onValueChange={async (value) => {
+                                  try {
+                                    if (!householdId) {
+                                      toast.error("Sign in to link a bill");
+                                      return;
+                                    }
+                                    if (value === "__create_new__") {
+                                      const bill = await createBill.mutateAsync(
+                                        {
+                                          name:
+                                            (d.name as string) ||
+                                            "Debt Payment",
+                                          amount:
+                                            Number(d.monthly_payment || 0) || 0,
+                                          dueDate: new Date()
+                                            .toISOString()
+                                            .slice(0, 10),
+                                          categoryId:
+                                            (d.category_id as string) || null,
+                                          isRecurring: true,
+                                          frequency: "monthly",
+                                          paymentStatus: "unpaid",
+                                          amountPaid: 0,
+                                          totalBalance:
+                                            Number(d.current_balance || 0) || 0,
+                                        },
+                                      );
+                                      await updateDebt.mutateAsync({
+                                        id: d.id as string,
+                                        updates: {
+                                          paymentBillId: bill.id as string,
+                                          syncToBill: true,
+                                        },
+                                      });
+                                      toast.success("Linked to new bill");
+                                    } else {
+                                      await updateDebt.mutateAsync({
+                                        id: d.id as string,
+                                        updates: {
+                                          paymentBillId: value,
+                                          syncToBill: true,
+                                        },
+                                      });
+                                      toast.success("Linked to existing bill");
+                                    }
+                                  } catch {
+                                    toast.error("Failed to link bill");
+                                  }
+                                }}
+                              >
+                                <SelectTrigger className="w-[110px] h-8 font-mono text-xs">
+                                  <SelectValue placeholder="Link Bill" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="__create_new__">
+                                    + Create New Bill
                                   </SelectItem>
-                                ))}
-                            </SelectContent>
-                          </Select>
-                        )}
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="font-mono text-xs"
-                          onClick={() =>
-                            updateDebt.mutate({
-                              id: d.id,
-                              updates: { isActive: false },
-                            })
-                          }
-                        >
-                          Archive
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          className="font-mono text-xs"
-                          onClick={() => deleteDebt.mutate(d.id)}
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+                                  {budget.bills
+                                    .filter((b) => b.isActive !== false)
+                                    .map((b) => (
+                                      <SelectItem key={b.id} value={b.id}>
+                                        {b.name} ($
+                                        {Number(b.amount).toFixed(0)})
+                                      </SelectItem>
+                                    ))}
+                                </SelectContent>
+                              </Select>
+                            )}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="font-mono text-xs"
+                              onClick={() =>
+                                updateDebt.mutate({
+                                  id: d.id,
+                                  updates: { isActive: false },
+                                })
+                              }
+                            >
+                              Archive
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              className="font-mono text-xs"
+                              onClick={() => deleteDebt.mutate(d.id)}
+                            >
+                              Delete
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
             )}
           </CardContent>
         </Card>

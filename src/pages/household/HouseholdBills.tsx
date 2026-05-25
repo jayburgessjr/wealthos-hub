@@ -1,5 +1,6 @@
 import { useState } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import TabNav from "@/components/layout/TabNav";
 import { BillPayments } from "@/components/household/dashboard/BillPayments";
 import { BillCalendarView } from "@/components/household/bills/BillCalendarView";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
@@ -17,6 +18,7 @@ export default function HouseholdBills() {
 
   return (
     <DashboardLayout>
+      <TabNav group="household-money-out" />
       <div className="space-y-6">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
