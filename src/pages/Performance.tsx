@@ -14,16 +14,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { TrendingDown, TrendingUp, Award, AlertTriangle, BarChart3, Target } from "lucide-react";
 import { motion } from "framer-motion";
+import { sharpe as computeSharpe, maxDrawdownFromEquity, var95 as computeVar95 } from "@/lib/riskMetrics";
 
 // ── Math helpers ──────────────────────────────────────────────────────────────
-function calcSharpe(returns: number[], riskFreeRate = 0.045) {
-  if (returns.length < 2) return null;
-  const mean = returns.reduce((a, b) => a + b, 0) / returns.length;
-  const annualReturn = mean * 252;
-  const std = Math.sqrt(returns.reduce((acc, r) => acc + Math.pow(r - mean, 2), 0) / (returns.length - 1)) * Math.sqrt(252);
-  return std === 0 ? null : ((annualReturn - riskFreeRate) / std).toFixed(2);
-}
-
 function calcSortino(returns: number[], riskFreeRate = 0.045) {
   if (returns.length < 2) return null;
   const mean = returns.reduce((a, b) => a + b, 0) / returns.length;
@@ -32,18 +25,6 @@ function calcSortino(returns: number[], riskFreeRate = 0.045) {
   if (downsideReturns.length === 0) return "∞";
   const downDev = Math.sqrt(downsideReturns.reduce((acc, r) => acc + Math.pow(r, 2), 0) / downsideReturns.length) * Math.sqrt(252);
   return downDev === 0 ? null : ((annualReturn - riskFreeRate) / downDev).toFixed(2);
-}
-
-function calcMaxDrawdown(equityCurve: number[]) {
-  let peak = equityCurve[0] ?? 0;
-  let maxDD = 0;
-  let ddStart = 0, ddEnd = 0, peakIdx = 0;
-  equityCurve.forEach((val, i) => {
-    if (val > peak) { peak = val; peakIdx = i; }
-    const dd = peak > 0 ? (val - peak) / peak : 0;
-    if (dd < maxDD) { maxDD = dd; ddStart = peakIdx; ddEnd = i; }
-  });
-  return { maxDD: (maxDD * 100).toFixed(1), ddStart, ddEnd };
 }
 
 function calcProfitFactor(transactions: any[]) {
@@ -111,14 +92,15 @@ export default function Performance() {
     const dd = peakVal > 0 ? ((d.pnl - peakVal) / peakVal) * 100 : 0;
     return { date: d.date, drawdown: parseFloat(dd.toFixed(2)) };
   });
-  const { maxDD } = calcMaxDrawdown(equitySeries);
+  const maxDD = (maxDrawdownFromEquity(equitySeries) * 100).toFixed(1);
   const currentDD = drawdownData.length > 0 ? drawdownData[drawdownData.length - 1].drawdown : 0;
 
   // ── Daily returns for Sharpe ────────────────────────────────────────────────
   const totalCapital = 100000; // baseline for return calc
   const dailyReturns = transactions.map(t => (t.pnl_realized ?? 0) / totalCapital);
-  const sharpe = calcSharpe(dailyReturns);
+  const sharpe = computeSharpe(dailyReturns, 0.045);
   const sortino = calcSortino(dailyReturns);
+  const valueAtRisk95 = dailyReturns.length > 0 ? computeVar95(dailyReturns) : null;
 
   // ── Strategy breakdown ─────────────────────────────────────────────────────
   const stratMap: Record<string, { pnl: number; wins: number; total: number; avgHold: number }> = {};
@@ -186,12 +168,12 @@ export default function Performance() {
         </div>
 
         {/* ── Risk-Adjusted Stats ── */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
             {
-              icon: Award, label: "Sharpe Ratio", value: sharpe ?? "—",
+              icon: Award, label: "Sharpe Ratio", value: sharpe !== null ? sharpe.toFixed(2) : "—",
               sub: "Risk-adjusted return (target > 1.0)",
-              color: sharpe && parseFloat(String(sharpe)) >= 1 ? "text-bullish" : "text-watch",
+              color: sharpe !== null && sharpe >= 1 ? "text-bullish" : "text-watch",
             },
             {
               icon: TrendingUp, label: "Sortino Ratio", value: sortino ?? "—",
@@ -202,6 +184,11 @@ export default function Performance() {
               icon: TrendingDown, label: "Max Drawdown", value: `${maxDD}%`,
               sub: `Current DD: ${currentDD.toFixed(1)}%`,
               color: parseFloat(maxDD) < -10 ? "text-bearish" : "text-watch",
+            },
+            {
+              icon: AlertTriangle, label: "Value at Risk (95%)", value: valueAtRisk95 !== null ? `${(valueAtRisk95 * 100).toFixed(2)}%` : "—",
+              sub: "Historical 1-day loss at 95% confidence",
+              color: "text-watch",
             },
           ].map(({ icon: Icon, label, value, sub, color }) => (
             <motion.div

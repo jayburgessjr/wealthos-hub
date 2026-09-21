@@ -33,7 +33,7 @@ Accelerate development of **AJE** — an AI-powered personal hedge fund dashboar
 - Changing `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, or any `.env` secrets
 - Installing **production dependencies** not already in the project's ecosystem
 - Deleting any file outside of a stale test artifact or build artifact
-- Any operation that touches the Supabase project `exdocqfinannitrapqdz` remotely
+- Any operation that touches the Supabase project `magpawmyuqyzgczewxsl` remotely
 - Schema changes that DROP tables, DROP columns, or remove RLS policies
 - Any action that would modify shared infrastructure, CI/CD pipelines, or external APIs
 
