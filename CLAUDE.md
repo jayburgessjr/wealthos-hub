@@ -4,6 +4,8 @@
 > It defines mission, permissions, memory, context budget, and self-correction rules.
 > Read this file in full at the start of every session before touching any code.
 
+Follow the global Revuity Engineering Operating Model in `~/.claude/ENGINEERING-MODEL.md`. These repository instructions supplement that model and override it only where explicitly stated. Ordinary repo tooling needed to implement and test a classified build does not need separate approval. The production, deployment, data, and destructive-action gates below remain in force.
+
 ---
 
 ## 1. Mission & Constraints
@@ -22,7 +24,7 @@ Accelerate development of **AJE** — an AI-powered personal hedge fund dashboar
 - Add shadcn/ui components via `npx shadcn@latest add <component>`
 - Write or update test files under `src/test/` or alongside components
 - Update `MEMORY.md` and memory files under `.claude/projects/`
-- Refactor code within a clearly scoped request (one file or one feature area at a time)
+- Refactor code within a clearly scoped request (scope set by the build classification and its Definition of Done)
 
 ### Requires Human Approval Before Proceeding
 
@@ -50,7 +52,7 @@ Accelerate development of **AJE** — an AI-powered personal hedge fund dashboar
 
 ## 2. Tool Permissions
 
-All tool use is governed by the principle: **if it's not listed here as approved, ask first.**
+All tool use is governed by the principle: **if it's not listed here as approved and isn't ordinary local build and test work, ask first.**
 
 ### Read (unrestricted)
 - **Approved:** Any file in the repo for context gathering; always read before editing
