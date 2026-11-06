@@ -64,12 +64,17 @@ export async function approveOrder(d: ApproveDeps, input: ApproveInput): Promise
   const account = await d.broker.getAccount();
   const state = await syncState(d.repo, account.equity, d.now());
   const positions = await d.repo.listOpenPositions();
+  const held = order.intent === "close" ? positions.find((x) => x.id === order.positionId) : undefined;
   let refPrice: number | null;
   if (isOptionStructure(order.structure)) {
-    const a = analyseOption(order.structure, order.legs);
-    refPrice = a.ok ? Math.abs(a.netPremium) : null;
+    if (held) {
+      refPrice = held.markPrice ?? held.avgPrice; // option closes price off the position's last mark
+    } else {
+      const a = analyseOption(order.structure, order.legs);
+      refPrice = a.ok ? Math.abs(a.netPremium) : null;
+    }
   } else {
-    refPrice = await d.quote(order.symbol);
+    refPrice = (await d.quote(order.symbol)) ?? (held ? (held.markPrice ?? held.avgPrice) : null);
   }
   const riskInput: RiskInput = {
     order, refPrice: refPrice ?? NaN, equity: account.equity, dayStartEquity: state.dayStartEquity, highWaterMark: state.highWaterMark,
@@ -108,8 +113,18 @@ export async function approveOrder(d: ApproveDeps, input: ApproveInput): Promise
     stopPrice: order.stopPrice as number, targetPrice: order.targetPrice, legs: order.legs,
   });
 
+  // The broker request may carry details the stored proposal does not (position legs and group on a close, a mark-based
+  // price for option closes). The stored order row above is unchanged, so the database still sees the approved economics.
+  const optionOrder = isOptionStructure(order.structure);
+  const brokerOrder = {
+    ...order,
+    positionGroup: held ? held.positionGroup : optionOrder ? approvalId : order.positionGroup,
+    legs: order.legs ?? (held?.legs as typeof order.legs),
+    ...(optionOrder && held && refPrice ? { limitPrice: refPrice } : {}),
+  };
+
   try {
-    const fill = await d.broker.submitOrder({ clientOrderId: approvalId, approvalId, symbol: order.symbol, order, decision: risk, mode: d.mode });
+    const fill = await d.broker.submitOrder({ clientOrderId: approvalId, approvalId, symbol: order.symbol, order: brokerOrder, decision: risk, mode: d.mode });
     const status = fill.status === "filled" ? "filled" : fill.status === "partially_filled" ? "partially_filled" : fill.status === "rejected" ? "rejected" : fill.status === "canceled" ? "canceled" : "submitted";
     await d.repo.updateOrder(orderId, { status, brokerOrderId: fill.brokerOrderId, filledQty: fill.filledQty, avgFillPrice: fill.avgFillPrice });
 
@@ -124,7 +139,7 @@ export async function approveOrder(d: ApproveDeps, input: ApproveInput): Promise
         await d.repo.openPosition({
           instrumentId: order.instrumentId, symbol: order.symbol, thesisId: order.thesisId, agentName: order.agentName, mode: d.mode,
           structure: order.structure, legs: order.legs, qty: fill.filledQty, avgPrice: entry, stopPrice: order.stopPrice as number,
-          targetPrice: order.targetPrice, maxLoss: risk.sized.maxLoss, exposure: risk.sized.exposure, openedOrderId: orderId, positionGroup: order.positionGroup,
+          targetPrice: order.targetPrice, maxLoss: risk.sized.maxLoss, exposure: risk.sized.exposure, openedOrderId: orderId, positionGroup: optionOrder ? approvalId : order.positionGroup,
         });
       } else if (order.positionId) {
         await d.repo.closePosition(order.positionId, entry, orderId);

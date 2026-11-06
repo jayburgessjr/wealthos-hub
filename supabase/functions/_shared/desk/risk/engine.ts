@@ -104,13 +104,12 @@ export function evaluateRisk(input: RiskInput): RiskDecision {
 
   if (o.intent === "close") {
     const p = input.openPositions.find((x) => x.positionId && x.positionId === o.positionId);
-    add(
-      "close_valid",
-      !!p && o.qty <= p.qty + EPS,
-      p ? o.qty : "no position",
-      p ? p.qty : "open position",
-      p ? "Close quantity within open quantity." : "Close order must reference an open position.",
-    );
+    add("close_valid", !!p && o.qty <= p.qty + EPS, p ? o.qty : "no position", p ? p.qty : "open position", p ? "Close quantity within open quantity." : "Close order must reference an open position.");
+    if (p) {
+      // A close must reduce the referenced position: same symbol and structure, opposite side.
+      const expectSide = CREDIT_STRUCTURES.includes(p.structure) ? "buy" : "sell";
+      add("close_matches_position", o.symbol === p.symbol && o.structure === p.structure && o.side === expectSide, `${o.side} ${o.symbol} ${o.structure}`, `${expectSide} ${p.symbol} ${p.structure}`, "A close must be the opposite side of the same symbol and structure as the position.");
+    }
     return finish(checks, sized, { tripKillSwitch, newHighWaterMark: newHWM, dailyLimitHit: false });
   }
 
@@ -120,6 +119,7 @@ export function evaluateRisk(input: RiskInput): RiskDecision {
   if (ddHit) tripKillSwitch = true;
   add("drawdown_kill", !ddHit, pct(Math.max(0, drawdown)), pct(L.DRAWDOWN_KILL), ddHit ? `Drawdown ${pct(drawdown)} reached the ${pct(L.DRAWDOWN_KILL)} kill-switch limit.` : "Drawdown within limit.");
 
+  add("limit_price", o.orderType !== "limit" || pos(o.limitPrice), o.limitPrice ?? "missing", "finite > 0 for limit orders", "A limit order needs a positive limit price.");
   let entryRef = input.refPrice;
   if (o.orderType === "limit" && pos(o.limitPrice)) entryRef = Math.max(o.limitPrice, input.refPrice);
 
@@ -148,6 +148,7 @@ export function evaluateRisk(input: RiskInput): RiskDecision {
     const posPct = (sameUnderlying + exposure) / equity;
     add("position_cap", posPct <= L.MAX_POSITION_PCT + EPS, pct(posPct), pct(L.MAX_POSITION_PCT), `Position would be ${pct(posPct)} of equity.`);
   } else {
+    add("whole_contracts", Number.isInteger(o.qty), o.qty, "whole number", "Option orders trade whole contracts.");
     const a = analyseOption(o.structure, o.legs);
     add("defined_risk", a.ok, a.ok ? "defined" : (a.reason ?? "undefined"), "defined risk only", a.ok ? "Structure is defined-risk." : `Rejected: ${a.reason}.`);
     const credit = CREDIT_STRUCTURES.includes(o.structure);

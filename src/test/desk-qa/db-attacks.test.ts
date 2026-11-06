@@ -129,14 +129,14 @@ describe("attack: approval replay, forgery and tamper", () => {
   });
   // DEFECT D15 (non-blocking): decided_at is client-supplied, so an owner session can post a future decided_at and the
   // 5-minute freshness window never expires. Smallest fix: `new.decided_at := now()` in desk_approvals_guard.
-  it.fails("the owner cannot extend the 5-minute approval window with a future decided_at", async () => {
+  it("the owner cannot extend the 5-minute approval window with a future decided_at", async () => {
     const po = await h.seedProposal();
     const ap = await h.approve(po, { decided_at: "now() + interval '30 days'" });
     const r = await h.q("postgres", null, `select (decided_at > now() + interval '1 minute') as future from public.desk_approvals where id='${ap}'`);
     expect(r[0].future).toBe(false);
   });
   // DEFECT D16 (non-blocking): desk_orders.client_order_id is documented as = approval_id but only unique, so an order can carry a forged id.
-  it.fails("an order's client_order_id must equal its approval id", async () => {
+  it("an order's client_order_id must equal its approval id", async () => {
     const { po, ap } = await approvedProposal();
     await expect(
       h.q("service_role", null, `insert into public.desk_orders(approval_id, proposed_order_id, instrument_id, mode, broker, client_order_id, intent, structure, side, qty, order_type, limit_price, stop_price, target_price)
@@ -198,7 +198,7 @@ describe("attack: immutability and deletion", () => {
   });
   // DEFECT D17 (non-blocking): Postgres orders NaN above every number, so `stop_price > 0` and `qty > 0` accept the string 'NaN'.
   // The engine rejects a NaN stop at approval, so no order can result, but the "stop is NOT NULL and > 0" guarantee has a hole.
-  it.fails("a NaN stop price or quantity is refused by the proposal constraints", async () => {
+  it("a NaN stop price or quantity is refused by the proposal constraints", async () => {
     const cols = `instrument_id, agent_name, side, qty, order_type, limit_price`;
     await expect(h.q("service_role", null, `insert into public.desk_proposed_orders(${cols}, stop_price) values ('${h.instrumentId}','a','buy',1,'limit',100,'NaN')`)).rejects.toThrow();
     await expect(h.q("service_role", null, `insert into public.desk_proposed_orders(${cols}, stop_price) values ('${h.instrumentId}','a','buy','NaN','limit',100,95)`)).rejects.toThrow();

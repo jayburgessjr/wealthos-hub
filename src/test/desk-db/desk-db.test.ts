@@ -17,6 +17,13 @@ const DESK_TABLES = [
   'desk_scorecard', 'desk_risk_events',
 ];
 
+async function backdate(approvalId: string, interval: string) {
+  // decided_at is server-set now, so a stale approval can only be simulated by a superuser bypassing the guard trigger.
+  await h.q('postgres', null, `alter table public.desk_approvals disable trigger trg_desk_approvals_guard`);
+  await h.q('postgres', null, `update public.desk_approvals set decided_at = now() - interval '${interval}' where id = '${approvalId}'`);
+  await h.q('postgres', null, `alter table public.desk_approvals enable trigger trg_desk_approvals_guard`);
+}
+
 describe('migration', () => {
   it('applies cleanly on an empty database and creates all 13 tables with RLS enabled and forced', async () => {
     const rows = await h.db.query<{ relname: string; relrowsecurity: boolean; relforcerowsecurity: boolean }>(
@@ -32,7 +39,7 @@ describe('migration', () => {
   it('is additive: no destructive statements and no reference to non-desk public objects', () => {
     const sql = readFileSync(MIGRATION_PATH, 'utf8').replace(/--.*$/gm, '').toLowerCase();
     expect(sql).not.toMatch(/\bdrop\s+(table|column|schema|policy|trigger|function|view)\b/);
-    expect(sql).not.toMatch(/\btruncate\b/);
+    expect(sql).not.toMatch(/(^|;)\s*truncate\s/m); // only the protection triggers and revokes may mention truncate
     expect(sql).not.toMatch(/\bdelete\s+from\b/);
     expect(sql).not.toMatch(/\balter\s+(role|system|database)\b/);
     const refs = [...sql.matchAll(/public\.([a-z_%]+)/g)].map((m) => m[1]);
@@ -153,7 +160,7 @@ describe('orders guard', () => {
     await expect(
       h.q('service_role', null,
         `insert into public.desk_orders(approval_id, proposed_order_id, instrument_id, mode, broker, client_order_id, intent, structure, side, qty, order_type, limit_price, stop_price, target_price)
-         values ('${ap}', '${po}', '${h.instrumentId}', 'paper', 'paper', 'different-id', 'open', 'stock', 'buy', 10, 'limit', 100, 95, 110)`),
+         values ('${ap}', '${po}', '${h.instrumentId}', 'paper', 'paper', '${ap}', 'open', 'stock', 'buy', 10, 'limit', 100, 95, 110)`),
     ).rejects.toThrow(/no valid approval/);
   });
 
@@ -167,10 +174,12 @@ describe('orders guard', () => {
 
   it('rejects an order whose approval is older than 5 minutes', async () => {
     const po = await h.seedProposal();
-    const ap = await h.approve(po, { decided_at: "now() - interval '6 minutes'" });
+    const ap = await h.approve(po);
+    await backdate(ap, '6 minutes');
     await expect(h.insertOrder(ap, po)).rejects.toThrow(/no valid approval/);
     const po2 = await h.seedProposal();
-    const ap2 = await h.approve(po2, { decided_at: "now() - interval '4 minutes'" });
+    const ap2 = await h.approve(po2);
+    await backdate(ap2, '4 minutes');
     await expect(h.insertOrder(ap2, po2)).resolves.toHaveLength(1);
   });
 

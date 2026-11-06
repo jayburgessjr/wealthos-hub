@@ -26,6 +26,8 @@ export async function markPositions(d: { repo: DeskRepo; equity: number; quotes:
   const pendingCloseIds = new Set(pending.filter((p) => p.order.intent === "close").map((p) => p.order.positionId));
   let marked = 0, closeProposals = 0;
   for (const p of open) {
+    // Phase 0 monitors stock and crypto only. Option marks need option quotes, so option exits stay manual.
+    if (p.structure !== "stock" && p.structure !== "crypto") continue;
     const px = d.quotes[p.symbol];
     if (!(typeof px === "number" && px > 0)) continue;
     await d.repo.markPosition(p.id, px);

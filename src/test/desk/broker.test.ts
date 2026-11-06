@@ -97,7 +97,7 @@ describe("alpaca adapter", () => {
     const r = req(o, { decision: evaluateRisk({ ...riskInput(o), refPrice: 60_000 }) });
     await broker.submitOrder(r);
     expect(f).toHaveBeenCalledTimes(2);
-    expect(JSON.parse((f.mock.calls[1] as unknown as [string, RequestInit])[1].body as string)).toMatchObject({ type: "stop", side: "sell", stop_price: "57000" });
+    expect(JSON.parse((f.mock.calls[1] as unknown as [string, RequestInit])[1].body as string)).toMatchObject({ type: "stop_limit", side: "sell", stop_price: "57000", limit_price: "56430" });
   });
   it("refuses multi-leg options before any network call", async () => {
     const f = vi.fn();
@@ -141,9 +141,15 @@ describe("mode resolution", () => {
     expect(resolveMode({ TRADING_MODE: "live", LIVE_TRADING_ENABLED: "1" })).toBe("paper");
     expect(resolveMode({ TRADING_MODE: "live", LIVE_TRADING_ENABLED: "true" })).toBe("live");
   });
-  it("live without credentials refuses to build a broker; paper builds the internal broker", () => {
+  it("Alpaca execution is disabled in phase 0: live and the Alpaca paper venue both refuse; the internal paper broker builds", () => {
     const deps = { paperStore: new InMemoryPaperStore(), quote };
-    expect(() => makeBroker("live", deps)).toThrow(/credentials/);
+    expect(() => makeBroker("live", deps)).toThrow(/disabled/);
+    expect(() => makeBroker("paper", { ...deps, paperVenue: "alpaca", alpaca: { keyId: "k", secret: "s" } })).toThrow(/disabled/);
     expect(makeBroker("paper", deps).name).toBe("paper");
+  });
+  it("Alpaca can only be built with the explicit enable flag and credentials", () => {
+    const deps = { paperStore: new InMemoryPaperStore(), quote, alpacaExecutionEnabled: true };
+    expect(() => makeBroker("live", deps)).toThrow(/credentials/);
+    expect(makeBroker("paper", { ...deps, paperVenue: "alpaca", alpaca: { keyId: "k", secret: "s" } }).name).toBe("alpaca");
   });
 });

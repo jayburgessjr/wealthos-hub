@@ -19,6 +19,9 @@ async function getJson(f: typeof fetch, url: string, init: RequestInit = {}, sle
 
 export class PolygonMarket implements MarketData {
   constructor(private key: string, private opts: { fetchImpl?: typeof fetch; secUserAgent?: string; now?: () => Date } = {}) {}
+  private get auth() {
+    return { Authorization: `Bearer ${this.key}` };
+  }
   private get f() {
     return this.opts.fetchImpl ?? fetch;
   }
@@ -28,8 +31,8 @@ export class PolygonMarket implements MarketData {
     const now = (this.opts.now ?? (() => new Date()))();
     const to = now.toISOString().slice(0, 10);
     const from = new Date(now.getTime() - Math.ceil(days * 1.7 + 5) * 86_400_000).toISOString().slice(0, 10);
-    const url = `https://api.polygon.io/v2/aggs/ticker/${encodeURIComponent(ticker)}/range/1/day/${from}/${to}?adjusted=true&sort=asc&limit=500&apiKey=${this.key}`;
-    const j = (await getJson(this.f, url)) as { results?: { t: number; o: number; h: number; l: number; c: number; v?: number }[] };
+    const url = `https://api.polygon.io/v2/aggs/ticker/${encodeURIComponent(ticker)}/range/1/day/${from}/${to}?adjusted=true&sort=asc&limit=500`;
+    const j = (await getJson(this.f, url, { headers: this.auth })) as { results?: { t: number; o: number; h: number; l: number; c: number; v?: number }[] };
     const bars = (j.results ?? []).map((r) => ({ date: new Date(r.t).toISOString().slice(0, 10), open: r.o, high: r.h, low: r.l, close: r.c, volume: r.v }));
     return bars.slice(-days);
   }
@@ -37,7 +40,7 @@ export class PolygonMarket implements MarketData {
   async ipos(): Promise<IpoRecord[]> {
     const out: IpoRecord[] = [];
     for (const status of ["pending", "new"]) {
-      const j = (await getJson(this.f, `https://api.polygon.io/vx/reference/ipos?ipo_status=${status}&limit=50&apiKey=${this.key}`)) as { results?: IpoRecord[] };
+      const j = (await getJson(this.f, `https://api.polygon.io/vx/reference/ipos?ipo_status=${status}&limit=50`, { headers: this.auth })) as { results?: IpoRecord[] };
       out.push(...(j.results ?? []));
     }
     return out;

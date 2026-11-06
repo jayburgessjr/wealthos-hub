@@ -22,11 +22,17 @@ export interface BrokerDeps {
   paperVenue?: "internal" | "alpaca";
 }
 
-export function makeBroker(mode: TradingMode, deps: BrokerDeps): BrokerPort {
-  if (mode === "live") {
-    if (!deps.alpaca) throw new Error("Live mode requires Alpaca credentials.");
-    return new AlpacaBroker({ ...deps.alpaca, mode: "live" });
+/**
+ * Phase 0 executes on the internal PaperBroker only. Alpaca fills asynchronously and there is no order reconciler yet,
+ * so routing real or Alpaca-paper orders would leave positions unrecorded. The AlpacaBroker adapter is built, tested and
+ * sits behind the same port; set ALPACA_EXECUTION_ENABLED=true only after a reconciliation job exists.
+ */
+export function makeBroker(mode: TradingMode, deps: BrokerDeps & { alpacaExecutionEnabled?: boolean }): BrokerPort {
+  const wantsAlpaca = mode === "live" || deps.paperVenue === "alpaca";
+  if (wantsAlpaca) {
+    if (!deps.alpacaExecutionEnabled) throw new Error("Alpaca execution is disabled in phase 0 (no order reconciler yet).");
+    if (!deps.alpaca) throw new Error("Alpaca execution requires credentials.");
+    return new AlpacaBroker({ ...deps.alpaca, mode });
   }
-  if (deps.paperVenue === "alpaca" && deps.alpaca) return new AlpacaBroker({ ...deps.alpaca, mode: "paper" });
   return new PaperBroker(deps.paperStore, deps.quote);
 }

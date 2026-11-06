@@ -24,6 +24,7 @@ export function useClaimOwner() {
     mutationFn: async () => {
       const res = await invokeDesk<FnResult & { owner?: boolean }>("desk-claim-owner", {});
       if (!res.ok) throw new Error(res.error ?? "Could not claim the desk.");
+      if (res.owner !== true) throw new Error("This account is not the desk owner.");
       return res;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: [KEY, "owner"] }),
@@ -52,7 +53,7 @@ export function useInstruments() {
 export function useSignals() {
   return useQuery({
     queryKey: [KEY, "signals"],
-    queryFn: () => deskRows<SignalRow>(deskDb("desk_signals").select("*").order("created_at", { ascending: false }).limit(60)),
+    queryFn: () => deskRows<SignalRow>(deskDb("desk_signals").select("id, instrument_id, agent_name, kind, direction, strength, summary, source_links, created_at").order("created_at", { ascending: false }).limit(60)),
     refetchInterval: 60_000,
   });
 }
@@ -60,14 +61,14 @@ export function useSignals() {
 export function useTheses() {
   return useQuery({
     queryKey: [KEY, "theses"],
-    queryFn: () => deskRows<ThesisRow>(deskDb("desk_theses").select("*").order("created_at", { ascending: false }).limit(200)),
+    queryFn: () => deskRows<ThesisRow>(deskDb("desk_theses").select("id, instrument_id, agent_name, direction, bull_case, bear_case, catalysts, entry_price, stop_price, target_price, confidence, invalidation, horizon_days, created_at").order("created_at", { ascending: false }).limit(200)),
   });
 }
 
 export function usePendingProposals() {
   return useQuery({
     queryKey: [KEY, "proposals"],
-    queryFn: () => deskRows<ProposedOrderRow>(deskDb("desk_proposed_orders").select("*").eq("status", "pending").order("created_at", { ascending: false })),
+    queryFn: () => deskRows<ProposedOrderRow>(deskDb("desk_proposed_orders").select("id, thesis_id, instrument_id, agent_name, intent, position_id, structure, side, qty, order_type, limit_price, legs, stop_price, stop_basis, target_price, max_loss, rationale, status, expires_at, created_at").eq("status", "pending").order("created_at", { ascending: false }).limit(100)),
     refetchInterval: 30_000,
   });
 }
@@ -75,7 +76,7 @@ export function usePendingProposals() {
 export function useOpenPositions() {
   return useQuery({
     queryKey: [KEY, "positions"],
-    queryFn: () => deskRows<PositionRow>(deskDb("desk_positions").select("*").eq("status", "open").order("opened_at", { ascending: false })),
+    queryFn: () => deskRows<PositionRow>(deskDb("desk_positions").select("id, position_group, instrument_id, agent_name, mode, structure, legs, qty, avg_price, stop_price, target_price, max_loss, exposure, mark_price, status, opened_at").eq("status", "open").order("opened_at", { ascending: false }).limit(200)),
     refetchInterval: 30_000,
   });
 }
@@ -83,7 +84,7 @@ export function useOpenPositions() {
 export function useJournal() {
   return useQuery({
     queryKey: [KEY, "journal"],
-    queryFn: () => deskRows<JournalRow>(deskDb("desk_journal").select("*").order("created_at", { ascending: false }).limit(50)),
+    queryFn: () => deskRows<JournalRow>(deskDb("desk_journal").select("id, author, entry_type, body, tags, created_at").order("created_at", { ascending: false }).limit(50)),
   });
 }
 
@@ -100,7 +101,7 @@ export function useAddJournal() {
 export function useScorecardRows() {
   return useQuery({
     queryKey: [KEY, "scorecard"],
-    queryFn: () => deskRows<ScorecardRow>(deskDb("desk_scorecard").select("*").order("tn_date", { ascending: true })),
+    queryFn: () => deskRows<ScorecardRow>(deskDb("desk_scorecard").select("id, subject_kind, subject_id, agent_name, horizon_days, tn_date, return_pct, benchmark_return_pct, alpha_pct").order("tn_date", { ascending: true }).limit(5000)),
   });
 }
 
@@ -124,7 +125,7 @@ export interface DecideParams {
 export interface DecideResult extends FnResult {
   decision?: "approved" | "rejected";
   risk?: RiskDecision;
-  order?: { id: string; status: string; broker_order_id: string | null; filled_qty: number; avg_fill_price: number | null };
+  order?: { id: string; status: string; brokerOrderId?: string; filledQty: number; avgFillPrice?: number };
 }
 
 /** Sends ONLY proposed_order_id, decision and (live only) live_confirmation. The server recomputes risk. */

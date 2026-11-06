@@ -34,6 +34,7 @@ serve(async (req) => {
       quote,
       alpaca,
       paperVenue: getEnv("PAPER_VENUE") === "alpaca" ? "alpaca" : "internal",
+      alpacaExecutionEnabled: getEnv("ALPACA_EXECUTION_ENABLED") === "true",
     });
 
     const result = await approveOrder(

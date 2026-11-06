@@ -220,6 +220,12 @@ create table if not exists public.desk_risk_events (                       -- ap
 );
 create index on public.desk_risk_events (created_at desc);
 
+-- numeric accepts 'NaN' and NaN > 0 is true in Postgres, so reject it explicitly on money-bearing columns
+alter table public.desk_proposed_orders add constraint desk_po_finite check (
+  qty <> 'NaN' and stop_price <> 'NaN' and (limit_price is null or limit_price <> 'NaN') and (target_price is null or target_price <> 'NaN'));
+alter table public.desk_orders add constraint desk_ord_finite check (qty <> 'NaN' and stop_price <> 'NaN');
+alter table public.desk_theses add constraint desk_th_horizon check (horizon_days <= 60);
+
 -- =====================================================================
 -- Row level security: enabled AND forced on every desk_ table (default deny)
 -- =====================================================================
@@ -302,6 +308,14 @@ begin
   if tg_op = 'DELETE' then raise exception 'proposed orders are never deleted'; end if;
   if tg_op = 'INSERT' then
     if new.status <> 'pending' then raise exception 'proposals must be created pending'; end if;
+    if new.intent = 'close' and not exists (
+         select 1 from public.desk_positions p
+          where p.id = new.position_id and p.status = 'open'
+            and p.instrument_id = new.instrument_id and p.structure = new.structure
+            and new.qty <= p.qty
+            and new.side = case when p.structure in ('credit_spread','iron_condor','iron_butterfly') then 'buy' else 'sell' end) then
+      raise exception 'close must match an open position: same instrument and structure, opposite side, quantity within the position';
+    end if;
     return new;
   end if;
   -- UPDATE
@@ -348,6 +362,7 @@ begin
   if uid is null or not public.is_desk_owner() or new.decided_by <> uid then
     raise exception 'approvals require the owner session'; end if;
   if new.consumed_at is not null then raise exception 'approvals cannot be created consumed'; end if;
+  new.decided_at := now();   -- never trust a caller-supplied timestamp: the 5 minute window depends on it
   select * into po from public.desk_proposed_orders where id = new.proposed_order_id for update;
   if not found or po.status <> 'pending' or po.expires_at < now() then
     raise exception 'proposal not pending'; end if;
@@ -381,6 +396,8 @@ begin
     new.updated_at := now();
     return new;
   end if;
+  if new.client_order_id is distinct from new.approval_id::text then
+    raise exception 'client_order_id must equal the approval id'; end if;
   select * into a from public.desk_approvals where id = new.approval_id for update;
   if not found or a.decision <> 'approved' or a.risk_passed is not true
      or a.proposed_order_id <> new.proposed_order_id or a.consumed_at is not null
@@ -469,3 +486,24 @@ select agent_name, subject_kind, horizon_days,
  group by agent_name, subject_kind, horizon_days;
 revoke all on public.desk_scorecard_by_agent from anon, authenticated;
 grant select on public.desk_scorecard_by_agent to authenticated;
+
+-- =====================================================================
+-- TRUNCATE protection. Row-level DELETE triggers do not fire for TRUNCATE, so block it explicitly
+-- (the audit log, kill-switch state, approvals and orders must never be wiped).
+-- =====================================================================
+create or replace function public.desk_no_truncate() returns trigger
+language plpgsql set search_path = '' as $$
+begin
+  raise exception '% cannot be truncated', tg_table_name;
+end $$;
+revoke all on function public.desk_no_truncate() from public, anon, authenticated;
+do $$
+declare t text;
+begin
+  foreach t in array array['desk_owner','desk_state','desk_instruments','desk_agent_runs','desk_signals',
+    'desk_theses','desk_proposed_orders','desk_approvals','desk_orders','desk_positions','desk_journal',
+    'desk_scorecard','desk_risk_events'] loop
+    execute format('create trigger %I before truncate on public.%I for each statement execute function public.desk_no_truncate()', 'trg_' || t || '_no_truncate', t);
+    execute format('revoke truncate on public.%I from public, anon, authenticated', t);
+  end loop;
+end $$;

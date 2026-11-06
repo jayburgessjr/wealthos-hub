@@ -71,7 +71,7 @@ export function KillSwitchBanner({ account }: { account: DeskAccount }) {
             <Button type="button" variant="outline" onClick={() => setOpen(false)} className={GHOST_BTN}>
               Cancel
             </Button>
-            <Button type="button" disabled={note.trim().length < 5 || reset.isPending} onClick={submit} className={cn("h-7 rounded-sm px-3 text-xs", ORANGE_BG)}>
+            <Button type="button" disabled={note.trim().length < 10 || reset.isPending} onClick={submit} className={cn("h-7 rounded-sm px-3 text-xs", ORANGE_BG)}>
               {reset.isPending ? "Resetting..." : "Confirm reset"}
             </Button>
           </DialogFooter>
@@ -84,7 +84,7 @@ export function KillSwitchBanner({ account }: { account: DeskAccount }) {
 export function HeaderStrip({ account }: { account: DeskAccount }) {
   const { equity } = account.account;
   const { day_start_equity: dayStart, high_water_mark: hwm, halted } = account.state;
-  const dayPnl = equity - dayStart;
+  const dayPnl = dayStart > 0 ? equity - dayStart : NaN;
   const dayPct = dayStart > 0 ? dayPnl / dayStart : NaN;
   const dd = hwm > 0 ? Math.max(0, (hwm - equity) / hwm) : NaN;
   const live = account.mode === "live";

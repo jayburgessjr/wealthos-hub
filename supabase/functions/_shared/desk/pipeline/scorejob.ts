@@ -39,7 +39,7 @@ export async function runScorecard(d: { repo: DeskRepo; market: MarketData; now:
   const subjects: Subject[] = [];
   for (const s of signals) if (s.direction !== "neutral") subjects.push({ kind: "signal", id: s.id, agent: s.agentName, symbol: s.symbol, direction: s.direction, refDate: etDate(new Date(s.createdAt)) });
   for (const t of theses) subjects.push({ kind: "thesis", id: t.id, agent: t.agentName, symbol: t.symbol, direction: t.direction, refDate: etDate(new Date(t.createdAt)), stop: t.stopPrice, target: t.targetPrice });
-  for (const p of positions) subjects.push({ kind: "trade", id: p.id, agent: p.agentName ?? "system", symbol: p.symbol, direction: "long", refDate: etDate(new Date(p.openedAt)), refPrice: p.avgPrice, stop: p.stopPrice, target: p.targetPrice ?? null });
+  for (const p of positions.filter((x) => x.structure === "stock" || x.structure === "crypto")) subjects.push({ kind: "trade", id: p.id, agent: p.agentName ?? "system", symbol: p.symbol, direction: "long", refDate: etDate(new Date(p.openedAt)), refPrice: p.avgPrice, stop: p.stopPrice, target: p.targetPrice ?? null });
 
   const pendingFor = (s: Subject) => HORIZONS.filter((h) => !done.has(`${s.kind}:${s.id}:${h}`));
   const todo = subjects.filter((s) => pendingFor(s).length > 0);

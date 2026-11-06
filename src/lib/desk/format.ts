@@ -43,7 +43,7 @@ export const shortTime = (iso: string | null | undefined): string => {
 };
 
 export const pnlClass = (n: number | null | undefined): string =>
-  typeof n !== "number" || !Number.isFinite(n) || n === 0 ? "text-white/70" : n > 0 ? "text-green-400" : "text-red-400";
+  typeof n !== "number" || !Number.isFinite(n) || n === 0 ? "text-white/70" : n > 0 ? "text-white" : "text-[hsl(20_82%_51%)]";
 
 export const isSafeUrl = (url: string): boolean => /^https?:\/\//i.test(url);
 

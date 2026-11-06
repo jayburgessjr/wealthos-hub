@@ -227,7 +227,7 @@ describe("attack: option payoff maths", () => {
     expect(rule(evaluateRisk(base(opt("credit_spread", legs, { qty: 6, stopPrice: 3 }), { refPrice: 2 })), "risk_per_trade")!.passed).toBe(false);
   });
   // DEFECT D3: options trade in whole contracts; qty 0.5 is accepted (and sent as "0.5" to a broker).
-  it.fails("fractional option contract quantity is rejected", () => {
+  it("fractional option contract quantity is rejected", () => {
     const legs = [leg("put", "sell", 100, 3), leg("put", "buy", 95, 1)];
     expect(evaluateRisk(base(opt("credit_spread", legs, { qty: 0.5, stopPrice: 3 }), { refPrice: 2 })).approved).toBe(false);
   });

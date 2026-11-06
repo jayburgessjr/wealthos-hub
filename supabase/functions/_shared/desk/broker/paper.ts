@@ -100,10 +100,13 @@ export class PaperBroker implements BrokerPort {
     let price: number | null;
     if (option) {
       const a = analyseOption(o.structure, o.legs);
-      price = a.ok ? Math.abs(a.netPremium) : null;
+      price = typeof o.limitPrice === "number" && o.limitPrice > 0 ? o.limitPrice : a.ok ? Math.abs(a.netPremium) : null;
     } else {
       const q = await this.quote(req.symbol);
-      price = q === null ? null : o.orderType === "limit" && o.limitPrice ? Math.min(q, o.limitPrice) : q * (1 + this.slippageBps / 10_000);
+      const slip = this.slippageBps / 10_000;
+      // Slippage always works against us: buys fill higher, sells fill lower.
+      const market = q === null ? null : o.side === "buy" ? q * (1 + slip) : q * (1 - slip);
+      price = market === null ? null : o.orderType === "limit" && o.limitPrice ? (o.side === "buy" ? Math.min(market, o.limitPrice) : Math.max(market, o.limitPrice)) : market;
     }
     if (price === null || !(price > 0)) return { brokerOrderId: `paper-${req.clientOrderId}`, status: "rejected", filledQty: 0 };
 

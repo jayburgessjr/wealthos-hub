@@ -1,5 +1,6 @@
 // Client-side advisory risk preview. The server recomputes everything with a server-side quote; this never authorizes anything.
 import { evaluateRisk, type OpenPositionSnapshot, type RiskDecision } from "../../../supabase/functions/_shared/desk/risk/engine.ts";
+import { analyseOption, isOptionStructure } from "../../../supabase/functions/_shared/desk/risk/options.ts";
 import type { ProposedOrder } from "../../../supabase/functions/_shared/desk/types.ts";
 import { toNum } from "./format";
 import type { DeskAccount, InstrumentRow, PositionRow, ProposedOrderRow } from "./types";
@@ -64,10 +65,20 @@ export function snapshotPositions(positions: PositionRow[], instruments: Map<str
     });
 }
 
+/** Advisory only. Options price off their legs; closes only need a positive number because the server prices them off the position mark. */
+function previewRefPrice(order: ProposedOrder, account: DeskAccount): number {
+  if (order.intent === "close") return account.quotes?.[order.symbol] ?? 1;
+  if (isOptionStructure(order.structure)) {
+    const a = analyseOption(order.structure, order.legs);
+    return a.ok ? Math.abs(a.netPremium) : 0;
+  }
+  return account.quotes?.[order.symbol] ?? 0;
+}
+
 export function previewRisk(order: ProposedOrder, account: DeskAccount, openPositions: OpenPositionSnapshot[]): RiskDecision {
   return evaluateRisk({
     order,
-    refPrice: account.quotes?.[order.symbol] ?? 0,
+    refPrice: previewRefPrice(order, account),
     equity: account.account.equity,
     dayStartEquity: account.state.day_start_equity,
     highWaterMark: account.state.high_water_mark,
@@ -82,6 +93,7 @@ export const livePhrase = (symbol: string, side: string, qty: number | string): 
 export interface BlockerInput {
   decision: RiskDecision | null;
   halted: boolean;
+  intent: "open" | "close";
   mode: "paper" | "live";
   typed: string;
   expectedPhrase: string;
@@ -92,7 +104,7 @@ export interface BlockerInput {
 /** Plain-English reasons Approve is disabled. Empty means enabled. */
 export function approvalBlockers(i: BlockerInput): string[] {
   const out: string[] = [];
-  if (i.halted) out.push("Kill switch is engaged. Reset it before approving new orders.");
+  if (i.halted && i.intent === "open") out.push("Kill switch is engaged. Reset it before approving new orders.");
   if (!i.decision) out.push("Account data has not loaded, so risk cannot be previewed.");
   else if (!i.decision.approved) out.push(...i.decision.reasons);
   if (i.dirty) out.push("Save or discard your edits first.");

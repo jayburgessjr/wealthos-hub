@@ -176,7 +176,7 @@ export function validateThesis(raw: unknown, lastClose: number): { ok: true; v: 
   if (Math.abs(r.entry / lastClose - 1) > 0.05) return { ok: false, reason: "entry is more than 5% from the last close" };
   if (r.direction === "long" && !(r.stop < r.entry && r.entry < r.target)) return { ok: false, reason: "long needs stop < entry < target" };
   if (r.direction === "short" && !(r.stop > r.entry && r.entry > r.target)) return { ok: false, reason: "short needs stop > entry > target" };
-  const horizon = isNum(r.horizon_days) && r.horizon_days >= 1 ? Math.round(r.horizon_days) : 20;
+  const horizon = isNum(r.horizon_days) && r.horizon_days >= 1 ? Math.min(60, Math.round(r.horizon_days)) : 20;
   return {
     ok: true,
     v: {
@@ -211,7 +211,7 @@ export async function runResearch(signalId: string, d: ResearchDeps): Promise<Re
 
     const user = [
       `<signal agent="${signal.agentName}" symbol="${signal.symbol}" class="${signal.assetClass}" direction="${signal.direction}" strength="${signal.strength}">`,
-      signal.summary,
+      signal.summary.replace(/</g, "\u2039").replace(/>/g, "\u203a"), // cannot close the <signal> delimiter
       `sources: ${signal.sourceLinks.map((s) => s.url).join(" ")}`,
       `</signal>`,
       `Reference price (server quote): ${last}. Recent closes: ${bars.slice(-8).map((b) => b.close).join(", ")}.`,

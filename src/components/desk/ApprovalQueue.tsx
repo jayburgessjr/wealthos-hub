@@ -44,6 +44,7 @@ export function ProposalCard({ proposal: p, thesis, symbol, account, openPositio
   const blockers = approvalBlockers({
     decision,
     halted: account?.state.halted ?? false,
+    intent: p.intent,
     mode,
     typed,
     expectedPhrase: expected,

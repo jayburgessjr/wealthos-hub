@@ -75,7 +75,7 @@ export class AlpacaBroker implements BrokerPort {
     const s = String(j.status);
     return {
       brokerOrderId: String(j.id),
-      status: s === "filled" ? "filled" : s === "partially_filled" ? "partially_filled" : s === "rejected" ? "rejected" : s === "canceled" ? "canceled" : "submitted",
+      status: s === "filled" ? "filled" : s === "partially_filled" ? "partially_filled" : s === "rejected" ? "rejected" : s === "canceled" || s === "expired" || s === "done_for_day" ? "canceled" : s === "stopped" || s === "suspended" ? "rejected" : "submitted",
       filledQty: Number(j.filled_qty ?? 0),
       avgFillPrice: j.filled_avg_price ? Number(j.filled_avg_price) : undefined,
       raw: j,
@@ -98,43 +98,55 @@ export class AlpacaBroker implements BrokerPort {
       throw new OrderRefusedError("Multi-leg option structures are not supported by the Alpaca adapter in phase 0.");
     }
 
+    const closing = o.intent === "close";
     const body: Record<string, unknown> = {
       symbol: req.symbol,
       qty: String(o.qty),
       side: o.side,
       client_order_id: req.clientOrderId,
+      // Crypto trades around the clock (gtc); US equity and option orders are day orders.
       time_in_force: crypto ? "gtc" : "day",
-      type: option || o.orderType === "limit" ? "limit" : "market",
+      type: option || (!closing && o.orderType === "limit") ? "limit" : "market",
     };
     if (body.type === "limit") body.limit_price = String(o.limitPrice ?? o.legs?.[0]?.price);
-    if (!crypto && !option) {
+    // Protective stop travels with an opening stock/ETF entry. Closing orders never carry one: a sell-stop above the
+    // market would be refused or open a short.
+    if (!closing && !crypto && !option) {
       body.order_class = typeof o.targetPrice === "number" && o.targetPrice > 0 ? "bracket" : "oto";
       if (body.order_class === "bracket") body.take_profit = { limit_price: String(o.targetPrice) };
       body.stop_loss = { stop_price: String(o.stopPrice) };
     }
 
+    let fillJson: AlpacaJson;
     const placed = await this.call("POST", "/v2/orders", body);
     if (placed.status === 422 && /client_order_id/i.test(String(placed.json.message))) {
-      const existing = await this.getOrder(req.clientOrderId);
-      if (existing) return existing; // retried approval: already submitted, never double-send
-    }
-    if (placed.status >= 400) {
+      const existing = await this.getOrder(req.clientOrderId); // retried approval: already submitted, never double-send
+      if (!existing) throw new Error("Duplicate client order id but the order could not be found.");
+      fillJson = (existing.raw as AlpacaJson) ?? {};
+    } else if (placed.status >= 400) {
       return { brokerOrderId: "", status: "rejected", filledQty: 0, raw: placed.json };
+    } else {
+      fillJson = placed.json;
     }
 
-    if (crypto || option) {
+    // Alpaca cannot attach a stop to crypto or option entries, so it goes as its own order. The client id makes it idempotent.
+    if (!closing && (crypto || option)) {
+      const stopPrice = Number(o.stopPrice);
       const stop = await this.call("POST", "/v2/orders", {
         symbol: req.symbol,
         qty: String(o.qty),
         side: o.side === "buy" ? "sell" : "buy",
-        type: "stop",
-        stop_price: String(o.stopPrice),
-        time_in_force: "gtc",
+        // Alpaca crypto accepts market, limit and stop_limit only; the limit sits 1% beyond the stop so a gap still exits.
+        type: crypto ? "stop_limit" : "stop",
+        stop_price: String(stopPrice),
+        ...(crypto ? { limit_price: String(+(stopPrice * (o.side === "buy" ? 0.99 : 1.01)).toFixed(2)) } : {}),
+        time_in_force: crypto ? "gtc" : "day",
         client_order_id: `${req.clientOrderId}-stop`,
       });
-      if (stop.status >= 400) throw new Error(`Entry placed but protective stop was refused (${stop.status}). Close the position manually.`);
+      const duplicate = stop.status === 422 && /client_order_id/i.test(String(stop.json.message));
+      if (stop.status >= 400 && !duplicate) throw new Error(`Entry placed but protective stop was refused (${stop.status}). Close the position manually.`);
     }
-    return this.toFill(placed.json);
+    return this.toFill(fillJson);
   }
 
   async cancelOrder(clientOrderId: string): Promise<void> {
