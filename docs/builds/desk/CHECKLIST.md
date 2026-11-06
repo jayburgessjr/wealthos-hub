@@ -30,3 +30,13 @@ Blocking, fix before PR:
 - CR-B5: mark.ts treats option positions as stocks and can abort the job; skip non-linear structures.
 - CR-B6/B7/B8: Alpaca adapter (close orders with bracket stop, crypto needs stop_limit, options day TIF, async fills with no reconciler). Gate PAPER_VENUE=alpaca and live until fixed; internal paper broker is unaffected.
 Should fix: S1 day P&L when day_start_equity is 0; S2 reset note length 10 in UI; S3 order result type casing; S4 Alpaca status map; S5 scorejob skips options; S6 realized pnl for options; S7 option preview refPrice; S8 stop on duplicate client id; N1 Polygon key out of URL/logs.
+
+## QA report (adversarial, 229 tests added under src/test/desk-qa/; 7 deliberately red = blocking defects)
+- QA-D1/D2 (= SEC-B1): close-intent BUY approved; close for a symbol that does not match the referenced position approved.
+- QA-D5: option close proposals cannot be approved (no refPrice on closes; paper keys option fills by clientOrderId so closes never net).
+- QA-D6: PaperBroker slippage applied upward on SELLs (fills above quote); sell limit uses min where it needs max. Inflates paper P&L.
+- QA-D9: scorejob scores option trades (premium vs underlying close) as about +5200%; rows are immutable. Skip option structures.
+- QA-D14: service_role can TRUNCATE desk_risk_events, desk_state (clears the kill switch) and desk_scorecard. Revoke truncate or add BEFORE TRUNCATE triggers.
+- Non-blocking: fractional option contracts, limit order without limit price, horizon_days cap, `</signal>` delimiter injection, future decided_at, client_order_id not forced to approval_id, 'NaN' accepted by Postgres for stop/qty, no reconciler for orders stuck 'submitting'.
+- Passed: engine boundaries (1.5%, 25%, 3 options, 3%, 10%), no-stop rejection everywhere, agent cannot place an order, replay/reuse/GUC spoofing blocked, existing WealthOS unchanged.
+- Not tested: browser click-through, real Supabase RLS, live Alpaca, Deno HTTP auth paths.
