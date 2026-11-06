@@ -2,7 +2,7 @@
 // Agents get an AgentRepo (no order, approval or position methods) and no broker. Cron secret or the owner's session.
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { runResearch, runScanner, SCANNER_NAMES, type MarketData } from "../_shared/desk/pipeline/agents.ts";
-import { AnthropicLlm } from "../_shared/desk/pipeline/llm.ts";
+import { OpenAiLlm } from "../_shared/desk/pipeline/llm.ts";
 import { PolygonMarket } from "../_shared/desk/pipeline/market.ts";
 import { asAgentRepo } from "../_shared/desk/pipeline/repo.ts";
 import { SupabaseRepo } from "../_shared/desk/pipeline/supabase-repo.ts";
@@ -40,9 +40,9 @@ serve(async (req) => {
     }
 
     if (agent === "research" || agent === "research-new") {
-      const key = getEnv("ANTHROPIC_API_KEY");
-      if (!key) return json(req, { ok: false, error: "ANTHROPIC_API_KEY is not configured." }, 503);
-      const llm = new AnthropicLlm(key, { model: getEnv("DESK_MODEL") || undefined });
+      const key = getEnv("OPENAI_API_KEY");
+      if (!key) return json(req, { ok: false, error: "OPENAI_API_KEY is not configured." }, 503);
+      const llm = new OpenAiLlm(key, { model: getEnv("DESK_MODEL") || undefined });
       const state = await repo.getState();
       const equity = state.lastEquity > 0 ? state.lastEquity : Number(getEnv("PAPER_STARTING_EQUITY")) || 100_000;
 
