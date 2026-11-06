@@ -19,3 +19,14 @@ RESULT: INCOMPLETE
 - Read the three reviewer reports (security, QA, code review) for the desk branch, then let a fresh run fix blocking findings, open the PR and merge.
 - Production backend (Hard Stop, secrets and prod migration): apply migration, set ANTHROPIC_API_KEY / DESK_OWNER_EMAIL / DESK_CRON_SECRET, deploy the 7 desk-* functions per RUNBOOK.md.
 ## Later
+
+## Open review findings (security + code review; QA report not yet received)
+Blocking, fix before PR:
+- SEC-B1: close-order path skips side/symbol/structure checks and halt (engine.ts close branch; migration proposals guard). Require sell on same symbol+structure; DB guard must match an open position.
+- CR-B1: UI preview blocks Approve on halt for closes (preview.ts:95); use `halted && intent==='open'`.
+- CR-B2: `select("*")` and unbounded queries in src/lib/desk/hooks.ts.
+- CR-B3: pnlClass uses green/red (format.ts:57); brand is single orange accent.
+- CR-B4: useClaimOwner toasts success on `owner:false` (hooks.ts:21-31).
+- CR-B5: mark.ts treats option positions as stocks and can abort the job; skip non-linear structures.
+- CR-B6/B7/B8: Alpaca adapter (close orders with bracket stop, crypto needs stop_limit, options day TIF, async fills with no reconciler). Gate PAPER_VENUE=alpaca and live until fixed; internal paper broker is unaffected.
+Should fix: S1 day P&L when day_start_equity is 0; S2 reset note length 10 in UI; S3 order result type casing; S4 Alpaca status map; S5 scorejob skips options; S6 realized pnl for options; S7 option preview refPrice; S8 stop on duplicate client id; N1 Polygon key out of URL/logs.
