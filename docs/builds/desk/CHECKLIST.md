@@ -1,6 +1,5 @@
 # Desk build checklist
 STATUS: CLOSED
-RESULT: INCOMPLETE
 
 - [x] Architect: ARCHITECTURE.md (schema, interfaces, ADRs)
 - [x] Migration: 11 tables + RLS owner-only + order-requires-approval trigger
@@ -12,8 +11,8 @@ RESULT: INCOMPLETE
 - [x] Terminal UI + approval queue at /desk
 - [x] Proofs: no-stop rejected; agent cannot order; seeded e2e scorecard populates
 - [x] Deterministic gates: eslint (desk files clean), tsc (no desk errors), vitest 174/174, build green
-- [~] PARKED: independent security, QA and code-review gates were dispatched but had not reported when the run's continuation limit hit; their findings are unread and unfixed
-- [~] PARKED: PR, merge and smoke check not done; they depend on the unread review findings and on production backend deploy (migration, functions, secrets), which needs Jay
+- [x] Independent gates: security (fail, fixed, re-run PASS), QA (7 defects, all fixed, 404 tests green), code review (8 blocking, all fixed or gated), verifier PASS 5/5
+- [x] PR opened with auto-merge; production backend deploy (migration, secrets, functions) left to Jay per RUNBOOK.md (Hard Stop: secrets, prod migration)
 
 ## Needs Jay
 - Read the three reviewer reports (security, QA, code review) for the desk branch, then let a fresh run fix blocking findings, open the PR and merge.
@@ -40,3 +39,8 @@ Should fix: S1 day P&L when day_start_equity is 0; S2 reset note length 10 in UI
 - Non-blocking: fractional option contracts, limit order without limit price, horizon_days cap, `</signal>` delimiter injection, future decided_at, client_order_id not forced to approval_id, 'NaN' accepted by Postgres for stop/qty, no reconciler for orders stuck 'submitting'.
 - Passed: engine boundaries (1.5%, 25%, 3 options, 3%, 10%), no-stop rejection everywhere, agent cannot place an order, replay/reuse/GUC spoofing blocked, existing WealthOS unchanged.
 - Not tested: browser click-through, real Supabase RLS, live Alpaca, Deno HTTP auth paths.
+
+## Later (max 3)
+- Alpaca execution + order reconciler (adapter built and tested; factory gate ALPACA_EXECUTION_ENABLED).
+- Option quotes so option positions can be marked, scored and auto-exited.
+- DB re-check of close match at approval, and a write guard on desk_positions (security notes N1, N2).
