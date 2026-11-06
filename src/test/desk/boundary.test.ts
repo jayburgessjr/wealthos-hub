@@ -62,7 +62,7 @@ describe("broker import boundary", () => {
     const clientFiles = walk(srcRoot).filter((p) => !p.includes(`${join("src", "test")}`));
     for (const p of clientFiles) {
       const s = readFileSync(p, "utf8");
-      expect(/ALPACA_|ANTHROPIC_API_KEY|SERVICE_ROLE/.test(s), `${p} references a server secret`).toBe(false);
+      expect(/ALPACA_|ANTHROPIC_API_KEY|OPENAI_API_KEY|SERVICE_ROLE/.test(s), `${p} references a server secret`).toBe(false);
       expect(importsBroker(s), `${p} imports broker adapters`).toBe(false);
     }
   });

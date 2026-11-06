@@ -13,9 +13,9 @@ Internal single-user trading desk at `/desk`. Phase 0 is paper only. Every trade
 
 ## Secrets (edge function secrets only; names only here)
 
-Existing: `POLYGON_KEY`, `APP_URL`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`.
+Existing: `OPENAI_API_KEY` (research agent), `POLYGON_KEY`, `APP_URL`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`.
 
-New: `ANTHROPIC_API_KEY`, `DESK_OWNER_EMAIL`, `DESK_CRON_SECRET`. Optional: `DESK_MODEL` (default `claude-sonnet-5-5`), `PAPER_STARTING_EQUITY` (default 100000), `PAPER_VENUE=alpaca` (route paper orders to Alpaca's paper endpoint), `ALPACA_KEY_ID`, `ALPACA_SECRET`, `SEC_USER_AGENT`, `TRADING_MODE` (leave unset), `LIVE_TRADING_ENABLED` (leave unset).
+New: `DESK_OWNER_EMAIL`, `DESK_CRON_SECRET`. Optional: `DESK_MODEL` (default `gpt-4o`), `PAPER_STARTING_EQUITY` (default 100000), `PAPER_VENUE=alpaca` (route paper orders to Alpaca's paper endpoint), `ALPACA_KEY_ID`, `ALPACA_SECRET`, `SEC_USER_AGENT`, `TRADING_MODE` (leave unset), `LIVE_TRADING_ENABLED` (leave unset).
 
 ## First-time setup
 
