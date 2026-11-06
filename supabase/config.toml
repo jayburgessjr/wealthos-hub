@@ -1,1 +1,11 @@
 project_id = "magpawmyuqyzgczewxsl"
+
+# Desk (internal trading terminal). Cron-secret functions verify the secret in code; UI functions keep JWT verification on.
+[functions.desk-mark-positions]
+verify_jwt = false
+
+[functions.desk-run-agent]
+verify_jwt = false
+
+[functions.desk-scorecard]
+verify_jwt = false
