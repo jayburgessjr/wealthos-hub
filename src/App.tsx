@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { lazy, Suspense } from "react";
 import { HouseholdBudgetProvider } from "@/context/HouseholdBudgetContext";
 
 // Household pages (stubs — will be replaced in Tasks 9-29)
@@ -282,6 +283,8 @@ const AppShell = () => (
   </>
 );
 
+const DeskPage = lazy(() => import("./pages/desk/DeskPage"));
+
 const AppRoutes = () => (
   <Routes>
     {/* Public routes — accessible without auth */}
@@ -296,6 +299,7 @@ const AppRoutes = () => (
     {/* Protected routes — require authenticated user */}
     <Route element={<ProtectedRoute />}>
       <Route path="/onboarding" element={<Onboarding />} />
+      <Route path="/desk" element={<Suspense fallback={null}><DeskPage /></Suspense>} />
       <Route path="/settings" element={<SettingsPage />} />
       <Route path="/profile/:userId" element={<Profile />} />
 
