@@ -7,7 +7,7 @@ import { money, pct, price, qtyText, shortTime, toNum } from "@/lib/desk/format"
 import { approvalBlockers, buildOrder, draftFrom, livePhrase, previewRisk, snapshotPositions, type Draft } from "@/lib/desk/preview";
 import type { OpenPositionSnapshot } from "../../../supabase/functions/_shared/desk/risk/engine.ts";
 import type { DeskAccount, ProposedOrderRow, ThesisRow } from "@/lib/desk/types";
-import { FIELD, GHOST_BTN, MICRO, NUM, ACCENT_BG, ACCENT_TEXT, Panel, PanelState } from "./Panel";
+import { FIELD, GHOST_BTN, MICRO, NUM, ACCENT_BG, Panel, PanelState } from "./Panel";
 import { cn } from "@/lib/utils";
 
 interface CardProps {
@@ -180,7 +180,7 @@ export function ProposalCard({ proposal: p, thesis, symbol, account, openPositio
             <ul className="mt-0.5 grid gap-x-4 md:grid-cols-2">
               {decision.checks.map((c) => (
                 <li key={c.rule} className="flex gap-2">
-                  <span className={cn("w-8 shrink-0 font-semibold uppercase", c.passed ? "text-muted-foreground" : ACCENT_TEXT)}>{c.passed ? "Pass" : "Fail"}</span>
+                  <span className={cn("w-8 shrink-0 font-semibold uppercase", c.passed ? "text-muted-foreground" : "text-bearish")}>{c.passed ? "Pass" : "Fail"}</span>
                   <span className="text-foreground/80">{c.message}</span>
                 </li>
               ))}
