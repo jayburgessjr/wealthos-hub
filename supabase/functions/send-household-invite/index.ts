@@ -3,6 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { denoEnv } from "../_shared/auth-deno.ts";
 import { corsHeaders as sharedCors, preflight } from "../_shared/auth.ts";
 import { escapeHtml } from "../_shared/html.ts";
+import { callerIsOwner } from "./owner.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
@@ -60,6 +61,15 @@ serve(async (req) => {
       });
     }
 
+    // Caller must be owner of the invitation's household. Checked before any
+    // invitation detail (including status) is revealed to the caller.
+    if (!(await callerIsOwner(supabase, user.id, invitation.household_id))) {
+      return new Response(JSON.stringify({ error: "Forbidden" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (invitation.status !== "pending") {
       return new Response(
         JSON.stringify({ error: "Invitation is no longer pending" }),
@@ -68,21 +78,6 @@ serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         },
       );
-    }
-
-    // Caller must be owner of the household
-    const { data: memberRow } = await supabase
-      .from("household_members")
-      .select("role")
-      .eq("household_id", invitation.household_id)
-      .eq("user_id", user.id)
-      .single();
-
-    if (!memberRow || memberRow.role !== "owner") {
-      return new Response(JSON.stringify({ error: "Forbidden" }), {
-        status: 403,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
     }
 
     // Fetch household name for email
