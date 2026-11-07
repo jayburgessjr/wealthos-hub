@@ -13,6 +13,10 @@ const renderBar = () =>
     </MemoryRouter>,
   );
 
+const panel = () => screen.queryByRole("complementary", { name: "Assistant" });
+// The pin button is the rail's first child; the panel's close button also matches once open, so take the first.
+const rail = () => screen.getAllByRole("button", { name: /assistant/i })[0].parentElement as HTMLElement;
+
 describe("RightBar assistant", () => {
   beforeEach(() => {
     localStorage.clear();
@@ -20,26 +24,40 @@ describe("RightBar assistant", () => {
     Element.prototype.scrollIntoView = vi.fn();
   });
 
-  it("is collapsed by default and shows only the open button", () => {
+  it("is a collapsed rail by default", () => {
     renderBar();
-    expect(screen.getByRole("button", { name: "Open assistant" })).toBeTruthy();
-    expect(screen.queryByRole("complementary", { name: "Assistant" })).toBeNull();
-    expect(screen.queryByText("Quick prompts")).toBeNull();
+    expect(screen.getByRole("button", { name: "Pin assistant open" })).toBeTruthy();
+    expect(panel()).toBeNull();
   });
 
-  it("opens from the button, closes from the panel, and remembers the choice", () => {
+  it("pops out on hover and closes on mouse leave without pinning", () => {
+    renderBar();
+    fireEvent.mouseEnter(rail());
+    expect(panel()).toBeTruthy();
+    fireEvent.mouseLeave(rail());
+    expect(panel()).toBeNull();
+    expect(localStorage.getItem("rightbar-open")).toBeNull();
+  });
+
+  it("stays open after the mouse leaves once pinned, and remembers across reloads", () => {
     const first = renderBar();
-    fireEvent.click(screen.getByRole("button", { name: "Open assistant" }));
-    expect(screen.getByRole("complementary", { name: "Assistant" })).toBeTruthy();
+    fireEvent.mouseEnter(rail());
+    fireEvent.click(screen.getByRole("button", { name: "Pin assistant open" }));
     expect(localStorage.getItem("rightbar-open")).toBe("true");
+    fireEvent.mouseLeave(rail());
+    expect(panel()).toBeTruthy();
 
     first.unmount();
     renderBar();
-    expect(screen.getByRole("complementary", { name: "Assistant" })).toBeTruthy();
+    expect(panel()).toBeTruthy();
+  });
 
-    const closers = screen.getAllByRole("button", { name: "Close assistant" });
-    fireEvent.click(closers[closers.length - 1]);
-    expect(screen.queryByRole("complementary", { name: "Assistant" })).toBeNull();
+  it("the close button unpins and hides the panel", () => {
+    localStorage.setItem("rightbar-open", "true");
+    renderBar();
+    expect(panel()).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Close assistant" }));
+    expect(panel()).toBeNull();
     expect(localStorage.getItem("rightbar-open")).toBe("false");
   });
 });

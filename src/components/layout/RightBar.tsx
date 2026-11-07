@@ -680,12 +680,20 @@ type Tab = "chat" | "decisions" | "guide";
 export default function RightBar() {
   const location = useLocation();
   const [tab, setTab] = useState<Tab>("chat");
-  // Collapsed by default: a slim rail with a button. Opening overlays the page instead of shrinking it.
-  const [open, setOpen] = useState(() => localStorage.getItem("rightbar-open") === "true");
+  // A slim rail. Hovering it pops the panel out as an overlay (like the left sidebar); clicking the button pins it open.
+  const [pinned, setPinned] = useState(() => localStorage.getItem("rightbar-open") === "true");
+  const [hovered, setHovered] = useState(false);
+  const open = pinned || hovered;
   const toggleOpen = () => {
-    const next = !open;
-    setOpen(next);
+    const next = !pinned;
+    setPinned(next);
+    if (!next) setHovered(false);
     localStorage.setItem("rightbar-open", String(next));
+  };
+  const closePanel = () => {
+    setPinned(false);
+    setHovered(false);
+    localStorage.setItem("rightbar-open", "false");
   };
 
   // ── Chat state ─────────────────────────────────────────────────────────────
@@ -758,13 +766,17 @@ export default function RightBar() {
   ];
 
   return (
-    <div className="relative flex h-full w-11 shrink-0 border-l border-black/[0.06] bg-[#f2f2f2] dark:border-white/[0.06] dark:bg-[#111111]">
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="relative flex h-full w-11 shrink-0 border-l border-black/[0.06] bg-[#f2f2f2] dark:border-white/[0.06] dark:bg-[#111111]"
+    >
       <button
         type="button"
         onClick={toggleOpen}
-        aria-label={open ? "Close assistant" : "Open assistant"}
-        aria-expanded={open}
-        title={open ? "Close assistant" : "Open assistant"}
+        aria-label={pinned ? "Unpin assistant" : "Pin assistant open"}
+        aria-pressed={pinned}
+        title={pinned ? "Unpin assistant" : "Pin assistant open"}
         className="mx-auto mt-2 flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-foreground/[0.06] hover:text-foreground"
       >
         <MessageSquare size={16} />
@@ -779,7 +791,7 @@ export default function RightBar() {
               <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Assistant</span>
               <button
                 type="button"
-                onClick={toggleOpen}
+                onClick={closePanel}
                 aria-label="Close assistant"
                 className="flex h-6 w-6 items-center justify-center rounded text-muted-foreground hover:bg-foreground/[0.06] hover:text-foreground"
               >
