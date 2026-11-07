@@ -1,9 +1,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+import { realAuthDeps } from "../_shared/auth-deno.ts";
+import { corsHeaders as sharedCors, errorResponse, fetchT, isResponse, preflight, readJsonBody, requireUser } from "../_shared/auth.ts";
+import { AI_DAILY_CAP, BODY_CAP_BYTES, DATA_DAILY_CAP, MAX_SIGNAL_TICKERS, MAX_TOKENS, consumeUsage, usageResponse } from "../_shared/limits.ts";
+import { asObject, validateTickerList } from "../_shared/validate.ts";
 
 // Score weights
 const WEIGHTS = {
@@ -20,7 +20,7 @@ async function getPriceData(ticker: string, apiKey: string) {
     const from = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
 
     const url = `https://api.polygon.io/v2/aggs/ticker/${ticker}/range/1/day/${from}/${to}?apiKey=${apiKey}`;
-    const res = await fetch(url);
+    const res = await fetchT(url);
 
     if (!res.ok) {
       console.error(`Polygon error for ${ticker}: ${res.status} ${res.statusText}`);
@@ -103,7 +103,7 @@ function calcPriceLevels(
 // ─── NEWS FETCH (Polygon) ───
 async function fetchRecentNews(ticker: string, apiKey: string) {
   try {
-    const res = await fetch(
+    const res = await fetchT(
       `https://api.polygon.io/v2/reference/news?ticker=${ticker}&limit=5&apiKey=${apiKey}`
     );
     if (!res.ok) return [];
@@ -126,7 +126,7 @@ async function calcSentimentScore(
   const headlines = news.slice(0, 5).map((n: any) => n.title).join("\n");
 
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetchT("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -141,8 +141,9 @@ async function calcSentimentScore(
           },
         ],
         response_format: { type: "json_object" },
+        max_tokens: MAX_TOKENS.signals,
       }),
-    });
+    }, 30000);
 
     if (!response.ok) {
       console.error(`OpenAI error for ${ticker}: ${response.status}`);
@@ -228,7 +229,7 @@ function buildReasoning(
 async function calcYieldCurveScore(fredKey: string | undefined): Promise<{ score: number; value: number; status: string }> {
   if (!fredKey) return { score: 60, value: 0.2, status: 'Normal (Key Missing)' };
   try {
-    const res = await fetch(
+    const res = await fetchT(
       `https://api.stlouisfed.org/fred/series/observations?series_id=T10Y2Y&limit=1&sort_order=desc&api_key=${fredKey}&file_type=json`
     );
     if (!res.ok) return { score: 60, value: 0.2, status: 'Normal (FRED Error)' };
@@ -254,7 +255,7 @@ async function calcYieldCurveScore(fredKey: string | undefined): Promise<{ score
 
 async function calcVixProxy(polygonKey: string): Promise<{ score: number; value: number; label: string }> {
   try {
-    const res = await fetch(`https://api.polygon.io/v2/aggs/ticker/I:VIX/prev?adjusted=true&apiKey=${polygonKey}`);
+    const res = await fetchT(`https://api.polygon.io/v2/aggs/ticker/I:VIX/prev?adjusted=true&apiKey=${polygonKey}`);
     if (!res.ok) {
       console.warn("VIX Index fetch failed (likely subscription level). Falling back to SPY volatility proxy.");
       return { score: 70, value: 15, label: 'Low Risk' };
@@ -310,23 +311,32 @@ async function getMacroData(fredKey: string | undefined, polygonKey: string) {
 
 // ─── MAIN HANDLER ───
 serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  const deps = realAuthDeps();
+  const env = deps.env;
+  const corsHeaders = sharedCors(req, env);
 
-  // ── Auth guard ──────────────────────────────────────────────────────────────
-  const authHeader = req.headers.get("authorization");
-  if (!authHeader?.startsWith("Bearer ")) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
+  const pre = preflight(req, env);
+  if (pre) return pre;
+  const auth = await requireUser(req, deps);
+  if (isResponse(auth)) return auth;
+  const parsed = await readJsonBody(req, env, BODY_CAP_BYTES.default, { allowEmpty: true });
+  if (!parsed.ok) return parsed.response;
+
+  const body = asObject(parsed.body);
+  const mode = body.mode === "macro" ? "macro" : undefined;
+  const tickers = validateTickerList(body.tickers, MAX_SIGNAL_TICKERS);
+
+  // Only the per-ticker path calls OpenAI; macro mode (and an empty ticker list) only reads market data,
+  // so those are counted in the market-data bucket.
+  const gate = tickers.length && mode !== "macro"
+    ? await consumeUsage(auth.client, "ai", "generate-signals", AI_DAILY_CAP)
+    : await consumeUsage(auth.client, "data", "generate-signals", DATA_DAILY_CAP);
+  if (gate !== "ok") return usageResponse(req, env, gate);
 
   try {
-    const body = await req.json().catch(() => ({}));
-    const { tickers, mode } = body;
-
-    const POLYGON_KEY = Deno.env.get("POLYGON_KEY");
-    const FRED_KEY = Deno.env.get("FRED_KEY");
-    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    const POLYGON_KEY = env("POLYGON_KEY");
+    const FRED_KEY = env("FRED_KEY");
+    const OPENAI_API_KEY = env("OPENAI_API_KEY");
 
     if (!POLYGON_KEY) throw new Error("POLYGON_KEY not configured in Supabase secrets");
 
@@ -338,7 +348,7 @@ serve(async (req) => {
       });
     }
 
-    if (!tickers?.length) {
+    if (!tickers.length) {
       return new Response(JSON.stringify({ error: "No tickers provided", macro: macroData }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -389,7 +399,7 @@ serve(async (req) => {
           };
         } catch (err) {
           console.error(`Error generating signal for ${ticker}:`, err);
-          return { ticker, signal_score: 50, action: "hold", error: String(err) };
+          return { ticker, signal_score: 50, action: "hold", error: "Signal generation failed" };
         }
       })
     );
@@ -398,10 +408,6 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
-    console.error("CRITICAL generate-signals error:", e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown critical error" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return errorResponse(req, env, 500, e);
   }
 });

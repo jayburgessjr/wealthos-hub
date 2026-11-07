@@ -1,9 +1,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { realAuthDeps } from "../_shared/auth-deno.ts";
+import { corsHeaders as sharedCors, errorResponse, fetchT, isResponse, preflight, readJsonBody, requireUser } from "../_shared/auth.ts";
+import { BODY_CAP_BYTES, DATA_DAILY_CAP, consumeUsage, usageResponse } from "../_shared/limits.ts";
+import { TRADE_TYPES, asObject, clampNum, validateEnum } from "../_shared/validate.ts";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -85,7 +85,7 @@ async function fetchCongressionalLive(limit: number): Promise<{ trades: Congress
   }
 
   try {
-    const res = await fetch("https://api.quiverquant.com/beta/live/congresstrading", {
+    const res = await fetchT("https://api.quiverquant.com/beta/live/congresstrading", {
       headers: { Authorization: `Token ${QUIVER_KEY}` },
     });
 
@@ -130,7 +130,7 @@ async function fetchInsiderLive(limit: number): Promise<{ trades: InsiderTrade[]
 
   try {
     const url = `https://api.polygon.io/vX/reference/insider-transactions?limit=${limit}&apiKey=${POLYGON_KEY}`;
-    const res = await fetch(url);
+    const res = await fetchT(url);
 
     if (!res.ok) {
       return { trades: mockInsiderTrades.slice(0, limit), source: "mock" };
@@ -178,15 +178,26 @@ async function fetchInsiderLive(limit: number): Promise<{ trades: InsiderTrade[]
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
+  const deps = realAuthDeps();
+  const env = deps.env;
+  const corsHeaders = sharedCors(req, env);
+
+  const pre = preflight(req, env);
+  if (pre) return pre;
+  const auth = await requireUser(req, deps);
+  if (isResponse(auth)) return auth;
+  const parsed = await readJsonBody(req, env, BODY_CAP_BYTES.default, { allowEmpty: true });
+  if (!parsed.ok) return parsed.response;
+
+  const body = asObject(parsed.body);
+  const type = validateEnum(body.type, TRADE_TYPES, "congressional");
+  if (!type) return errorResponse(req, env, 400, "invalid type");
+  const limit: number = Math.floor(clampNum(body.limit ?? 50, 1, 100) ?? 50);
+
+  const gate = await consumeUsage(auth.client, "data", "get-congress-trades", DATA_DAILY_CAP);
+  if (gate !== "ok") return usageResponse(req, env, gate);
 
   try {
-    const body = await req.json().catch(() => ({}));
-    const type: "congressional" | "insider" = body.type ?? "congressional";
-    const limit: number = Math.min(Number(body.limit ?? 50), 100);
-
     let result: { trades: CongressionalTrade[] | InsiderTrade[]; source: "live" | "mock" };
 
     if (type === "congressional") {
@@ -200,9 +211,6 @@ serve(async (req) => {
       status: 200,
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: String(err) }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 500,
-    });
+    return errorResponse(req, env, 500, err);
   }
 });

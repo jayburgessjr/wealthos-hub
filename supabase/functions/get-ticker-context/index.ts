@@ -1,47 +1,39 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+import { realAuthDeps } from "../_shared/auth-deno.ts";
+import { corsHeaders as sharedCors, errorResponse, fetchT, isResponse, preflight, readJsonBody, requireUser } from "../_shared/auth.ts";
+import { BODY_CAP_BYTES, DATA_DAILY_CAP, consumeUsage, usageResponse } from "../_shared/limits.ts";
+import { asObject, cleanTicker } from "../_shared/validate.ts";
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  const deps = realAuthDeps();
+  const env = deps.env;
+  const corsHeaders = sharedCors(req, env);
 
-  // ── Auth guard ──────────────────────────────────────────────────────────────
-  const authHeader = req.headers.get("authorization");
-  if (!authHeader?.startsWith("Bearer ")) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
+  const pre = preflight(req, env);
+  if (pre) return pre;
+  const auth = await requireUser(req, deps);
+  if (isResponse(auth)) return auth;
+  const parsed = await readJsonBody(req, env, BODY_CAP_BYTES.default);
+  if (!parsed.ok) return parsed.response;
+
+  const sym = cleanTicker(asObject(parsed.body).ticker);
+  if (!sym) return errorResponse(req, env, 400, "invalid ticker");
+
+  const gate = await consumeUsage(auth.client, "data", "get-ticker-context", DATA_DAILY_CAP);
+  if (gate !== "ok") return usageResponse(req, env, gate);
 
   try {
-    const { ticker } = await req.json();
-    if (!ticker) {
-      return new Response(JSON.stringify({ error: "ticker is required" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const POLYGON_KEY = Deno.env.get("POLYGON_KEY");
+    const POLYGON_KEY = env("POLYGON_KEY");
     if (!POLYGON_KEY) {
-      return new Response(JSON.stringify({ error: "POLYGON_KEY not configured" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return errorResponse(req, env, 500, "POLYGON_KEY not configured");
     }
-
-    const sym = ticker.toUpperCase().trim();
 
     // ─── Previous close quote ─────────────────────────────────────────────
     const [quoteRes, newsRes] = await Promise.all([
-      fetch(
+      fetchT(
         `https://api.polygon.io/v2/aggs/ticker/${sym}/prev?adjusted=true&apiKey=${POLYGON_KEY}`
       ),
-      fetch(
+      fetchT(
         `https://api.polygon.io/v2/reference/news?ticker=${sym}&limit=5&sort=desc&apiKey=${POLYGON_KEY}`
       ),
     ]);
@@ -81,9 +73,6 @@ serve(async (req) => {
     });
   } catch (e) {
     console.error("get-ticker-context error:", e);
-    return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return errorResponse(req, env, 500, e);
   }
 });

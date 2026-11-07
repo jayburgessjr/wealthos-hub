@@ -1,20 +1,20 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { realAuthDeps } from "../_shared/auth-deno.ts";
+import { corsHeaders as sharedCors, errorResponse, fetchT, isResponse, preflight, readJsonBody, requireUser } from "../_shared/auth.ts";
+import { BODY_CAP_BYTES, DATA_DAILY_CAP, consumeUsage, usageResponse } from "../_shared/limits.ts";
+import { MARKET_DATA_TYPES, asObject, validateEnum } from "../_shared/validate.ts";
 
 // ── Forex via Frankfurter (free, no key) ──────────────────────────────────────
 async function fetchForex() {
   try {
-    const res = await fetch("https://api.frankfurter.app/latest?base=USD");
+    const res = await fetchT("https://api.frankfurter.app/latest?base=USD");
     const json = await res.json();
     const pairs = ["EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "CNY", "HKD", "NOK", "SEK", "NZD", "SGD", "MXN", "BRL", "INR"];
 
     // Fetch previous day for change calculation
     const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
-    const prevRes = await fetch(`https://api.frankfurter.app/${yesterday}?base=USD`);
+    const prevRes = await fetchT(`https://api.frankfurter.app/${yesterday}?base=USD`);
     const prevJson = await prevRes.json();
 
     return pairs
@@ -63,7 +63,7 @@ async function fetchCommodities(polygonKey: string) {
     commodities.map(async (c) => {
       try {
         const url = `https://api.polygon.io/v2/aggs/ticker/${c.ticker}/prev?adjusted=true&apiKey=${polygonKey}`;
-        const res = await fetch(url);
+        const res = await fetchT(url);
         const json = await res.json();
         const result = json.results?.[0];
         if (!result) return null;
@@ -126,7 +126,7 @@ async function fetchBonds(fredKey: string | undefined) {
     series.map(async (s) => {
       try {
         const url = `https://api.stlouisfed.org/fred/series/observations?series_id=${s.id}&api_key=${fredKey}&sort_order=desc&limit=2&file_type=json`;
-        const res = await fetch(url);
+        const res = await fetchT(url);
         const json = await res.json();
         const obs = json.observations?.filter((o: any) => o.value !== ".") ?? [];
         const latest = obs[0];
@@ -163,24 +163,26 @@ async function fetchBonds(fredKey: string | undefined) {
 
 // ── Handler ───────────────────────────────────────────────────────────────────
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
+  const deps = realAuthDeps();
+  const env = deps.env;
+  const corsHeaders = sharedCors(req, env);
 
-  // ── Auth guard ──────────────────────────────────────────────────────────────
-  const authHeader = req.headers.get("authorization");
-  if (!authHeader?.startsWith("Bearer ")) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
-    return new Response(null, { headers: corsHeaders });
-  }
+  const pre = preflight(req, env);
+  if (pre) return pre;
+  const auth = await requireUser(req, deps);
+  if (isResponse(auth)) return auth;
+  const parsed = await readJsonBody(req, env, BODY_CAP_BYTES.default, { allowEmpty: true });
+  if (!parsed.ok) return parsed.response;
+
+  const type = validateEnum(asObject(parsed.body).type, MARKET_DATA_TYPES, "all");
+  if (!type) return errorResponse(req, env, 400, "invalid type");
+
+  const gate = await consumeUsage(auth.client, "data", "get-market-data", DATA_DAILY_CAP);
+  if (gate !== "ok") return usageResponse(req, env, gate);
 
   try {
-    const POLYGON_KEY = Deno.env.get("POLYGON_KEY");
-    const FRED_KEY = Deno.env.get("FRED_KEY");
-
-    const body = await req.json().catch(() => ({}));
-    const type = body.type ?? "all";
+    const POLYGON_KEY = env("POLYGON_KEY");
+    const FRED_KEY = env("FRED_KEY");
 
     const [forex, commodities, bonds] = await Promise.all([
       (type === "all" || type === "forex") ? fetchForex() : Promise.resolve([]),
@@ -193,10 +195,6 @@ serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
-    console.error(err);
-    return new Response(
-      JSON.stringify({ error: String(err) }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return errorResponse(req, env, 500, err);
   }
 });

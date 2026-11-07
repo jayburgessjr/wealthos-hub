@@ -1,9 +1,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { realAuthDeps } from "../_shared/auth-deno.ts";
+import { corsHeaders as sharedCors, errorResponse, fetchT, isResponse, preflight, readJsonBody, requireUser } from "../_shared/auth.ts";
+import { BODY_CAP_BYTES, DATA_DAILY_CAP, consumeUsage, usageResponse } from "../_shared/limits.ts";
+import { asObject, clampNum, validateTickerList } from "../_shared/validate.ts";
 
 interface NewsItem {
   id: string;
@@ -50,7 +50,7 @@ async function fetchPolygonNews(apiKey: string, tickers?: string[]): Promise<New
   try {
     const tickerParam = tickers?.length ? `&ticker=${tickers.slice(0, 5).join(",ticker=")}` : "";
     const url = `https://api.polygon.io/v2/reference/news?limit=50&order=desc${tickerParam}&apiKey=${apiKey}`;
-    const res = await fetch(url);
+    const res = await fetchT(url);
     if (!res.ok) {
       console.warn(`Polygon news ${res.status}`);
       return [];
@@ -83,7 +83,7 @@ async function fetchPolygonNews(apiKey: string, tickers?: string[]): Promise<New
 async function fetchFinnhubNews(apiKey: string): Promise<NewsItem[]> {
   try {
     const url = `https://finnhub.io/api/v1/news?category=general&token=${apiKey}`;
-    const res = await fetch(url);
+    const res = await fetchT(url);
     if (!res.ok) {
       console.warn(`Finnhub news ${res.status}`);
       return [];
@@ -116,7 +116,7 @@ async function fetchFinnhubNews(apiKey: string): Promise<NewsItem[]> {
 async function fetchNewsAPI(apiKey: string): Promise<NewsItem[]> {
   try {
     const url = `https://newsapi.org/v2/top-headlines?category=business&language=en&pageSize=30&apiKey=${apiKey}`;
-    const res = await fetch(url);
+    const res = await fetchT(url);
     if (!res.ok) {
       console.warn(`NewsAPI ${res.status}`);
       return [];
@@ -150,7 +150,7 @@ async function fetchAlphaVantageNews(apiKey: string, tickers?: string[]): Promis
   try {
     const tickerParam = tickers?.length ? `&tickers=${tickers.slice(0, 3).join(",")}` : "";
     const url = `https://www.alphavantage.co/query?function=NEWS_SENTIMENT${tickerParam}&limit=30&apikey=${apiKey}`;
-    const res = await fetch(url);
+    const res = await fetchT(url);
     if (!res.ok) {
       console.warn(`AlphaVantage news ${res.status}`);
       return [];
@@ -188,7 +188,7 @@ async function fetchMarketAux(apiKey: string, tickers?: string[]): Promise<NewsI
   try {
     const symbolsParam = tickers?.length ? `&symbols=${tickers.slice(0, 3).join(",")}` : "";
     const url = `https://api.marketaux.com/v1/news/all?language=en&filter_entities=true&limit=25${symbolsParam}&api_token=${apiKey}`;
-    const res = await fetch(url);
+    const res = await fetchT(url);
     if (!res.ok) {
       console.warn(`MarketAux news ${res.status}`);
       return [];
@@ -222,25 +222,30 @@ async function fetchMarketAux(apiKey: string, tickers?: string[]): Promise<NewsI
 
 // ─── MAIN HANDLER ─────────────────────────────────────────────────────────────
 serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  const deps = realAuthDeps();
+  const env = deps.env;
+  const corsHeaders = sharedCors(req, env);
 
-  // ── Auth guard ──────────────────────────────────────────────────────────────
-  const authHeader = req.headers.get("authorization");
-  if (!authHeader?.startsWith("Bearer ")) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
+  const pre = preflight(req, env);
+  if (pre) return pre;
+  const auth = await requireUser(req, deps);
+  if (isResponse(auth)) return auth;
+  const parsed = await readJsonBody(req, env, BODY_CAP_BYTES.default, { allowEmpty: true });
+  if (!parsed.ok) return parsed.response;
+
+  const body = asObject(parsed.body);
+  const tickers = body.tickers === undefined ? undefined : validateTickerList(body.tickers, 5);
+  const limit = Math.floor(clampNum(body.limit ?? 60, 1, 100) ?? 60);
+
+  const gate = await consumeUsage(auth.client, "data", "get-financial-news", DATA_DAILY_CAP);
+  if (gate !== "ok") return usageResponse(req, env, gate);
 
   try {
-    const body = await req.json().catch(() => ({}));
-    const { tickers, limit = 60 } = body;
-
-    const POLYGON_KEY       = Deno.env.get("POLYGON_KEY");
-    const FINNHUB_KEY       = Deno.env.get("FINNHUB_KEY");
-    const NEWSAPI_KEY       = Deno.env.get("NEWSAPI_KEY");
-    const ALPHAVANTAGE_KEY  = Deno.env.get("ALPHAVANTAGE_KEY");
-    const MARKETAUX_KEY     = Deno.env.get("MARKETAUX_KEY");
+    const POLYGON_KEY       = env("POLYGON_KEY");
+    const FINNHUB_KEY       = env("FINNHUB_KEY");
+    const NEWSAPI_KEY       = env("NEWSAPI_KEY");
+    const ALPHAVANTAGE_KEY  = env("ALPHAVANTAGE_KEY");
+    const MARKETAUX_KEY     = env("MARKETAUX_KEY");
 
     // Track which sources are active
     const sources: string[] = [];
@@ -289,10 +294,6 @@ serve(async (req) => {
     }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
   } catch (e) {
-    console.error("get-financial-news error:", e);
-    return new Response(JSON.stringify({ error: String(e), articles: [], sources: [] }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return errorResponse(req, env, 500, e);
   }
 });
