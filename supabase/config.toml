@@ -9,3 +9,6 @@ verify_jwt = false
 
 [functions.desk-scorecard]
 verify_jwt = false
+
+[functions.desk-reconcile-orders]
+verify_jwt = false

@@ -1,9 +1,10 @@
 // Read-only account view for the terminal: broker account, positions, desk state, quotes and the fixed risk limits.
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { makeReadOnlyBroker } from "../_shared/desk/broker/readonly.ts";
-import { resolveMode } from "../_shared/desk/broker/factory.ts";
+import { resolveMode } from "../_shared/desk/mode.ts";
 import { DbPaperStore } from "../_shared/desk/pipeline/paper-store.ts";
 import { PolygonMarket } from "../_shared/desk/pipeline/market.ts";
+import { assessQuote } from "../_shared/desk/pipeline/quote.ts";
 import { RISK_LIMITS } from "../_shared/desk/risk/limits.ts";
 import { getEnv, json, optionsResponse, requireOwner } from "../_shared/desk-auth.ts";
 
@@ -35,11 +36,12 @@ serve(async (req) => {
 
     const market = new PolygonMarket(getEnv("POLYGON_KEY"));
     const quotes: Record<string, number> = {};
+    const quoteAsOf: Record<string, string> = {};
     await Promise.all([...symbols].slice(0, 40).map(async (s) => {
-      try { const last = (await market.bars(s, 3)).at(-1); if (last) quotes[s] = last.close; } catch { /* a missing quote leaves the symbol out; the UI fails closed */ }
+      try { const last = (await market.bars(s, 3)).at(-1); if (last) { quotes[s] = last.close; quoteAsOf[s] = last.date; } } catch { /* a missing quote leaves the symbol out; the UI fails closed */ }
     }));
 
-    return json(req, { ok: true, mode, broker: broker.name, account, positions, state: state.data ?? null, quotes, limits: RISK_LIMITS });
+    return json(req, { ok: true, mode, broker: broker.name, account, positions, state: state.data ?? null, quotes, quoteAsOf, staleQuotes: Object.keys(quotes).filter((s) => !assessQuote({ price: quotes[s], asOf: quoteAsOf[s] }, "stock", new Date()).fresh), limits: RISK_LIMITS });
   } catch (e) {
     console.error("desk-account failed", (e as Error).message);
     return json(req, { ok: false, error: "Account data is unavailable right now." }, 502);

@@ -20,7 +20,7 @@ class PaperReader implements BrokerReadPort {
   }
 }
 
-class AlpacaReader implements BrokerReadPort {
+export class AlpacaReader implements BrokerReadPort {
   readonly name = "alpaca" as const;
   constructor(readonly mode: TradingMode, private creds: { keyId: string; secret: string }, private f: typeof fetch = fetch) {}
   private async get(path: string) {
@@ -37,8 +37,22 @@ class AlpacaReader implements BrokerReadPort {
     const rows = (await this.get("/v2/positions")) as Record<string, string>[];
     return rows.map((r) => ({ symbol: r.symbol, qty: Number(r.qty), avgPrice: Number(r.avg_entry_price), marketValue: Number(r.market_value) }));
   }
-  async getOrder(): Promise<BrokerFill | null> {
-    return null;
+  /** Real lookup by client order id (= approval id). A 404 means "no such order"; any other failure throws, so a reconciler never mistakes an outage for absence. */
+  async getOrder(clientOrderId: string): Promise<BrokerFill | null> {
+    const base = this.mode === "live" ? "https://api.alpaca.markets" : "https://paper-api.alpaca.markets";
+    const res = await this.f(`${base}/v2/orders:by_client_order_id?client_order_id=${encodeURIComponent(clientOrderId)}`, {
+      headers: { "APCA-API-KEY-ID": this.creds.keyId, "APCA-API-SECRET-KEY": this.creds.secret }, signal: AbortSignal.timeout(10_000),
+    });
+    if (res.status === 404) return null;
+    if (!res.ok) throw new Error(`Alpaca order lookup ${res.status}`);
+    const j = (await res.json()) as Record<string, unknown>;
+    const s = String(j.status);
+    return {
+      brokerOrderId: String(j.id),
+      status: s === "filled" ? "filled" : s === "partially_filled" ? "partially_filled" : s === "rejected" || s === "stopped" || s === "suspended" ? "rejected" : s === "canceled" || s === "expired" || s === "done_for_day" ? "canceled" : "submitted",
+      filledQty: Number(j.filled_qty ?? 0),
+      avgFillPrice: j.filled_avg_price ? Number(j.filled_avg_price) : undefined,
+    };
   }
 }
 

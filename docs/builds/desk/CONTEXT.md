@@ -1,6 +1,6 @@
 # Desk build: CONTEXT (authoritative agent packet)
 
-Objective: internal single-user trading desk ("Desk"), Bloomberg-style terminal UI, paper trading only in phase 0, human approves every trade. Additive only: do not modify existing WealthOS tables, policies, auth, simulations, or existing edge functions.
+Objective: internal trading desk for up to two allowlisted owners (migration 20261108; was single-user) ("Desk"), Bloomberg-style terminal UI, paper trading only in phase 0, human approves every trade. Additive only: do not modify existing WealthOS tables, policies, auth, simulations, or existing edge functions.
 
 Read first: `docs/builds/desk/ARCHITECTURE.md` (schema DDL, triggers, ADRs, threat table). It is the design authority. Deviations already decided by the Lead:
 - `desk_instruments.asset_class` also allows `'crypto'`; `Structure` also has `'crypto'` (crypto scanner + Alpaca crypto). Update the DDL checks accordingly (`desk_proposed_orders.structure`, `desk_orders.structure`, `desk_positions.structure`).

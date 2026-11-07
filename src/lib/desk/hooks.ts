@@ -24,7 +24,7 @@ export function useClaimOwner() {
     mutationFn: async () => {
       const res = await invokeDesk<FnResult & { owner?: boolean }>("desk-claim-owner", {});
       if (!res.ok) throw new Error(res.error ?? "Could not claim the desk.");
-      if (res.owner !== true) throw new Error("This account is not the desk owner.");
+      if (res.owner !== true) throw new Error(res.error ?? "This account is not the desk owner.");
       return res;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: [KEY, "owner"] }),
@@ -126,6 +126,8 @@ export interface DecideResult extends FnResult {
   decision?: "approved" | "rejected";
   risk?: RiskDecision;
   order?: { id: string; status: string; brokerOrderId?: string; filledQty: number; avgFillPrice?: number };
+  warnings?: string[];
+  pendingFill?: boolean;
 }
 
 /** Sends ONLY proposed_order_id, decision and (live only) live_confirmation. The server recomputes risk. */
