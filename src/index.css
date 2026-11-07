@@ -86,31 +86,6 @@
   }
 }
 
-/* Household mode — override primary accent to green */
-.household {
-  --primary: 160 100% 35%;
-  --primary-foreground: 0 0% 100%;
-  --ring: 160 100% 35%;
-}
-
-.dark .household {
-  --primary: 160 100% 45%;
-  --primary-foreground: 0 0% 5%;
-  --ring: 160 100% 45%;
-}
-
-/* Wealth Planning mode — override primary accent to amber */
-.wealth {
-  --primary: 38 95% 48%;
-  --primary-foreground: 0 0% 5%;
-  --ring: 38 95% 48%;
-}
-
-.dark .wealth {
-  --primary: 38 95% 55%;
-  --primary-foreground: 0 0% 5%;
-  --ring: 38 95% 55%;
-}
 
 @layer base {
   * {

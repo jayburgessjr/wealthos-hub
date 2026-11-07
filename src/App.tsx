@@ -6,6 +6,7 @@ import { HouseholdBudgetProvider } from "@/context/HouseholdBudgetContext";
 // Household pages (stubs — will be replaced in Tasks 9-29)
 import HouseholdSetup from "./pages/household/HouseholdSetup";
 import HouseholdDashboard from "./pages/household/HouseholdDashboard";
+import HouseholdMoney from "./pages/household/HouseholdMoney";
 import HouseholdBudget from "./pages/household/HouseholdBudget";
 import HouseholdBills from "./pages/household/HouseholdBills";
 import HouseholdIncome from "./pages/household/HouseholdIncome";
@@ -114,6 +115,7 @@ const HouseholdRoutes = () => (
       {/* Dashboard — standalone */}
       <Route path="/" element={<HouseholdDashboard />} />
       <Route path="/setup" element={<HouseholdSetup />} />
+      <Route path="/money" element={<HouseholdMoney />} />
 
       {/* Money In */}
       <Route
@@ -300,7 +302,10 @@ const AppRoutes = () => (
     {/* Protected routes — require authenticated user */}
     <Route element={<ProtectedRoute />}>
       <Route path="/onboarding" element={<Onboarding />} />
-      <Route path="/desk" element={<Suspense fallback={null}><DeskPage /></Suspense>} />
+      <Route path="/desk" element={<Suspense fallback={null}><DeskPage view="overview" /></Suspense>} />
+      <Route path="/desk/portfolio" element={<Suspense fallback={null}><DeskPage view="portfolio" /></Suspense>} />
+      <Route path="/desk/research" element={<Suspense fallback={null}><DeskPage view="research" /></Suspense>} />
+      <Route path="/desk/performance" element={<Suspense fallback={null}><DeskPage view="performance" /></Suspense>} />
       <Route path="/settings" element={<SettingsPage />} />
       <Route path="/profile/:userId" element={<Profile />} />
 

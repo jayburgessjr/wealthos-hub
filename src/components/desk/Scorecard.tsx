@@ -8,22 +8,22 @@ import { cn } from "@/lib/utils";
 
 function StatRow({ label, s }: { label: string; s: Stats }) {
   return (
-    <tr className="border-t border-white/10">
-      <th scope="row" className="px-3 py-1 text-left font-medium text-white">
+    <tr className="border-t border-border">
+      <th scope="row" className="px-3 py-1 text-left font-medium text-foreground">
         {label}
       </th>
-      <td className={cn(NUM, "px-2 py-1 text-right text-white/80")}>{s.n}</td>
-      <td className={cn(NUM, "px-2 py-1 text-right text-white/80")}>{s.n ? pct(s.hitRate, 1) : "n/a"}</td>
+      <td className={cn(NUM, "px-2 py-1 text-right text-foreground/80")}>{s.n}</td>
+      <td className={cn(NUM, "px-2 py-1 text-right text-foreground/80")}>{s.n ? pct(s.hitRate, 1) : "n/a"}</td>
       <td className={cn(NUM, "px-2 py-1 text-right", pnlClass(s.expectancy))}>{s.n ? signedPct(s.expectancy) : "n/a"}</td>
       <td className={cn(NUM, "px-2 py-1 text-right", pnlClass(s.avgAlpha))}>{s.n ? signedPct(s.avgAlpha) : "n/a"}</td>
-      <td className={cn(NUM, "px-3 py-1 text-right text-white/80")}>{s.n ? pct(s.maxDrawdown, 1) : "n/a"}</td>
+      <td className={cn(NUM, "px-3 py-1 text-right text-foreground/80")}>{s.n ? pct(s.maxDrawdown, 1) : "n/a"}</td>
     </tr>
   );
 }
 
 function Head({ first }: { first: string }) {
   return (
-    <thead className="text-[10px] uppercase text-white/60">
+    <thead className="text-[10px] uppercase text-muted-foreground">
       <tr>
         <th scope="col" className="px-3 py-1 text-left font-medium">{first}</th>
         <th scope="col" className="px-2 py-1 text-right font-medium">N</th>
@@ -40,16 +40,16 @@ export function ScorecardView({ stats }: { stats: ReturnType<typeof computeScore
   const agents = Object.entries(stats.agents);
   return (
     <div>
-      <dl className="grid grid-cols-2 gap-px border-b border-white/10 bg-white/10 md:grid-cols-4">
+      <dl className="grid grid-cols-2 gap-px border-b border-border bg-muted md:grid-cols-4">
         {[
           ["Hit rate", pct(stats.overall.hitRate, 1)],
           ["Expectancy", signedPct(stats.overall.expectancy)],
           ["Max drawdown", pct(stats.overall.maxDrawdown, 1)],
           ["Scored ideas", String(stats.overall.n)],
         ].map(([k, v]) => (
-          <div key={k} className="bg-[hsl(240,6%,10%)] px-3 py-1.5">
+          <div key={k} className="bg-card px-3 py-1.5">
             <dt className={MICRO}>{k}</dt>
-            <dd className={cn(NUM, "text-sm text-white")}>{v}</dd>
+            <dd className={cn(NUM, "text-sm text-foreground")}>{v}</dd>
           </div>
         ))}
       </dl>
@@ -87,7 +87,7 @@ export function Scorecard() {
           aria-label="Scorecard subject"
           value={subject}
           onChange={(e) => setSubject(e.target.value as SubjectFilter)}
-          className="h-6 rounded-sm border border-white/10 bg-[hsl(240,6%,7%)] px-1 text-xs text-white"
+          className="h-6 rounded-sm border border-border bg-background px-1 text-xs text-foreground"
         >
           <option value="all">All</option>
           <option value="signal">Signals</option>

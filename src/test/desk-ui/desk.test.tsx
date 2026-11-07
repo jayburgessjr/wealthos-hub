@@ -16,6 +16,9 @@ vi.mock("@/integrations/supabase/client", () => ({
   supabase: { rpc: mocks.rpc, from: mocks.from, functions: { invoke: mocks.invoke } },
 }));
 
+// The shared shell (navbar, sidebar, right bar) needs auth and many unrelated queries; the page body is what is under test.
+vi.mock("@/components/layout/DashboardLayout", () => ({ default: ({ children }: { children: React.ReactNode }) => <>{children}</> }));
+
 import DeskPage from "@/pages/desk/DeskPage";
 import { ProposalCard } from "@/components/desk/ApprovalQueue";
 import { KillSwitchBanner } from "@/components/desk/HeaderStrip";
@@ -115,6 +118,45 @@ describe("owner gate", () => {
     wrap(<DeskPage />);
     expect(await screen.findByLabelText("Approval queue")).toBeInTheDocument();
     expect(await screen.findByText("Equity")).toBeInTheDocument();
+  });
+});
+
+describe("desk tabs", () => {
+  const owner = () => {
+    mocks.rpc.mockResolvedValue({ data: true, error: null });
+    mocks.invoke.mockResolvedValue({ data: account(), error: null });
+  };
+
+  it("shows the tab bar and the overview panels by default", async () => {
+    owner();
+    wrap(<DeskPage />);
+    expect(await screen.findByLabelText("Approval queue")).toBeInTheDocument();
+    expect(screen.getByLabelText("Risk gauges")).toBeInTheDocument();
+    for (const t of ["Overview", "Portfolio", "Research", "Performance"]) {
+      expect(screen.getByRole("link", { name: t })).toBeInTheDocument();
+    }
+    expect(screen.queryByLabelText("Positions")).not.toBeInTheDocument();
+  });
+
+  it("portfolio view shows positions only", async () => {
+    owner();
+    wrap(<DeskPage view="portfolio" />);
+    expect(await screen.findByLabelText("Positions")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Approval queue")).not.toBeInTheDocument();
+  });
+
+  it("research view shows the signal feed and watchlist", async () => {
+    owner();
+    wrap(<DeskPage view="research" />);
+    expect(await screen.findByLabelText("Signal feed")).toBeInTheDocument();
+    expect(screen.getByLabelText("Watchlist")).toBeInTheDocument();
+  });
+
+  it("performance view shows the scorecard and journal", async () => {
+    owner();
+    wrap(<DeskPage view="performance" />);
+    expect(await screen.findByLabelText("Scorecard")).toBeInTheDocument();
+    expect(screen.getByLabelText("Journal")).toBeInTheDocument();
   });
 });
 

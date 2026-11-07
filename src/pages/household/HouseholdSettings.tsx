@@ -39,6 +39,7 @@ import {
 } from "@/integrations/supabase/household-queries";
 import { useUpdateHouseholdMutation } from "@/hooks/useHouseholdBudgetData";
 import { toast } from "sonner";
+import { membershipErrorMessage } from "@/integrations/supabase/membership-rpc";
 import {
   Search,
   FileText,
@@ -149,8 +150,8 @@ export default function HouseholdSettings() {
       await switchActiveHousehold(user.id, hid);
       toast.success("Switched household");
       window.location.reload();
-    } catch {
-      toast.error("Failed to switch household");
+    } catch (e) {
+      toast.error(membershipErrorMessage(e, "Failed to switch household"));
     }
   }
 
@@ -684,8 +685,12 @@ export default function HouseholdSettings() {
                         size="sm"
                         onClick={async () => {
                           if (!householdId) return;
-                          await updateMemberRole(m.id, householdId, "owner");
-                          toast.success("Role updated");
+                          try {
+                            await updateMemberRole(m.id, householdId, "owner");
+                            toast.success("Role updated");
+                          } catch (e) {
+                            toast.error(membershipErrorMessage(e, "Failed to update role"));
+                          }
                           fetchMembers();
                         }}
                       >
@@ -696,8 +701,12 @@ export default function HouseholdSettings() {
                         size="sm"
                         onClick={async () => {
                           if (!householdId) return;
-                          await updateMemberRole(m.id, householdId, "member");
-                          toast.success("Role updated");
+                          try {
+                            await updateMemberRole(m.id, householdId, "member");
+                            toast.success("Role updated");
+                          } catch (e) {
+                            toast.error(membershipErrorMessage(e, "Failed to update role"));
+                          }
                           fetchMembers();
                         }}
                       >
@@ -709,8 +718,12 @@ export default function HouseholdSettings() {
                         onClick={async () => {
                           if (!householdId) return;
                           if (!confirm(`Remove ${m.name}?`)) return;
-                          await removeMemberFromHousehold(m.id, householdId);
-                          toast.success("Member removed");
+                          try {
+                            await removeMemberFromHousehold(m.id, householdId);
+                            toast.success("Member removed");
+                          } catch (e) {
+                            toast.error(membershipErrorMessage(e, "Failed to remove member"));
+                          }
                           fetchMembers();
                         }}
                       >

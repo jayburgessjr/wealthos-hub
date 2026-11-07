@@ -168,6 +168,19 @@ const TAB_GROUPS: Record<
     ],
   },
 
+  // ── Desk ──
+  desk: {
+    sectionLabel: "PAPER TRADING DESK",
+    title: "Desk",
+    subtitle: "Human-approved paper trades, risk limits, and agent scorecard",
+    tabs: [
+      { label: "Overview", path: "/desk" },
+      { label: "Portfolio", path: "/desk/portfolio" },
+      { label: "Research", path: "/desk/research" },
+      { label: "Performance", path: "/desk/performance" },
+    ],
+  },
+
   // ── Wealth groups ──────────────────────────────────────────────────────
   "wealth-long-term": {
     sectionLabel: "LONG-TERM WEALTH",
