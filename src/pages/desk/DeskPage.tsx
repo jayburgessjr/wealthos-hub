@@ -1,6 +1,8 @@
-import { Link } from "react-router-dom";
+import type { ReactNode } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import DashboardLayout from "@/components/layout/DashboardLayout";
+import TabNav from "@/components/layout/TabNav";
 import { useAccount, useClaimOwner, useIsOwner } from "@/lib/desk/hooks";
 import { ApprovalQueue } from "@/components/desk/ApprovalQueue";
 import { HeaderStrip, KillSwitchBanner } from "@/components/desk/HeaderStrip";
@@ -13,90 +15,122 @@ import { SignalFeed } from "@/components/desk/SignalFeed";
 import { Watchlist } from "@/components/desk/Watchlist";
 import { cn } from "@/lib/utils";
 
-const SHELL = "min-h-screen bg-[hsl(240,6%,10%)] text-xs text-white";
+export type DeskView = "overview" | "portfolio" | "research" | "performance";
 
-function Message({ title, children }: { title: string; children?: React.ReactNode }) {
+function Message({ title, children }: { title: string; children?: ReactNode }) {
   return (
-    <main className={cn(SHELL, "flex items-center justify-center p-6")}>
-      <div className="max-w-sm border border-white/10 bg-[hsl(220,45%,12%)] p-6 text-center">
-        <h1 className="text-sm font-semibold">{title}</h1>
-        {children}
+    <DashboardLayout>
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <div className="max-w-sm rounded-lg border border-border bg-card p-6 text-center">
+          <h1 className="text-base font-semibold text-foreground">{title}</h1>
+          {children}
+        </div>
       </div>
-    </main>
+    </DashboardLayout>
   );
 }
 
-function Terminal() {
+const GRID = "grid gap-4 text-xs lg:grid-cols-12 lg:[&>*]:max-h-[460px]";
+
+function ViewPanels({ view }: { view: DeskView }) {
+  switch (view) {
+    case "portfolio":
+      return (
+        <div className={GRID}>
+          <div className="lg:col-span-12">
+            <Positions />
+          </div>
+        </div>
+      );
+    case "research":
+      return (
+        <div className={GRID}>
+          <div className="lg:col-span-8">
+            <SignalFeed />
+          </div>
+          <div className="lg:col-span-4">
+            <Watchlist />
+          </div>
+        </div>
+      );
+    case "performance":
+      return (
+        <div className={GRID}>
+          <div className="lg:col-span-7">
+            <Scorecard />
+          </div>
+          <div className="lg:col-span-5">
+            <Journal />
+          </div>
+        </div>
+      );
+    default:
+      return (
+        <div className={GRID}>
+          <div className="lg:col-span-8">
+            <ApprovalQueue />
+          </div>
+          <div className="lg:col-span-4">
+            <RiskGauges />
+          </div>
+        </div>
+      );
+  }
+}
+
+function Terminal({ view }: { view: DeskView }) {
   const account = useAccount();
   return (
-    <div className={SHELL}>
-      <div className="flex items-center justify-between border-b border-white/10 bg-[hsl(220,45%,12%)] px-3 py-1.5">
-        <h1 className="text-[11px] font-bold uppercase tracking-[0.2em]">Desk</h1>
-        <Link to="/invs/dashboard" className="text-white/70 underline underline-offset-2 hover:text-white">
-          Back to app
-        </Link>
+    <DashboardLayout>
+      <TabNav group="desk" />
+      <div className="space-y-4">
+        {account.isLoading && (
+          <p role="status" className="text-xs text-muted-foreground">
+            Loading account...
+          </p>
+        )}
+        {account.error && (
+          <div
+            role="alert"
+            className="flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-2 text-xs text-foreground/80"
+          >
+            <span>Account data failed to load: {(account.error as Error).message}</span>
+            <Button type="button" onClick={() => account.refetch()} className={GHOST_BTN}>
+              Retry
+            </Button>
+          </div>
+        )}
+        {account.data && (
+          <div className="overflow-hidden rounded-lg border border-border bg-card">
+            <HeaderStrip account={account.data} />
+            <KillSwitchBanner account={account.data} />
+          </div>
+        )}
+        <ViewPanels view={view} />
       </div>
-      {account.isLoading && (
-        <p role="status" className="border-b border-white/10 px-3 py-2 text-white/60">
-          Loading account...
-        </p>
-      )}
-      {account.error && (
-        <div role="alert" className="flex items-center gap-3 border-b border-white/10 px-3 py-2 text-white/80">
-          <span>Account data failed to load: {(account.error as Error).message}</span>
-          <Button type="button" onClick={() => account.refetch()} className={GHOST_BTN}>
-            Retry
-          </Button>
-        </div>
-      )}
-      {account.data && (
-        <>
-          <HeaderStrip account={account.data} />
-          <KillSwitchBanner account={account.data} />
-        </>
-      )}
-      <main className="grid gap-px bg-white/10 p-px lg:grid-cols-12 lg:[&>*]:max-h-[420px]">
-        <div className="lg:col-span-8">
-          <ApprovalQueue />
-        </div>
-        <div className="lg:col-span-4">
-          <RiskGauges />
-        </div>
-        <div className="lg:col-span-3">
-          <Watchlist />
-        </div>
-        <div className="lg:col-span-5">
-          <Positions />
-        </div>
-        <div className="lg:col-span-4">
-          <SignalFeed />
-        </div>
-        <div className="lg:col-span-6">
-          <Scorecard />
-        </div>
-        <div className="lg:col-span-6">
-          <Journal />
-        </div>
-      </main>
-    </div>
+    </DashboardLayout>
   );
 }
 
-export default function DeskPage() {
+export default function DeskPage({ view = "overview" }: { view?: DeskView }) {
   const owner = useIsOwner();
   const claim = useClaimOwner();
 
   if (owner.isLoading) {
     return (
-      <main className={cn(SHELL, "flex items-center justify-center")}>
-        <p role="status" className="text-white/70">Checking access...</p>
-      </main>
+      <DashboardLayout>
+        <p role="status" className="text-sm text-muted-foreground">
+          Checking access...
+        </p>
+      </DashboardLayout>
     );
   }
   if (owner.error) {
     return (
       <Message title="Could not check access">
-        <p role="alert" className="mt-2 text-white/70">{(owner.error as Error).message}</p>
+        <p role="alert" className="mt-2 text-sm text-muted-foreground">
+          {(owner.error as Error).message}
+        </p>
         <Button type="button" onClick={() => owner.refetch()} className={cn(GHOST_BTN, "mt-3")}>
           Retry
         </Button>
@@ -106,7 +140,7 @@ export default function DeskPage() {
   if (!owner.data) {
     return (
       <Message title="Not available">
-        <p className="mt-2 text-white/70">This page is private.</p>
+        <p className="mt-2 text-sm text-muted-foreground">This page is private.</p>
         <Button
           type="button"
           disabled={claim.isPending}
@@ -123,5 +157,5 @@ export default function DeskPage() {
       </Message>
     );
   }
-  return <Terminal />;
+  return <Terminal view={view} />;
 }

@@ -36,7 +36,7 @@ export function Watchlist() {
         empty="Symbols appear here once an agent publishes a signal for them."
       >
         <table className="w-full text-left">
-          <thead className="text-[10px] uppercase text-white/60">
+          <thead className="text-[10px] uppercase text-muted-foreground">
             <tr>
               <th scope="col" className="px-3 py-1 font-medium">Symbol</th>
               <th scope="col" className="px-2 py-1 text-right font-medium">Last</th>
@@ -48,11 +48,11 @@ export function Watchlist() {
             {rows.map((r) => {
               const q = account.data?.quotes?.[r.symbol];
               return (
-                <tr key={r.symbol} className="border-t border-white/10">
-                  <td className={cn(NUM, "px-3 py-1 font-semibold text-white")}>{r.symbol}</td>
-                  <td className={cn(NUM, "px-2 py-1 text-right text-white/80")}>{typeof q === "number" ? price(q) : "n/a"}</td>
-                  <td className="px-2 py-1 capitalize text-white/80">{r.direction}</td>
-                  <td className={cn(NUM, "px-3 py-1 text-right text-white/80")}>{(r.strength * 100).toFixed(0)}</td>
+                <tr key={r.symbol} className="border-t border-border">
+                  <td className={cn(NUM, "px-3 py-1 font-semibold text-foreground")}>{r.symbol}</td>
+                  <td className={cn(NUM, "px-2 py-1 text-right text-foreground/80")}>{typeof q === "number" ? price(q) : "n/a"}</td>
+                  <td className="px-2 py-1 capitalize text-foreground/80">{r.direction}</td>
+                  <td className={cn(NUM, "px-3 py-1 text-right text-foreground/80")}>{(r.strength * 100).toFixed(0)}</td>
                 </tr>
               );
             })}

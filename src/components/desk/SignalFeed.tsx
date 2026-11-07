@@ -22,15 +22,15 @@ export function SignalFeed() {
       >
         <ul>
           {(signals.data ?? []).map((s) => (
-            <li key={s.id} className="border-t border-white/10 px-3 py-1.5 first:border-t-0">
+            <li key={s.id} className="border-t border-border px-3 py-1.5 first:border-t-0">
               <div className="flex items-baseline gap-2">
-                <span className={cn(NUM, "font-semibold text-white")}>{sym.get(s.instrument_id) ?? "?"}</span>
-                <span className="capitalize text-white/80">{s.direction}</span>
-                <span className={cn(NUM, "text-white/70")}>{(toNum(s.strength) * 100).toFixed(0)}</span>
-                <span className="text-white/60">{s.agent_name}</span>
-                <span className="ml-auto text-[10px] text-white/50">{shortTime(s.created_at)}</span>
+                <span className={cn(NUM, "font-semibold text-foreground")}>{sym.get(s.instrument_id) ?? "?"}</span>
+                <span className="capitalize text-foreground/80">{s.direction}</span>
+                <span className={cn(NUM, "text-muted-foreground")}>{(toNum(s.strength) * 100).toFixed(0)}</span>
+                <span className="text-muted-foreground">{s.agent_name}</span>
+                <span className="ml-auto text-[10px] text-muted-foreground">{shortTime(s.created_at)}</span>
               </div>
-              <p className="text-white/80">{s.summary}</p>
+              <p className="text-foreground/80">{s.summary}</p>
               {(s.source_links ?? []).filter((l) => isSafeUrl(l.url)).length > 0 && (
                 <p className="mt-0.5 flex flex-wrap gap-x-3">
                   {(s.source_links ?? [])
@@ -41,7 +41,7 @@ export function SignalFeed() {
                         href={l.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[hsl(20,82%,51%)] underline underline-offset-2 hover:text-white"
+                        className="text-[hsl(20,82%,51%)] underline underline-offset-2 hover:text-foreground"
                       >
                         {l.title || hostOf(l.url)}
                       </a>

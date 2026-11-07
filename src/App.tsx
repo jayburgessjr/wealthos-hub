@@ -299,7 +299,10 @@ const AppRoutes = () => (
     {/* Protected routes — require authenticated user */}
     <Route element={<ProtectedRoute />}>
       <Route path="/onboarding" element={<Onboarding />} />
-      <Route path="/desk" element={<Suspense fallback={null}><DeskPage /></Suspense>} />
+      <Route path="/desk" element={<Suspense fallback={null}><DeskPage view="overview" /></Suspense>} />
+      <Route path="/desk/portfolio" element={<Suspense fallback={null}><DeskPage view="portfolio" /></Suspense>} />
+      <Route path="/desk/research" element={<Suspense fallback={null}><DeskPage view="research" /></Suspense>} />
+      <Route path="/desk/performance" element={<Suspense fallback={null}><DeskPage view="performance" /></Suspense>} />
       <Route path="/settings" element={<SettingsPage />} />
       <Route path="/profile/:userId" element={<Profile />} />
 

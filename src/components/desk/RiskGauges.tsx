@@ -22,8 +22,8 @@ export function Gauge({ label, value, limit, valueText, limitText }: GaugeProps)
     <div>
       <div className="flex items-baseline justify-between">
         <span className={MICRO}>{label}</span>
-        <span className={cn(NUM, "text-white/80")}>
-          {valueText} <span className="text-white/50">/ {limitText}</span>
+        <span className={cn(NUM, "text-foreground/80")}>
+          {valueText} <span className="text-muted-foreground">/ {limitText}</span>
         </span>
       </div>
       <div
@@ -33,9 +33,9 @@ export function Gauge({ label, value, limit, valueText, limitText }: GaugeProps)
         aria-valuemax={100}
         aria-valuenow={Math.round(ratio * 100)}
         aria-valuetext={`${valueText} of ${limitText} limit`}
-        className="mt-1 h-1.5 w-full bg-white/10"
+        className="mt-1 h-1.5 w-full bg-muted"
       >
-        <div className={cn("h-full", hot ? "bg-[hsl(20,82%,51%)]" : "bg-white/60")} style={{ width: `${ratio * 100}%` }} />
+        <div className={cn("h-full", hot ? "bg-[hsl(20,82%,51%)]" : "bg-foreground/60")} style={{ width: `${ratio * 100}%` }} />
       </div>
     </div>
   );

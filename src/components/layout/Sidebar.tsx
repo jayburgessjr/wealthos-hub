@@ -169,6 +169,18 @@ const navSections = [
   },
 ];
 
+const deskNavSections = [
+  {
+    label: "Desk",
+    items: [
+      { to: "/desk", icon: LayoutDashboard, label: "Overview" },
+      { to: "/desk/portfolio", icon: Briefcase, label: "Portfolio" },
+      { to: "/desk/research", icon: Radar, label: "Research" },
+      { to: "/desk/performance", icon: Trophy, label: "Performance" },
+    ],
+  },
+];
+
 const wealthNavSections = [
   {
     label: "Overview",
@@ -297,18 +309,23 @@ export default function Sidebar() {
 
   const isHousehold = location.pathname.startsWith("/household");
   const isWealth = location.pathname.startsWith("/wealth");
+  const isDesk = location.pathname.startsWith("/desk");
 
   const sections = isHousehold
     ? householdNavSections
     : isWealth
       ? wealthNavSections
-      : navSections;
+      : isDesk
+        ? deskNavSections
+        : navSections;
 
   const sectionLabelColor = isHousehold
     ? "text-emerald-500/50"
     : isWealth
       ? "text-amber-500/50"
-      : "text-foreground/20";
+      : isDesk
+        ? "text-orange-500/50"
+        : "text-foreground/20";
 
   const togglePin = () => {
     const next = !isPinned;
