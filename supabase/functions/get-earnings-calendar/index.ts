@@ -1,30 +1,39 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
+import { realAuthDeps } from "../_shared/auth-deno.ts";
+import { corsHeaders as sharedCors, errorResponse, fetchT, isResponse, preflight, readJsonBody, requireUser } from "../_shared/auth.ts";
+import { BODY_CAP_BYTES, DATA_DAILY_CAP, consumeUsage, usageResponse } from "../_shared/limits.ts";
+import { asObject, validateTickerList } from "../_shared/validate.ts";
 
 serve(async (req) => {
-  if (req.method === "OPTIONS")
-    return new Response(null, { headers: corsHeaders });
+  const deps = realAuthDeps();
+  const env = deps.env;
+  const corsHeaders = sharedCors(req, env);
+
+  const pre = preflight(req, env);
+  if (pre) return pre;
+  const auth = await requireUser(req, deps);
+  if (isResponse(auth)) return auth;
+  const parsed = await readJsonBody(req, env, BODY_CAP_BYTES.default, { allowEmpty: true });
+  if (!parsed.ok) return parsed.response;
+
+  // Deduplicated, shape-checked, capped at 20 to stay within upstream rate limits.
+  const tickers: string[] = validateTickerList(asObject(parsed.body).tickers, 20);
+
+  if (!tickers.length) {
+    return new Response(JSON.stringify({ earnings: [] }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  const gate = await consumeUsage(auth.client, "data", "get-earnings-calendar", DATA_DAILY_CAP);
+  if (gate !== "ok") return usageResponse(req, env, gate);
 
   try {
-    const POLYGON_KEY = Deno.env.get("POLYGON_KEY");
+    const POLYGON_KEY = env("POLYGON_KEY");
     if (!POLYGON_KEY) throw new Error("POLYGON_KEY not configured");
 
-    const body = await req.json().catch(() => ({}));
-    const tickers: string[] = body.tickers ?? [];
-
-    if (!tickers.length) {
-      return new Response(JSON.stringify({ earnings: [] }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    // Deduplicate and limit to 20 tickers to stay within rate limits
-    const unique = [...new Set(tickers)].slice(0, 20);
+    const unique = tickers;
 
     // Fetch upcoming earnings for each ticker from Polygon
     // Endpoint: GET /vX/reference/financials?ticker=X&timeframe=quarterly&limit=1&sort=period_of_report_date
@@ -38,7 +47,7 @@ serve(async (req) => {
         try {
           // Use the earnings endpoint to get next report date
           const url = `https://api.polygon.io/vX/reference/financials?ticker=${ticker}&timeframe=quarterly&limit=1&apiKey=${POLYGON_KEY}`;
-          const res = await fetch(url);
+          const res = await fetchT(url);
           if (!res.ok) return null;
           const data = await res.json();
 
@@ -46,7 +55,7 @@ serve(async (req) => {
           if (!latest) return null;
 
           // Get ticker details for company name
-          const detailRes = await fetch(
+          const detailRes = await fetchT(
             `https://api.polygon.io/v3/reference/tickers/${ticker}?apiKey=${POLYGON_KEY}`,
           );
           const detail = detailRes.ok ? await detailRes.json() : null;
@@ -97,16 +106,6 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
-    console.error("get-earnings-calendar error:", e);
-    return new Response(
-      JSON.stringify({
-        error: e instanceof Error ? e.message : "Unknown error",
-        earnings: [],
-      }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      },
-    );
+    return errorResponse(req, env, 500, e);
   }
 });
