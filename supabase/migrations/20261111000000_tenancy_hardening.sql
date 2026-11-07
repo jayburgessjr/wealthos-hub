@@ -118,6 +118,10 @@ drop policy if exists "Owners can manage profiles in their household" on public.
 drop policy if exists "Users can insert their own role" on public.user_roles;
 drop policy if exists "Owners can manage roles" on public.user_roles;
 revoke insert, update, delete on public.user_roles from anon, authenticated;
+-- TRUNCATE bypasses RLS and earlier hardening did not revoke it from the API roles.
+revoke truncate, references, trigger
+  on public.user_roles, public.invitations, public.profiles, public.households
+  from public, anon, authenticated;
 
 -- The household switcher lists every household the caller belongs to.
 drop policy if exists user_roles_select_own on public.user_roles;
@@ -404,3 +408,27 @@ grant execute on function public.accept_invitation(text) to authenticated;
 grant execute on function public.switch_active_household(uuid) to authenticated;
 grant execute on function public.set_member_role(uuid, uuid, public.app_role) to authenticated;
 grant execute on function public.remove_member(uuid, uuid) to authenticated;
+
+-- ═════════════════════════════════════════════════════════════════════════
+-- S10. Drift guard. Fails the whole migration (it rolls back) if a differently named live policy still gives a
+--      client the old paths: invitations bound to profiles.email, a user_roles write policy, or the owner
+--      profile-update policy. Resolve by dropping the offending policy (runbook Q1), then re-apply.
+-- ═════════════════════════════════════════════════════════════════════════
+
+do $$
+declare
+  v_bad text;
+begin
+  select string_agg(tablename || '/' || policyname, ', ') into v_bad
+    from pg_policies
+   where schemaname = 'public'
+     and (
+       (tablename = 'invitations'
+         and (coalesce(qual, '') ilike '%profiles%' or coalesce(with_check, '') ilike '%profiles%'))
+       or (tablename = 'user_roles' and cmd <> 'SELECT')
+       or (tablename = 'profiles' and policyname ilike '%Owners can manage profiles%')
+     );
+  if v_bad is not null then
+    raise exception 'tenancy drift guard: unexpected live policies remain: %', v_bad using errcode = 'P0001';
+  end if;
+end $$;

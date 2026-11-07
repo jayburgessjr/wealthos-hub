@@ -398,6 +398,43 @@ describe('migration: idempotence, backfill, stripe index', () => {
     expect(await count(d, 'postgres', null, `select count(*) c from public.user_roles`)).toBe(4);
   });
 
+  it('TRUNCATE (which bypasses RLS) is denied to authenticated/anon on the four tenancy tables; service_role and owner keep it', async () => {
+    const t = await makeTenancyHarness();
+    for (const tbl of ['user_roles', 'invitations', 'profiles', 'households']) {
+      await fails(t.q('authenticated', OA, `truncate public.${tbl} cascade`), /permission denied/);
+      await fails(t.q('anon', null, `truncate public.${tbl} cascade`), /permission denied/);
+    }
+    expect(await count(t, 'postgres', null, `select count(*) c from public.invitations`)).toBeGreaterThan(0);
+    await t.q('service_role', null, `truncate public.invitations`);
+    expect(await count(t, 'postgres', null, `select count(*) c from public.invitations`)).toBe(0);
+    await t.q('postgres', null, `truncate public.user_roles`);
+  }, 60000);
+
+  it('drift guard: passes on the normal path (policy set already checked above)', async () => {
+    const rows = await h.q('postgres', null, `select 1 from pg_policies where tablename = 'user_roles' and cmd <> 'SELECT'`);
+    expect(rows).toHaveLength(0);
+  });
+
+  it.each([
+    ['an invitations policy still bound to profiles.email', `create policy "invitee by profile email" on public.invitations for select
+       using (email in (select email from public.profiles where id = auth.uid()))`, /drift guard.*invitations\/invitee by profile email/],
+    ['a user_roles write policy under another name', `create policy "members add roles" on public.user_roles for insert with check (user_id = auth.uid())`, /drift guard.*user_roles\/members add roles/],
+    ['an owner profile-update policy under a similar name', `create policy "Owners can manage profiles (v2)" on public.profiles for update using (true)`, /drift guard.*profiles\/Owners can manage profiles \(v2\)/],
+  ])('drift guard: the migration fails closed on %s', async (_n, policySql, re) => {
+    await expect(makeTenancyHarness({ seed: policySql })).rejects.toThrow(re);
+  }, 60000);
+
+  it('drift guard: a failed run rolls back everything (no half-applied migration)', async () => {
+    const d = await makeTenancyHarness({
+      applyTen: false,
+      seed: `create policy "invitee by profile email" on public.invitations for select using (email in (select email from public.profiles where id = auth.uid()))`,
+    });
+    await expect(d.db.exec(d.tenSql)).rejects.toThrow(/drift guard/);
+    expect(await d.q('postgres', null, `select 1 from pg_proc where proname = 'accept_invitation'`)).toHaveLength(0);
+    expect(await d.q('postgres', null, `select 1 from pg_policies where policyname = 'user_roles_select_own'`)).toHaveLength(0);
+    expect(await count(d, 'postgres', null, `select count(*) c from public.user_roles where user_id = '${DRIFT}'`)).toBe(0); // backfill rolled back
+  }, 60000);
+
   it('the migration sorts after SEC and Desk and its version is unique', () => {
     const files = readdirSync(resolve(__dirname, '../../../supabase/migrations')).filter((f) => f.endsWith('.sql')).sort();
     const versions = files.map((f) => f.split('_')[0]);

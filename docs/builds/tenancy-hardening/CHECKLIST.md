@@ -8,15 +8,22 @@ STATUS: OPEN (built, awaiting independent verification)
 - [x] F4 helpers answer only for auth.uid() or service_role; anon EXECUTE revoked
 - [x] F5 unique index on stripe_customer_id, skipped with a NOTICE when duplicates exist
 - [x] F6 create_household revoked from public/anon; invitee can no longer rewrite invitations.household_id
-- [ ] F7 DEFERRED by design (member-visible billing/admin profile columns; needs view + hook changes)
+- [~] PARKED: deferred by design (low; follow-up slice). F7 DEFERRED by design (member-visible billing/admin profile columns; needs view + hook changes)
 - [x] F8 households SELECT/UPDATE policies TO authenticated
 
 ## Build
 - [x] Migration, RPCs (accept_invitation, switch_active_household, set_member_role, remove_member, auth_verified_email)
 - [x] Frontend wrapper + legacy fallback (only on PGRST202 / 42883 / 404 / "Could not find the function", memoised per session)
 - [x] Tests: 66 added (40 pglite, 26 frontend)
-- [ ] Independent verification
-- [ ] Jay-run production apply (runbook in ARCHITECTURE.md section 11)
+- [x] Independent verification: verifier PASS, security gate PASS, RLS audits (user_roles, invitations, profiles) reviewed; fix cycle 1 queued (truncate revoke, drift guard, runbook)
+- [ ] Verifier re-check of fix cycle 1 delta, then PR, merge, deploy confirm
+- [~] PARKED: Needs Jay (production step, no approved RELEASE.md). Jay-run production apply (runbook in ARCHITECTURE.md section 11)
+
+## Needs Jay (MANDATORY pre-apply read-only checks; full queries in ARCHITECTURE.md section 11)
+- [ ] T1 forged-membership review (user_roles with household, email, role, created_at, accepted-invite flag; profiles whose household has no accepted invitation and are not the earliest owner). Delete suspect rows in the SQL editor BEFORE applying, otherwise the backfill legitimises forged pointers.
+- [ ] T2 run Q1 and compare policy names exactly (the migration's drift guard also fails loudly and rolls back).
+- [ ] T3 Supabase Auth, Providers, Email: "Confirm email" must be ON.
+- [ ] T6 run Q8 duplicates check; after apply confirm `profiles_stripe_customer_id_key` exists.
 
 ## Engineer notes (conservative choices)
 - Migration version is 20261111000000 (override of the design's 20261110000000, taken by desk_hardening). ARCHITECTURE.md updated.
@@ -30,7 +37,16 @@ STATUS: OPEN (built, awaiting independent verification)
 - Not implemented from the design text: automatic client retry with backoff on network errors (section 8); not required by the slice brief.
 - types.ts not touched; RPCs are called through the cast wrapper.
 
-## Later (max 3)
+## Later
 - send-household-invite authorises against a nonexistent `household_members` table (likely 403 always); pre-existing, deliberately NOT fixed here.
 - F7: replace member-visible profile SELECT with a `household_member_profiles` security_invoker view; update useHouseholdFinancialData / useSubscription / Admin.
 - fetchHouseholdMembers lists members by active pointer only; invitations never expire (no expires_at). Delete legacy fallback branch after production migration.
+- Split the owner FOR ALL invitations policy and add an invited_by = auth.uid() check.
+- Make stripe_customer_id linking service-role only.
+- Add a profiles.email guard/sync against auth.users.
+- F7 column privileges (see above).
+- Delete the *Legacy fallbacks in household-queries.ts after the production apply.
+- Fix send-household-invite (checks a nonexistent household_members table).
+
+## Fix cycle 1 (hardening)
+- Migration: revoke truncate/references/trigger on user_roles, invitations, profiles, households from public/anon/authenticated; S10 drift guard raises and rolls back on drifted policies.

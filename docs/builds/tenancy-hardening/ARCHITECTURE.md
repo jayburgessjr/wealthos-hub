@@ -232,6 +232,16 @@ Frontend rollback: revert the PR; legacy writes work again once policies are res
 
 ## 11. Production runbook for Jay (read-only first)
 
+MANDATORY pre-apply read-only checks (do all four before applying; stop on any surprise):
+
+T1. Forged-membership review. The backfill (S0) turns every profile pointer into a member role, so a forged pointer would be legitimised unless removed first.
+  a) `select r.user_id, u.email, r.household_id, h.name, r.role, r.created_at, exists (select 1 from invitations i where i.household_id = r.household_id and lower(i.email) = lower(u.email) and i.status = 'accepted') as has_accepted_invite from user_roles r join auth.users u on u.id = r.user_id join households h on h.id = r.household_id order by r.household_id, r.created_at;`
+  b) `select p.id, p.email, p.household_id from profiles p where p.household_id is not null and not exists (select 1 from invitations i where i.household_id = p.household_id and lower(i.email) = lower(p.email) and i.status = 'accepted') and p.id is distinct from (select r.user_id from user_roles r where r.household_id = p.household_id and r.role = 'owner' order by r.created_at limit 1);`
+  Every row must be a person you know. Delete suspect rows in the SQL editor BEFORE applying (a forged user_roles row: `delete from user_roles where user_id='<uuid>' and household_id='<uuid>';` and clear the pointer: `update profiles set household_id = null where id='<uuid>';`). Do not apply until the lists are clean.
+T2. Run Q1 and compare the policy names exactly with those named in section 3.1. The migration ends with a drift guard that fails (and rolls back) if a differently named policy still binds invitations to profiles, writes user_roles, or matches "Owners can manage profiles"; drop the named offender and re-apply.
+T3. Supabase Dashboard, Authentication, Providers, Email: confirm "Confirm email" is ON. Invitations bind to the verified email; with it OFF an attacker can sign up with someone else's address.
+T6. Run Q8 (stripe duplicates). After applying, confirm the index exists: `select indexname from pg_indexes where indexname = 'profiles_stripe_customer_id_key';` (absent means duplicates were skipped; resolve by hand).
+
 Q1. Policies: `select schemaname, tablename, policyname, roles, cmd, qual, with_check from pg_policies where tablename in ('profiles','households','user_roles','invitations') order by 2,3;` Confirm no other write policy on user_roles/invitations than those named above (U1).
 Q2. Grants: `select grantee, privilege_type from information_schema.role_table_grants where table_name='user_roles' and grantee in ('anon','authenticated');`
 Q3. Function config and ownership: `select p.proname, pg_get_userbyid(p.proowner), p.prosecdef, p.proconfig from pg_proc p where p.proname in ('get_user_household_id','is_household_member','has_household_role','create_household','is_admin');` Expect owner postgres, secdef true, proconfig search_path set (SEC). Also `select pg_get_functiondef('public.is_admin()'::regprocedure);` (U3: body never in migrations).
