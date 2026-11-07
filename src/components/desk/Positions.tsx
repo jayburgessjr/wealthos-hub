@@ -45,7 +45,7 @@ export function Positions() {
         empty="Open positions appear here after you approve an order and it fills."
       >
         <table className="w-full text-left">
-          <thead className="text-[10px] uppercase text-white/60">
+          <thead className="text-[10px] uppercase text-muted-foreground">
             <tr>
               <th scope="col" className="px-3 py-1 font-medium">Symbol</th>
               <th scope="col" className="px-2 py-1 font-medium">Type</th>
@@ -58,13 +58,13 @@ export function Positions() {
           </thead>
           <tbody>
             {rows.map(({ p, symbol, mark, pnl }) => (
-              <tr key={p.id} className="border-t border-white/10">
-                <td className={cn(NUM, "px-3 py-1 font-semibold text-white")}>{symbol}</td>
-                <td className="px-2 py-1 text-white/70">{p.structure.replace(/_/g, " ")}</td>
-                <td className={cn(NUM, "px-2 py-1 text-right text-white/80")}>{qtyText(p.qty)}</td>
-                <td className={cn(NUM, "px-2 py-1 text-right text-white/80")}>{price(p.avg_price)}</td>
-                <td className={cn(NUM, "px-2 py-1 text-right text-white/80")}>{Number.isFinite(mark) ? price(mark) : "n/a"}</td>
-                <td className={cn(NUM, "px-2 py-1 text-right text-white/80")}>{price(p.stop_price)}</td>
+              <tr key={p.id} className="border-t border-border">
+                <td className={cn(NUM, "px-3 py-1 font-semibold text-foreground")}>{symbol}</td>
+                <td className="px-2 py-1 text-muted-foreground">{p.structure.replace(/_/g, " ")}</td>
+                <td className={cn(NUM, "px-2 py-1 text-right text-foreground/80")}>{qtyText(p.qty)}</td>
+                <td className={cn(NUM, "px-2 py-1 text-right text-foreground/80")}>{price(p.avg_price)}</td>
+                <td className={cn(NUM, "px-2 py-1 text-right text-foreground/80")}>{Number.isFinite(mark) ? price(mark) : "n/a"}</td>
+                <td className={cn(NUM, "px-2 py-1 text-right text-foreground/80")}>{price(p.stop_price)}</td>
                 <td className={cn(NUM, "px-3 py-1 text-right", pnlClass(pnl))}>{Number.isFinite(pnl) ? signedMoney(pnl) : "n/a"}</td>
               </tr>
             ))}

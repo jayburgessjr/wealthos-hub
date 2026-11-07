@@ -7,7 +7,7 @@ import { money, pct, price, qtyText, shortTime, toNum } from "@/lib/desk/format"
 import { approvalBlockers, buildOrder, draftFrom, livePhrase, previewRisk, snapshotPositions, staleQuoteNote, type Draft } from "@/lib/desk/preview";
 import type { OpenPositionSnapshot } from "../../../supabase/functions/_shared/desk/risk/engine.ts";
 import type { DeskAccount, ProposedOrderRow, ThesisRow } from "@/lib/desk/types";
-import { FIELD, GHOST_BTN, MICRO, NUM, ORANGE_BG, ORANGE_TEXT, Panel, PanelState } from "./Panel";
+import { FIELD, GHOST_BTN, MICRO, NUM, ACCENT_BG, Panel, PanelState } from "./Panel";
 import { cn } from "@/lib/utils";
 
 interface CardProps {
@@ -110,17 +110,17 @@ export function ProposalCard({ proposal: p, thesis, symbol, account, openPositio
   const reasonsId = `reasons-${p.id}`;
 
   return (
-    <article aria-label={`Proposal ${symbol}`} className="border-t border-white/10 px-3 py-2 first:border-t-0">
+    <article aria-label={`Proposal ${symbol}`} className="border-t border-border px-3 py-2 first:border-t-0">
       <div className="flex flex-wrap items-baseline gap-2">
-        <span className={cn(NUM, "text-sm font-bold text-white")}>{symbol}</span>
-        <span className="font-semibold uppercase text-white">{p.side}</span>
-        <span className="text-white/70">{p.structure.replace(/_/g, " ")}</span>
-        <span className="text-white/60">from {p.agent_name}</span>
-        <span className="ml-auto text-[10px] text-white/50">Expires {shortTime(p.expires_at)}</span>
+        <span className={cn(NUM, "text-sm font-bold text-foreground")}>{symbol}</span>
+        <span className="font-semibold uppercase text-foreground">{p.side}</span>
+        <span className="text-muted-foreground">{p.structure.replace(/_/g, " ")}</span>
+        <span className="text-muted-foreground">from {p.agent_name}</span>
+        <span className="ml-auto text-[10px] text-muted-foreground">Expires {shortTime(p.expires_at)}</span>
       </div>
 
       {thesis && (
-        <dl className="mt-1 grid gap-x-4 gap-y-0.5 text-white/80 md:grid-cols-2">
+        <dl className="mt-1 grid gap-x-4 gap-y-0.5 text-foreground/80 md:grid-cols-2">
           <div>
             <dt className={MICRO}>Bull case</dt>
             <dd>{thesis.bull_case}</dd>
@@ -143,7 +143,7 @@ export function ProposalCard({ proposal: p, thesis, symbol, account, openPositio
           </div>
         </dl>
       )}
-      {!thesis && p.rationale && <p className="mt-1 text-white/80">{p.rationale}</p>}
+      {!thesis && p.rationale && <p className="mt-1 text-foreground/80">{p.rationale}</p>}
 
       <div className="mt-2 flex flex-wrap items-end gap-3">
         <Field id={`qty-${p.id}`} label="Qty" value={draft.qty} onChange={set("qty")} disabled={!editing} />
@@ -156,7 +156,7 @@ export function ProposalCard({ proposal: p, thesis, symbol, account, openPositio
           </Button>
         ) : (
           <>
-            <Button type="button" onClick={save} disabled={patch.isPending || !dirty} className={cn("h-7 rounded-sm px-3 text-xs", ORANGE_BG)}>
+            <Button type="button" onClick={save} disabled={patch.isPending || !dirty} className={cn("h-7 rounded-sm px-3 text-xs", ACCENT_BG)}>
               Save changes
             </Button>
             <Button type="button" onClick={discard} className={GHOST_BTN}>
@@ -166,29 +166,29 @@ export function ProposalCard({ proposal: p, thesis, symbol, account, openPositio
         )}
       </div>
 
-      <div className="mt-2 border border-white/10 bg-[hsl(220,45%,12%)] px-2 py-1.5" aria-label={`Risk preview for ${symbol}`}>
+      <div className="mt-2 border border-border bg-muted/40 px-2 py-1.5" aria-label={`Risk preview for ${symbol}`}>
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <span className={MICRO}>Risk preview (advisory)</span>
-          <span className="text-[10px] text-white/60">The server recomputes risk with its own quote before anything reaches the broker.</span>
+          <span className="text-[10px] text-muted-foreground">The server recomputes risk with its own quote before anything reaches the broker.</span>
         </div>
         {!decision ? (
-          <p className="text-white/70">Waiting for account data.</p>
+          <p className="text-muted-foreground">Waiting for account data.</p>
         ) : (
           <>
-            <p className={cn(NUM, "mt-0.5 text-white/80")}>
+            <p className={cn(NUM, "mt-0.5 text-foreground/80")}>
               Quote {account?.quotes?.[symbol] ? price(account.quotes[symbol]) : "n/a"} | Max qty {qtyText(decision.sized.maxQty)} | Risk {money(decision.sized.riskAmount)} | Exposure {money(decision.sized.exposure)}
               {account ? ` | ${pct(decision.sized.riskAmount / account.account.equity)} of equity` : ""}
             </p>
             {staleQuoteNote(account, symbol) && (
-              <p role="alert" className={cn("mt-0.5 font-semibold", ORANGE_TEXT)}>
+              <p role="alert" className={cn("mt-0.5 font-semibold", "text-bearish")}>
                 {staleQuoteNote(account, symbol)}{p.intent === "close" ? " Closes are still allowed." : ""}
               </p>
             )}
             <ul className="mt-0.5 grid gap-x-4 md:grid-cols-2">
               {decision.checks.map((c) => (
                 <li key={c.rule} className="flex gap-2">
-                  <span className={cn("w-8 shrink-0 font-semibold uppercase", c.passed ? "text-white/70" : ORANGE_TEXT)}>{c.passed ? "Pass" : "Fail"}</span>
-                  <span className="text-white/80">{c.message}</span>
+                  <span className={cn("w-8 shrink-0 font-semibold uppercase", c.passed ? "text-muted-foreground" : "text-bearish")}>{c.passed ? "Pass" : "Fail"}</span>
+                  <span className="text-foreground/80">{c.message}</span>
                 </li>
               ))}
             </ul>
@@ -211,17 +211,17 @@ export function ProposalCard({ proposal: p, thesis, symbol, account, openPositio
           onClick={() => submit("approved")}
           disabled={blockers.length > 0}
           aria-describedby={blockers.length > 0 ? reasonsId : undefined}
-          className={cn("h-7 rounded-sm px-3 text-xs", ORANGE_BG)}
+          className={cn("h-7 rounded-sm px-3 text-xs", ACCENT_BG)}
         >
           Approve
         </Button>
         <Button type="button" onClick={() => submit("rejected")} disabled={decide.isPending || patch.isPending} className={GHOST_BTN}>
           Reject
         </Button>
-        {decide.isPending && <span role="status" className="text-white/70">Sending decision...</span>}
+        {decide.isPending && <span role="status" className="text-muted-foreground">Sending decision...</span>}
       </div>
       {blockers.length > 0 && (
-        <ul id={reasonsId} className="mt-1 list-disc pl-4 text-white/70">
+        <ul id={reasonsId} className="mt-1 list-disc pl-4 text-muted-foreground">
           {blockers.map((b) => (
             <li key={b}>{b}</li>
           ))}
@@ -246,7 +246,7 @@ export function ApprovalQueue() {
   const error = (proposals.error ?? instruments.error) as Error | null;
 
   return (
-    <Panel title="Approval queue" aside={<span className={cn(NUM, "text-xs text-white/70")}>{(proposals.data ?? []).length} pending</span>}>
+    <Panel title="Approval queue" aside={<span className={cn(NUM, "text-xs text-muted-foreground")}>{(proposals.data ?? []).length} pending</span>}>
       <PanelState
         isLoading={loading}
         error={error}
@@ -258,7 +258,7 @@ export function ApprovalQueue() {
         empty="Order proposals from agents wait here for your decision. Nothing is sent to the broker until you approve."
       >
         {account.error && (
-          <p role="alert" className="border-b border-white/10 px-3 py-1.5 text-white/80">
+          <p role="alert" className="border-b border-border px-3 py-1.5 text-foreground/80">
             Account data failed to load, so risk previews and approval are unavailable: {(account.error as Error).message}
           </p>
         )}

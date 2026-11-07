@@ -171,6 +171,18 @@ const navSections = [
   },
 ];
 
+const deskNavSections = [
+  {
+    label: "Desk",
+    items: [
+      { to: "/desk", icon: LayoutDashboard, label: "Overview" },
+      { to: "/desk/portfolio", icon: Briefcase, label: "Portfolio" },
+      { to: "/desk/research", icon: Radar, label: "Research" },
+      { to: "/desk/performance", icon: Trophy, label: "Performance" },
+    ],
+  },
+];
+
 const wealthNavSections = [
   {
     label: "Overview",
@@ -225,7 +237,10 @@ const wealthNavSections = [
 const householdNavSections = [
   {
     label: "Home",
-    items: [{ to: "/household", icon: LayoutDashboard, label: "Dashboard" }],
+    items: [
+      { to: "/household", icon: LayoutDashboard, label: "Dashboard" },
+      { to: "/household/money", icon: DollarSign, label: "Money coach" },
+    ],
   },
   {
     label: "Money In",
@@ -298,18 +313,17 @@ export function SidebarNavList({ isOpen, onNavigate }: SidebarNavListProps) {
 
   const isHousehold = location.pathname.startsWith("/household");
   const isWealth = location.pathname.startsWith("/wealth");
+  const isDesk = location.pathname.startsWith("/desk");
 
   const sections = isHousehold
     ? householdNavSections
     : isWealth
       ? wealthNavSections
-      : navSections;
+      : isDesk
+        ? deskNavSections
+        : navSections;
 
-  const sectionLabelColor = isHousehold
-    ? "text-emerald-500"
-    : isWealth
-      ? "text-amber-500"
-      : "text-foreground/60";
+  const sectionLabelColor = "text-foreground/60";
 
   const linkBase =
     "relative flex items-center rounded-md mx-1 px-2 py-[7px] text-[13px] font-medium transition-colors duration-100";
