@@ -1,3 +1,6 @@
+STATUS: CLOSED
+RESULT: INCOMPLETE
+
 # CHECKLIST: AI Coach
 
 STATUS: BUILT (awaiting independent verification)
@@ -8,9 +11,9 @@ STATUS: BUILT (awaiting independent verification)
 - [x] Income pillar: `income` section, `earn` track, `earnTrack.ts`, optional props on WealthLadder/NextBestMove
 - [x] Frontend: coachDb wrapper, hooks, Coach page (Chat / My plan), Wealth strategy section, panel blocks, Home entry, `/coach` alias
 - [x] streamInvoke `onEvent` (+ replayed JSON as non-error)
-- [ ] Household AI repoint (separate later PR, not in this branch)
-- [ ] Verifier / security gate (not done by the engineer)
-- [ ] Apply migration, regenerate `types.ts`, delete `coachDb.ts`/`coachTypes.ts` hand types (post-merge, needs Jay for production)
+- [~] PARKED: Household AI repoint is a separate later PR, deliberately not started
+- [~] PARKED: Verifier, security gate and RLS audit were dispatched but had not reported when this build closed; results arrive as notifications
+- [~] PARKED: Needs Jay (production step, no approved RELEASE.md): apply migration, regenerate `types.ts`, delete `coachDb.ts`/`coachTypes.ts` after merge
 
 ## Engineer notes (conservative choices and deviations)
 

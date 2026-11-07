@@ -90,6 +90,7 @@ alter table public.strategy_actions enable row level security;
 alter table public.strategy_messages enable row level security;
 
 revoke all on table public.user_strategy, public.strategy_items, public.strategy_actions, public.strategy_messages from public, anon, authenticated;
+revoke truncate, references, trigger on public.user_strategy, public.strategy_items, public.strategy_actions, public.strategy_messages from public, anon, authenticated;
 grant select, insert, update, delete on table public.user_strategy, public.strategy_items, public.strategy_actions to authenticated;
 -- messages are immutable: no update or delete grant (account removal cascades through the foreign key)
 grant select, insert on table public.strategy_messages to authenticated;
@@ -170,6 +171,22 @@ create trigger user_strategy_mark_edited before update on public.user_strategy f
 create trigger strategy_items_mark_edited before update on public.strategy_items for each row execute function public.strategy_mark_edited();
 create trigger strategy_actions_mark_edited before update on public.strategy_actions for each row execute function public.strategy_mark_edited();
 
+-- Messages may only be written by the coach RPCs (they set strategy.ai_apply for the transaction), so a direct client
+-- insert can neither forge an assistant message nor skip the per-minute cap in coach_begin_turn.
+create function public.strategy_messages_guard() returns trigger
+language plpgsql
+set search_path = public, pg_temp
+as $$
+begin
+  if coalesce(current_setting('strategy.ai_apply', true), '') <> '1' then
+    raise exception 'strategy_messages are written by the coach only' using errcode = '42501';
+  end if;
+  return new;
+end;
+$$;
+create trigger strategy_messages_guard before insert on public.strategy_messages for each row execute function public.strategy_messages_guard();
+revoke execute on function public.strategy_messages_guard() from public, anon;
+
 -- ───────────────────────────── RPCs (security invoker) ─────────────────────────────
 
 -- One transaction: per-minute cap, idempotency, persistence of the user's message.
@@ -206,9 +223,11 @@ begin
     return jsonb_build_object('status', 'rate_limited');
   end if;
 
+  perform set_config('strategy.ai_apply', '1', true);
   insert into public.strategy_messages (user_id, role, content, client_msg_id)
   values (uid, 'user', p_content, p_client_msg_id)
   on conflict (user_id, client_msg_id) do nothing;
+  perform set_config('strategy.ai_apply', '', true);
   return jsonb_build_object('status', 'new');
 end;
 $$;
@@ -233,7 +252,9 @@ begin
   if exists (select 1 from public.strategy_messages where user_id = uid and role = 'assistant' and created_at > user_at) then
     return;
   end if;
+  perform set_config('strategy.ai_apply', '1', true);
   insert into public.strategy_messages (user_id, role, content) values (uid, 'assistant', left(p_content, 8000));
+  perform set_config('strategy.ai_apply', '', true);
 end;
 $$;
 

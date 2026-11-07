@@ -73,7 +73,8 @@ const DENY_TEXT: RegExp[] = [
   /\bcannot\s+lose\b/i,
   /\bdouble\s+your\s+money\b/i,
 ];
-const DENY_METRIC_KEY = /^(expected_return.*|target_price|entry_price|stop_price|ticker|price_target)$/i;
+// Metrics are an ALLOW-LIST: exactly the five keys in the tool schema. Anything else (returns, prices, tickers) is rejected.
+export const METRIC_KEYS = ["amount", "target_pct", "monthly_gain_estimate", "effort", "time_to_first_dollar"] as const;
 
 export const denyListHit = (text: string): boolean => DENY_TEXT.some((re) => re.test(text));
 
@@ -84,7 +85,7 @@ class Ctx {
     this.errors.push(`${path}: ${msg}`);
   }
   unknownKeys(o: Record<string, unknown>, allowed: readonly string[], path: string) {
-    for (const k of Object.keys(o)) if (!allowed.includes(k)) this.err(path, `unknown key "${k}"`);
+    for (const k of Object.keys(o)) if (!allowed.includes(k)) this.err(path, `unknown key "${k.slice(0, 40)}"`);
   }
   /** optional string; null counts as absent (strict tool schemas send null for optional fields) */
   str(o: Record<string, unknown>, k: string, path: string, min: number, max: number, required = false): string | undefined {
@@ -186,8 +187,7 @@ function readMetrics(c: Ctx, raw: unknown, path: string): Record<string, string 
   const out: Record<string, string | number> = {};
   for (const [k, v] of Object.entries(raw)) {
     if (v === null || v === undefined) continue; // strict schemas send null for unused metrics
-    if (!/^[a-z][a-z0-9_]{0,39}$/.test(k)) c.err(path, `bad metric key "${k}"`);
-    else if (DENY_METRIC_KEY.test(k)) c.err(path, `metric "${k}" is not allowed (no prices, tickers or return forecasts)`);
+    if (!(METRIC_KEYS as readonly string[]).includes(k)) c.err(path, `metric key not allowed: "${k.slice(0, 40)}"`);
     else if (typeof v === "number" && Number.isFinite(v)) out[k] = v;
     else if (typeof v === "string" && v.length <= 80) {
       if (denyListHit(v)) c.err(path, `metric "${k}" contains guaranteed-return language`);

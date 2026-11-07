@@ -97,9 +97,14 @@ describe('validateStrategyUpdate', () => {
   });
 
   it('rejects price, ticker and return-forecast metrics', () => {
-    for (const k of ['ticker', 'entry_price', 'target_price', 'expected_return_pct', 'expected_return']) {
+    for (const k of ['ticker', 'entry_price', 'target_price', 'expected_return_pct', 'expected_return', 'projected_return', 'annual_return', 'yield_pct', 'price', 'guaranteed_return', 'Amount', 'amount2']) {
       expect(bad((p) => (p.items[0].metrics = { [k]: 5 })).ok).toBe(false);
     }
+  });
+
+  it('accepts exactly the five allow-listed metric keys', () => {
+    const r = bad((p) => (p.items[0].metrics = { amount: 1, target_pct: 2, monthly_gain_estimate: 3, effort: 'low', time_to_first_dollar: '1 week' }));
+    expect(r.ok).toBe(true);
   });
 
   it('exposes one strict tool definition', () => {

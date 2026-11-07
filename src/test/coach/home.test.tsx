@@ -57,8 +57,8 @@ beforeEach(() => {
 describe("Home and the coach", () => {
   it("offers Ask the coach and the earn track prompt when there is no plan", async () => {
     renderHome();
-    expect(screen.getAllByRole("link", { name: "Ask the coach" }).length).toBeGreaterThanOrEqual(1);
-    for (const l of screen.getAllByRole("link", { name: "Ask the coach" })) expect(l).toHaveAttribute("href", "/invs/strategy");
+    expect(screen.getAllByRole("link", { name: "Ask the coach" })).toHaveLength(1);
+    expect(screen.getByRole("link", { name: "Ask the coach" })).toHaveAttribute("href", "/invs/strategy");
     expect(screen.getByTestId("earn-track")).toHaveAttribute("data-state", "no_plan");
     expect(screen.getByTestId("next-best-move")).toBeInTheDocument();
     expect(screen.getByTestId("strategy-block")).toHaveTextContent("Start with the coach");

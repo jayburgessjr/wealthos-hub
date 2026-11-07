@@ -160,3 +160,23 @@ describe('fetchWithRetry', () => {
     expect(f).toHaveBeenCalledTimes(3);
   });
 });
+
+describe('logging never carries raw tool arguments', () => {
+  const SECRET = 'SECRET-INCOME-9876';
+  it('invalid, unparseable and failed-apply payloads log no argument text to console.error', async () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const logError = (...a: unknown[]) => console.error(...a);
+    const cases = [
+      JSON.stringify({ change_reason: 'x', user_id: SECRET, profile: { notes: SECRET, bogus: SECRET }, summary: 's' }),
+      `{"change_reason": "${SECRET}", `,
+      JSON.stringify({ change_reason: 'x', profile: { primary_goal: SECRET, risk_tolerance: 'moderate' } }),
+    ];
+    for (const args of cases) {
+      const d = mkDeps({ logError, applyUpdate: vi.fn(async () => { throw new Error(`db said ${SECRET}`); }) });
+      await drain(adaptCoachStream(upstream([tool(0, args, 'update_strategy'), finish('tool_calls')]), d));
+    }
+    expect(spy).toHaveBeenCalled();
+    expect(JSON.stringify(spy.mock.calls)).not.toContain(SECRET);
+    spy.mockRestore();
+  });
+});

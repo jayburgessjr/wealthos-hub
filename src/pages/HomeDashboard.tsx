@@ -164,15 +164,6 @@ export default function HomeDashboard() {
           billsDueCount={billsDueCount}
         />
 
-        <div className="flex justify-end">
-          <Link
-            to="/invs/strategy"
-            className="rounded-md border border-primary/40 px-3 py-1.5 text-sm font-semibold text-primary transition-colors hover:bg-primary/10"
-          >
-            Ask the coach
-          </Link>
-        </div>
-
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <NextBestMove move={ladder.nextMove} planMove={plan.planMove} showCoachLink />
           <WealthLadder result={ladder} earn={plan.earn} />

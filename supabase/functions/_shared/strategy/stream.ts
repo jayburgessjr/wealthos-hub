@@ -136,7 +136,7 @@ export function adaptCoachStream(upstream: ReadableStream<Uint8Array>, deps: Coa
           const parsed: unknown = JSON.parse(update[0].args);
           const v = validateStrategyUpdate(parsed);
           if (!v.ok) {
-            deps.logError?.("coach: invalid update_strategy output", { errors: v.errors, raw: update[0].args.slice(0, 2000) });
+            deps.logError?.("coach: invalid update_strategy output", { errors: v.errors, argsLength: update[0].args.length });
           } else {
             const incomplete = checkCompleteness(deps.profile, v.value);
             if (incomplete) {
@@ -147,7 +147,7 @@ export function adaptCoachStream(upstream: ReadableStream<Uint8Array>, deps: Coa
             }
           }
         } catch (e) {
-          deps.logError?.("coach: update_strategy failed", { error: String(e), raw: update[0].args.slice(0, 2000) });
+          deps.logError?.("coach: update_strategy failed", { error: e instanceof SyntaxError ? "unparseable arguments" : "apply failed", argsLength: update[0].args.length });
         }
       }
 

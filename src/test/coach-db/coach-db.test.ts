@@ -24,13 +24,17 @@ const good = {
 describe('tenant isolation', () => {
   it('seeds as A; B sees nothing and cannot write across tenants', async () => {
     await h.apply(A, good);
-    await h.q('authenticated', A, `insert into public.strategy_messages(user_id, role, content) values ('${A}','user','hi')`);
+    await h.q('authenticated', A, `select public.coach_begin_turn(gen_random_uuid(), 'hi')`);
     for (const t of ['user_strategy', 'strategy_items', 'strategy_actions', 'strategy_messages']) {
       expect((await h.q('authenticated', B, `select * from public.${t}`)).length).toBe(0);
       expect((await h.q('authenticated', A, `select * from public.${t}`)).length).toBeGreaterThan(0);
     }
     await expect(h.q('authenticated', B, `insert into public.strategy_items(user_id, section, title) values ('${A}','wealth','x')`)).rejects.toThrow(/row-level security/i);
-    await expect(h.q('authenticated', B, `insert into public.strategy_messages(user_id, role, content) values ('${A}','user','x')`)).rejects.toThrow(/row-level security/i);
+    // with the RPC flag set (as the RPCs do), the RLS policy itself still blocks writing into A's tenant
+    await expect(
+      h.db.exec(`reset role; set role authenticated; select set_config('request.jwt.claim.sub','${B}',false); select set_config('strategy.ai_apply','1',false); insert into public.strategy_messages(user_id, role, content) values ('${A}','user','x')`),
+    ).rejects.toThrow(/row-level security/i);
+    await h.db.exec(`reset role; select set_config('strategy.ai_apply','',false)`);
     expect(await h.q('authenticated', B, `update public.strategy_items set title='hacked' returning id`)).toHaveLength(0);
     expect(await h.q('authenticated', B, `delete from public.strategy_items returning id`)).toHaveLength(0);
     expect(await h.q('authenticated', B, `delete from public.user_strategy returning id`)).toHaveLength(0);
@@ -192,6 +196,28 @@ describe('coach_begin_turn / coach_save_reply', () => {
     await h.db.exec(`insert into auth.users(id) values ('${D}')`);
     for (let i = 0; i < 8; i++) expect(await call(D, crypto.randomUUID())).toBe('new');
     expect(await call(D, crypto.randomUUID())).toBe('rate_limited');
+  });
+
+  it('a direct client insert cannot forge messages or skip the cap; the RPCs still work', async () => {
+    const E = '55555555-5555-5555-5555-555555555555';
+    await h.db.exec(`insert into auth.users(id) values ('${E}')`);
+    await expect(h.q('authenticated', E, `insert into public.strategy_messages(user_id, role, content) values ('${E}','assistant','forged')`)).rejects.toThrow(/coach only/);
+    await expect(h.q('authenticated', E, `insert into public.strategy_messages(user_id, role, content) values ('${E}','user','x')`)).rejects.toThrow(/coach only/);
+    const mid = crypto.randomUUID();
+    expect(await call(E, mid)).toBe('new');
+    await h.q('authenticated', E, `select public.coach_save_reply('${mid}','ok')`);
+    expect((await h.q('authenticated', E, `select count(*)::int n from public.strategy_messages`))[0].n).toBe(2);
+    // the flag does not leak out of the RPC transaction
+    await expect(h.q('authenticated', E, `insert into public.strategy_messages(user_id, role, content) values ('${E}','assistant','forged')`)).rejects.toThrow(/coach only/);
+  });
+
+  it('authenticated cannot truncate or reference the coach tables', async () => {
+    for (const t of ['user_strategy', 'strategy_items', 'strategy_actions', 'strategy_messages']) {
+      await expect(h.q('authenticated', A, `truncate public.${t}`)).rejects.toThrow(/permission denied/i);
+      await expect(h.q('anon', null, `truncate public.${t}`)).rejects.toThrow(/permission denied/i);
+    }
+    const g = await h.q('postgres', null, `select count(*)::int n from information_schema.role_table_grants where (table_name like 'strategy_%' or table_name = 'user_strategy') and grantee in ('authenticated','anon','PUBLIC') and privilege_type in ('TRUNCATE','REFERENCES','TRIGGER')`);
+    expect(g[0].n).toBe(0);
   });
 
   it('messages cannot be updated or deleted', async () => {

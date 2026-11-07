@@ -53,6 +53,7 @@ import { StrategyBlock } from "@/components/coach/StrategyBlock";
 import { WealthPanel } from "@/components/home/WealthPanel";
 import { NextBestMove } from "@/components/home/NextBestMove";
 import { WealthLadder } from "@/components/home/WealthLadder";
+import { CoachChat } from "@/components/coach/CoachChat";
 import { ActionList } from "@/components/coach/ActionList";
 import { PlanItemCard } from "@/components/coach/PlanItemCard";
 import { sandboxPlan } from "@/data/sandboxPlan";
@@ -230,5 +231,17 @@ describe("streamInvoke onEvent", () => {
     expect(cb.onEvent).toHaveBeenCalledWith({ type: "replayed" });
     expect(cb.onDone).toHaveBeenCalled();
     expect(cb.onError).not.toHaveBeenCalled();
+  });
+});
+
+describe("assistant markdown", () => {
+  it("does not render remote images", async () => {
+    vi.resetModules();
+    const { default: ReactMarkdown } = await import("react-markdown");
+    const src = (await import("node:fs")).readFileSync("src/components/coach/CoachChat.tsx", "utf8");
+    expect(src).toContain('disallowedElements={["img"]}');
+    const { container } = render(<ReactMarkdown disallowedElements={["img"]}>{"hi ![x](https://evil.test/p.png)"}</ReactMarkdown>);
+    expect(container.querySelector("img")).toBeNull();
+    expect(CoachChat).toBeTypeOf("function");
   });
 });

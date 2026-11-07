@@ -41,7 +41,7 @@ export function CoachChat() {
             <div className={`max-w-[88%] rounded-lg px-4 py-3 text-sm leading-relaxed ${m.role === "user" ? "bg-primary/10 text-foreground" : "bg-accent text-foreground"}`}>
               {m.role === "assistant" ? (
                 <div className="prose prose-sm prose-invert max-w-none">
-                  <ReactMarkdown>{m.content}</ReactMarkdown>
+                  <ReactMarkdown disallowedElements={["img"]}>{m.content}</ReactMarkdown>
                 </div>
               ) : (
                 <div className="whitespace-pre-wrap">{m.content}</div>
