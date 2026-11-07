@@ -11,7 +11,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Settings, LogOut, TrendingUp, Landmark, Home } from "lucide-react";
+import { Settings, LogOut, TrendingUp, Landmark, Home, Terminal } from "lucide-react";
+import { useIsOwner } from "@/lib/desk/hooks";
 import { toast } from "sonner";
 
 const StatItem = ({
@@ -44,7 +45,9 @@ export default function Navbar() {
 
   const isHousehold = location.pathname.startsWith("/household");
   const isWealth = location.pathname.startsWith("/wealth");
-  const mode = isHousehold ? "household" : isWealth ? "wealth" : "invest";
+  const isDesk = location.pathname.startsWith("/desk");
+  const mode = isHousehold ? "household" : isWealth ? "wealth" : isDesk ? "desk" : "invest";
+  const { data: isDeskOwner } = useIsOwner();
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -142,6 +145,19 @@ export default function Navbar() {
           <Home className="h-3 w-3" />
           <span>Household</span>
         </button>
+        {isDeskOwner === true && (
+          <button
+            onClick={() => navigate("/desk")}
+            className={`flex items-center gap-1 rounded px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+              mode === "desk"
+                ? "bg-orange-500/15 text-orange-400"
+                : "text-muted-foreground/50 hover:text-foreground"
+            }`}
+          >
+            <Terminal className="h-3 w-3" />
+            <span>Desk</span>
+          </button>
+        )}
       </div>
 
       {/* Center — portfolio stats */}
