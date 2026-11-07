@@ -11,12 +11,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Settings, LogOut, TrendingUp, Landmark, Home, Terminal, Menu, House } from "lucide-react";
+import { Settings, LogOut, CircleHelp, TrendingUp, Landmark, Home, Terminal, Menu, House } from "lucide-react";
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { SidebarNavList } from "./Sidebar";
 import { useNavMode } from "@/lib/navMode";
 import { useIsOwner } from "@/lib/desk/hooks";
 import { toast } from "sonner";
+import { Hint } from "@/components/help/InfoTip";
+import { PageHelp } from "@/components/help/PageHelp";
+import { AREAS, GLOSSARY } from "@/lib/help/content";
 
 const StatItem = ({
   label,
@@ -135,7 +138,7 @@ export default function Navbar() {
 
       {/* Left — mode switcher */}
       <div className="flex items-center gap-0.5 shrink-0 overflow-x-auto">
-        <button
+        <Hint text={`${AREAS.find((a) => a.id === "home")!.name}: ${AREAS.find((a) => a.id === "home")!.tagline}`}><button
           onClick={() => navigate("/home")}
           className={`flex items-center gap-1 rounded px-2.5 py-1 text-xs font-semibold transition-colors ${
             mode === "home"
@@ -145,10 +148,10 @@ export default function Navbar() {
         >
           <House className="h-3 w-3" aria-hidden="true" />
           <span>Home</span>
-        </button>
+        </button></Hint>
         {isPro && (
           <div className="hidden items-center gap-0.5 sm:flex">
-            <button
+            <Hint text={`${AREAS.find((a) => a.id === "invest")!.name}: ${AREAS.find((a) => a.id === "invest")!.tagline}`}><button
               onClick={() => navigate("/invs/dashboard")}
               className={`flex items-center gap-1 rounded px-2.5 py-1 text-xs font-semibold transition-colors ${
                 mode === "invest"
@@ -158,8 +161,8 @@ export default function Navbar() {
             >
               <TrendingUp className="h-3 w-3" aria-hidden="true" />
               <span>Invest</span>
-            </button>
-            <button
+            </button></Hint>
+            <Hint text={`${AREAS.find((a) => a.id === "wealth")!.name}: ${AREAS.find((a) => a.id === "wealth")!.tagline}`}><button
               onClick={() => navigate("/wealth")}
               className={`flex items-center gap-1 rounded px-2.5 py-1 text-xs font-semibold transition-colors ${
                 mode === "wealth"
@@ -169,8 +172,8 @@ export default function Navbar() {
             >
               <Landmark className="h-3 w-3" aria-hidden="true" />
               <span>Wealth</span>
-            </button>
-            <button
+            </button></Hint>
+            <Hint text={`${AREAS.find((a) => a.id === "household")!.name}: ${AREAS.find((a) => a.id === "household")!.tagline}`}><button
               onClick={() => navigate("/household")}
               className={`flex items-center gap-1 rounded px-2.5 py-1 text-xs font-semibold transition-colors ${
                 mode === "household"
@@ -180,11 +183,11 @@ export default function Navbar() {
             >
               <Home className="h-3 w-3" aria-hidden="true" />
               <span>Household</span>
-            </button>
+            </button></Hint>
           </div>
         )}
         {isDeskOwner === true && (
-          <button
+          <Hint text={`${AREAS.find((a) => a.id === "desk")!.name}: ${AREAS.find((a) => a.id === "desk")!.tagline}`}><button
             onClick={() => navigate("/desk")}
             className={`flex items-center gap-1 rounded px-2.5 py-1 text-xs font-semibold transition-colors ${
               mode === "desk"
@@ -194,7 +197,7 @@ export default function Navbar() {
           >
             <Terminal className="h-3 w-3" />
             <span>Desk</span>
-          </button>
+          </button></Hint>
         )}
       </div>
 
@@ -238,6 +241,7 @@ export default function Navbar() {
 
       {/* Right — theme + user */}
       <div className="flex items-center gap-2 shrink-0 ml-auto">
+        <Hint text={GLOSSARY["simple-pro"].short}>
         <div
           role="group"
           aria-label="Navigation mode"
@@ -256,6 +260,8 @@ export default function Navbar() {
             </button>
           ))}
         </div>
+        </Hint>
+        <PageHelp />
         <ThemeToggle />
         {user && (
           <DropdownMenu>
@@ -271,6 +277,13 @@ export default function Navbar() {
                 </p>
               </div>
               <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => navigate("/help")}
+                className="cursor-pointer"
+              >
+                <CircleHelp className="mr-2 h-4 w-4" />
+                Help and guide
+              </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => navigate("/settings")}
                 className="cursor-pointer"

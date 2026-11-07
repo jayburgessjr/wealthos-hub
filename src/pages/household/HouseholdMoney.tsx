@@ -1,13 +1,17 @@
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { InfoTip } from "@/components/help/InfoTip";
 import { useMoneySnapshot } from "@/hooks/useMoneySnapshot";
 import { debtOrder, emergencyFund, netWorth, nextBestMoves, subscriptionReport } from "@/lib/money/engine";
 
 const usd = (n: number) => n.toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 
-function Card({ title, children }: { title: string; children: React.ReactNode }) {
+function Card({ title, tip, children }: { title: string; tip?: string; children: React.ReactNode }) {
   return (
     <section className="rounded-lg border border-border bg-card p-4">
-      <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</h2>
+      <h2 className="mb-2 flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        {title}
+        {tip && <InfoTip term={tip} />}
+      </h2>
       {children}
     </section>
   );
@@ -55,10 +59,10 @@ function Body({ data }: { data: NonNullable<ReturnType<typeof useMoneySnapshot>[
       )}
 
       <div className="grid gap-4 md:grid-cols-4">
-        <Card title="Net worth"><p className="text-2xl font-bold text-foreground">{usd(nw.total)}</p></Card>
-        <Card title="Cash"><p className="text-xl font-semibold text-foreground">{usd(nw.cash)}</p></Card>
-        <Card title="Invested"><p className="text-xl font-semibold text-foreground">{usd(nw.invested)}</p></Card>
-        <Card title="Debt"><p className="text-xl font-semibold text-foreground">{usd(nw.debt)}</p></Card>
+        <Card title="Net worth" tip="net-worth"><p className="text-2xl font-bold text-foreground">{usd(nw.total)}</p></Card>
+        <Card title="Cash" tip="cash"><p className="text-xl font-semibold text-foreground">{usd(nw.cash)}</p></Card>
+        <Card title="Invested" tip="invested"><p className="text-xl font-semibold text-foreground">{usd(nw.invested)}</p></Card>
+        <Card title="Debt" tip="debt"><p className="text-xl font-semibold text-foreground">{usd(nw.debt)}</p></Card>
       </div>
 
       <Card title="Next best moves">
@@ -73,7 +77,7 @@ function Body({ data }: { data: NonNullable<ReturnType<typeof useMoneySnapshot>[
       </Card>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <Card title="Emergency fund">
+        <Card title="Emergency fund" tip="emergency-fund">
           {fund.monthlyNeed === 0 ? (
             <p className="text-sm text-muted-foreground">Add bills or debts to measure this.</p>
           ) : (
@@ -83,7 +87,7 @@ function Body({ data }: { data: NonNullable<ReturnType<typeof useMoneySnapshot>[
             </p>
           )}
         </Card>
-        <Card title="Subscriptions">
+        <Card title="Subscriptions" tip="subscription">
           {s.subscriptions.length === 0 ? (
             <p className="text-sm text-muted-foreground">None recorded.</p>
           ) : (
@@ -92,7 +96,7 @@ function Body({ data }: { data: NonNullable<ReturnType<typeof useMoneySnapshot>[
         </Card>
       </div>
 
-      <Card title="Debt payoff order (highest rate first)">
+      <Card title="Debt payoff order (highest rate first)" tip="avalanche">
         {debts.length === 0 ? (
           <p className="text-sm text-muted-foreground">No active debt recorded.</p>
         ) : (
