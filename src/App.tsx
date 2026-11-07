@@ -105,6 +105,7 @@ import EntityStructure from "./pages/EntityStructure";
 import Fundraising from "./pages/Fundraising";
 import WealthDashboard from "./pages/WealthDashboard";
 import HomeDashboard from "./pages/HomeDashboard";
+import Learn from "./pages/Learn";
 
 const queryClient = new QueryClient();
 
@@ -548,6 +549,8 @@ const AppRoutes = () => (
           </HouseholdBudgetProvider>
         }
       />
+
+      <Route path="/learn" element={<Learn />} />
 
       <Route path="/household/*" element={<HouseholdRoutes />} />
     </Route>

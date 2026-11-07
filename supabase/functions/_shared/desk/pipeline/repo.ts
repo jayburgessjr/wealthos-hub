@@ -51,6 +51,28 @@ export interface ApprovalRow {
   decidedBy: string;
 }
 
+export interface StoredApproval {
+  id: string;
+  proposedOrderId: string;
+  decision: "approved" | "rejected";
+  riskPassed: boolean;
+  riskDecision: unknown;
+  mode: TradingMode;
+  consumed: boolean;
+  /** ISO timestamp, server set. */
+  decidedAt: string;
+}
+
+export interface StoredOrder {
+  id: string;
+  approvalId: string;
+  proposedOrderId: string;
+  clientOrderId: string;
+  broker: "paper" | "alpaca" | "ibkr";
+  status: OrderStatus;
+  createdAt: string;
+}
+
 export interface OrderRow {
   approvalId: string;
   proposedOrderId: string;
@@ -144,6 +166,12 @@ export interface DeskRepo extends AgentRepo {
   toSnapshots(positions: StoredPosition[]): OpenPositionSnapshot[];
   insertApproval(a: ApprovalRow): Promise<string>;
   insertOrder(o: OrderRow): Promise<string>;
+  /** The approval for a proposal (one decision per proposal), or null. Used to recover a proposal stuck in approved. */
+  getApprovalForProposal(proposedOrderId: string): Promise<StoredApproval | null>;
+  /** Orders that have not reached a terminal state (submitting, submitted, partially_filled), oldest first. */
+  listUnsettledOrders(): Promise<StoredOrder[]>;
+  /** True when a position row already references this order (opened or closed by it). Makes settlement idempotent. */
+  orderHasPosition(orderId: string): Promise<boolean>;
   updateOrder(id: string, p: { status: OrderStatus; brokerOrderId?: string; filledQty?: number; avgFillPrice?: number; error?: string }): Promise<void>;
   openPosition(p: PositionRow): Promise<string>;
   markPosition(id: string, price: number): Promise<void>;

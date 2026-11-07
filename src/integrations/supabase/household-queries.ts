@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { callMembershipRpc } from "@/integrations/supabase/membership-rpc";
 import type {
   Tables,
   TablesInsert,
@@ -114,7 +115,18 @@ export async function getInvitationByToken(token: string) {
   return data;
 }
 
+// `userId` is kept for caller compatibility; the RPC derives the caller from the session.
 export async function acceptInvitation(token: string, userId: string) {
+  const householdId = await callMembershipRpc<string>(
+    "accept_invitation",
+    { p_token: token },
+    async () => (await acceptInvitationLegacy(token, userId)).householdId,
+  );
+  return { householdId };
+}
+
+// Legacy client writes: only reachable while the tenancy migration is not applied (RPC missing).
+async function acceptInvitationLegacy(token: string, userId: string) {
   // 1) Load invitation (requires invited email policy or owner)
   const invite = await getInvitationByToken(token);
   if (!invite) throw new Error("Invalid invitation");
@@ -150,7 +162,8 @@ export async function acceptInvitation(token: string, userId: string) {
 export async function listUserHouseholds(userId: string) {
   const { data, error } = await supabase
     .from("user_roles")
-    .select("household_id, role, households:household_id (id, name)");
+    .select("household_id, role, households:household_id (id, name)")
+    .eq("user_id", userId);
   if (error) throw error;
   return (data ?? []).map((r: any) => ({
     id: r.households.id,
@@ -160,6 +173,17 @@ export async function listUserHouseholds(userId: string) {
 }
 
 export async function switchActiveHousehold(
+  userId: string,
+  householdId: string,
+) {
+  await callMembershipRpc<void>(
+    "switch_active_household",
+    { p_household_id: householdId },
+    () => switchActiveHouseholdLegacy(userId, householdId),
+  );
+}
+
+async function switchActiveHouseholdLegacy(
   userId: string,
   householdId: string,
 ) {
@@ -207,6 +231,18 @@ export async function updateMemberRole(
   householdId: string,
   role: "owner" | "member",
 ) {
+  await callMembershipRpc<void>(
+    "set_member_role",
+    { p_household_id: householdId, p_user_id: userId, p_role: role },
+    () => updateMemberRoleLegacy(userId, householdId, role),
+  );
+}
+
+async function updateMemberRoleLegacy(
+  userId: string,
+  householdId: string,
+  role: "owner" | "member",
+) {
   const { error } = await supabase
     .from("user_roles")
     .upsert(
@@ -216,7 +252,19 @@ export async function updateMemberRole(
   if (error) throw error;
 }
 
+// Also used by a member to leave a household (userId = the caller).
 export async function removeMemberFromHousehold(
+  userId: string,
+  householdId: string,
+) {
+  await callMembershipRpc<void>(
+    "remove_member",
+    { p_household_id: householdId, p_user_id: userId },
+    () => removeMemberFromHouseholdLegacy(userId, householdId),
+  );
+}
+
+async function removeMemberFromHouseholdLegacy(
   userId: string,
   householdId: string,
 ) {
@@ -1108,26 +1156,6 @@ export async function updateHousehold(
     .single();
   if (error) throw error;
   return data;
-}
-
-export async function setProfileHousehold(userId: string, householdId: string) {
-  const { error } = await supabase
-    .from("profiles")
-    .update({ household_id: householdId })
-    .eq("id", userId);
-  if (error) throw error;
-}
-
-export async function upsertOwnerRole(userId: string, householdId: string) {
-  const payload: TablesInsert<"user_roles"> = {
-    user_id: userId,
-    household_id: householdId,
-    role: "owner",
-  };
-  const { error } = await supabase
-    .from("user_roles")
-    .upsert(payload, { onConflict: "user_id,household_id" });
-  if (error) throw error;
 }
 
 export async function seedDefaultCategories(householdId: string) {

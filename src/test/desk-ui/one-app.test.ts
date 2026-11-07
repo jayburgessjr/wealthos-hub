@@ -21,8 +21,8 @@ describe("Invest, Wealth, Household and Desk share one look", () => {
   it("the top-bar area pills and sidebar labels use one color each, not one per area", () => {
     const nav = read("components/layout/Navbar.tsx");
     expect(nav).not.toMatch(/blue-600\/15|amber-500\/15|emerald-600\/15|orange-500\/15/);
-    // the four area pills (Invest, Wealth, Household, Desk) all use the same active style
-    expect(nav.match(/\? "bg-primary\/15 text-primary"/g)?.length).toBe(4);
+    // Home plus the four areas (Invest, Wealth, Household, Desk) all use the same active style
+    expect(nav.match(/\? "bg-primary\/15 text-primary"/g)?.length).toBeGreaterThanOrEqual(5);
     const side = read("components/layout/Sidebar.tsx");
     expect(side).not.toMatch(/text-(emerald|amber|orange)-500\/50/);
   });

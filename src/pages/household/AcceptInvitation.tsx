@@ -15,6 +15,7 @@ import {
   acceptInvitation,
 } from "@/integrations/supabase/household-queries";
 import { toast } from "sonner";
+import { membershipErrorMessage } from "@/integrations/supabase/membership-rpc";
 
 export default function AcceptInvitation() {
   const { token } = useParams();
@@ -41,7 +42,7 @@ export default function AcceptInvitation() {
       navigate("/household");
       window.location.reload();
     } catch (e: any) {
-      toast.error(e?.message ?? "Failed to accept invitation");
+      toast.error(membershipErrorMessage(e, "Failed to accept invitation"));
       setBusy(false);
     }
   };

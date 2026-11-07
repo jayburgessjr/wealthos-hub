@@ -32,22 +32,22 @@ export function InvestPanel() {
     <div className="rounded-xl border border-border border-t-2 border-t-emerald-500 bg-card p-4 space-y-4">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs font-mono uppercase tracking-widest text-emerald-500">
-            📈 Invest
+          <p className="text-xs font-semibold text-emerald-500">
+            Pro tools
           </p>
-          <p className="mt-0.5 text-sm font-bold">Trading & Markets</p>
+          <p className="mt-0.5 text-sm font-bold">Markets and signals</p>
         </div>
         <Link
           to="/invs/dashboard"
           className="rounded-md bg-emerald-500 px-2 py-1 text-xs font-bold text-black hover:bg-emerald-400 transition-colors"
         >
-          → Trading Desk
+          Open pro dashboard
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 gap-2">
         <div className="rounded-lg bg-muted/50 p-3">
-          <p className="text-xs text-muted-foreground">Top Signal Today</p>
+          <p className="text-xs text-muted-foreground">Top signal today</p>
           {isLoading ? (
             <p className="font-mono text-base font-bold mt-0.5 text-muted-foreground">
               …
@@ -67,11 +67,6 @@ export function InvestPanel() {
             </p>
           )}
         </div>
-        <div className="rounded-lg bg-muted/50 p-3">
-          <p className="text-xs text-muted-foreground">Open P&L</p>
-          <p className="font-mono text-xl font-bold mt-0.5">$—</p>
-          <p className="text-xs text-muted-foreground">Connect broker</p>
-        </div>
       </div>
 
       {chipSignals.length > 0 && (
@@ -87,7 +82,7 @@ export function InvestPanel() {
                     : "border-red-500/30 text-red-400"
                 }`}
               >
-                {s.ticker} {s.signal_score >= 50 ? "▲" : "▼"}
+                {s.ticker} {s.signal_score >= 50 ? "▲ strong" : "▼ weak"}
               </span>
             ))}
             <Link

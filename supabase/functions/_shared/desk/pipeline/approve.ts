@@ -5,6 +5,7 @@
 //   1. load the proposal (server side; the client sends only an id, a decision and a confirmation phrase)
 //   2. rebuild every risk input from the database and the broker (equity, state, positions, quote)
 //   3. evaluateRisk. A failure writes a risk event and leaves the proposal pending so the owner can modify it.
+//   3b. a passing check writes a server-side 'check_passed' marker; the database refuses an approved decision without it
 //   4. owner-scoped insert of the approval, then insert of the order (the DB trigger re-checks the approval),
 //      then the broker call. Agents never reach steps 4 onward.
 import { sha256Hex } from "../hash.ts";
@@ -12,6 +13,8 @@ import { evaluateRisk, type RiskDecision, type RiskInput } from "../risk/engine.
 import { analyseOption, isOptionStructure } from "../risk/options.ts";
 import type { BrokerPort } from "../broker/port.ts";
 import type { DeskRepo } from "./repo.ts";
+import { assessQuote, type Quote } from "./quote.ts";
+import { settleFill } from "./settle.ts";
 import { syncState } from "./state.ts";
 import type { TradingMode } from "../types.ts";
 
@@ -21,8 +24,11 @@ export interface ApproveDeps {
   mode: TradingMode;
   ownerId: string;
   now: () => Date;
-  /** Server-side quote for non-option instruments. */
-  quote: (symbol: string) => Promise<number | null>;
+  /**
+   * Server-side quote for non-option instruments. Returns a dated Quote. A bare number has no date, so its age is unknown
+   * and opening orders priced off it are refused (fail closed); closes pass with a warning.
+   */
+  quote: (symbol: string) => Promise<number | Quote | null>;
 }
 
 export interface ApproveInput {
@@ -36,16 +42,40 @@ export interface ApproveResult {
   decision: "approved" | "rejected" | "blocked";
   risk?: RiskDecision;
   order?: { id: string; status: string; brokerOrderId?: string; filledQty: number; avgFillPrice?: number };
+  /** Non-blocking notices for the owner, e.g. a stale quote on a close. */
+  warnings?: string[];
+  /** True when the order was accepted but is not filled yet; the reconciler settles it. The proposal is not 'executed'. */
+  pendingFill?: boolean;
   error?: string;
 }
 
 export const livePhrase = (symbol: string, side: string, qty: number) => `LIVE ${symbol} ${side.toUpperCase()} ${qty}`;
 
+/** The approval window enforced by desk_orders_guard is 5 minutes; stop retrying a little before it. */
+const RETRY_WINDOW_MS = 4.5 * 60_000;
+
 export async function approveOrder(d: ApproveDeps, input: ApproveInput): Promise<ApproveResult> {
   const proposal = await d.repo.getProposal(input.proposedOrderId);
   if (!proposal) return { ok: false, decision: "blocked", error: "Proposal not found." };
-  if (proposal.status !== "pending") return { ok: false, decision: "blocked", error: `Proposal is ${proposal.status}.` };
-  if (new Date(proposal.expiresAt).getTime() < d.now().getTime()) {
+
+  // ---- recovery: a proposal stuck in 'approved' (the approval exists but no order was placed) ----
+  let reuse: { id: string } | null = null;
+  if (proposal.status === "approved") {
+    if (input.decision === "rejected") return { ok: false, decision: "blocked", error: "Proposal is approved and cannot be rejected." };
+    const ap = await d.repo.getApprovalForProposal(proposal.id);
+    if (!ap || ap.decision !== "approved" || !ap.riskPassed) return { ok: false, decision: "blocked", error: "Proposal is approved but has no valid approval record. Nothing was placed." };
+    if (ap.consumed) return { ok: false, decision: "blocked", error: "An order already exists for this proposal. Reconciliation will settle it; nothing was placed again." };
+    if (d.now().getTime() - new Date(ap.decidedAt).getTime() > RETRY_WINDOW_MS) {
+      // The approval is too old for the database to accept an order. Release the proposal (audited) rather than leave it stuck.
+      await d.repo.setProposalStatus(proposal.id, "failed");
+      await d.repo.logRisk({ type: "proposal_released", proposedOrderId: proposal.id, actor: "owner", details: { approvalId: ap.id, releasedBy: d.ownerId, reason: "approval window expired before an order was placed" } });
+      return { ok: false, decision: "blocked", error: "The approval expired before an order was placed, so the proposal was released. Ask the agent for a fresh proposal." };
+    }
+    reuse = { id: ap.id }; // idempotent retry inside the window: same approval, same client order id
+  } else if (proposal.status !== "pending") {
+    return { ok: false, decision: "blocked", error: `Proposal is ${proposal.status}.` };
+  }
+  if (!reuse && new Date(proposal.expiresAt).getTime() < d.now().getTime()) {
     await d.repo.setProposalStatus(proposal.id, "expired");
     return { ok: false, decision: "blocked", error: "Proposal has expired." };
   }
@@ -65,6 +95,8 @@ export async function approveOrder(d: ApproveDeps, input: ApproveInput): Promise
   const state = await syncState(d.repo, account.equity, d.now());
   const positions = await d.repo.listOpenPositions();
   const held = order.intent === "close" ? positions.find((x) => x.id === order.positionId) : undefined;
+  const warnings: string[] = [];
+  const staleReasons: string[] = [];
   let refPrice: number | null;
   if (isOptionStructure(order.structure)) {
     if (held) {
@@ -74,7 +106,18 @@ export async function approveOrder(d: ApproveDeps, input: ApproveInput): Promise
       refPrice = a.ok ? Math.abs(a.netPremium) : null;
     }
   } else {
-    refPrice = (await d.quote(order.symbol)) ?? (held ? (held.markPrice ?? held.avgPrice) : null);
+    const raw = await d.quote(order.symbol);
+    const q: Quote | null = typeof raw === "number" ? { price: raw, asOf: "" } : raw;
+    const fresh = assessQuote(q, order.structure, d.now());
+    if (!fresh.fresh) {
+      const msg = `quote_stale: ${fresh.message}`;
+      if (order.intent === "open") staleReasons.push(`${msg} Opening orders need a fresh quote.`);
+      else warnings.push(`${msg} The close is priced off the last known price.`);
+      await d.repo.logRisk({ type: "stale_quote", proposedOrderId: proposal.id, actor: "system:desk-approve-order", details: { symbol: order.symbol, intent: order.intent, message: fresh.message, blocked: order.intent === "open" } });
+    }
+    refPrice = (fresh.fresh ? q!.price : null) ?? (held ? (held.markPrice ?? held.avgPrice) : null);
+    // A stale quote must never size an opening order: the engine then sees no usable price and also fails closed.
+    if (!fresh.fresh && order.intent === "open") refPrice = null;
   }
   const riskInput: RiskInput = {
     order, refPrice: refPrice ?? NaN, equity: account.equity, dayStartEquity: state.dayStartEquity, highWaterMark: state.highWaterMark,
@@ -91,21 +134,28 @@ export async function approveOrder(d: ApproveDeps, input: ApproveInput): Promise
 
   // ---- live gate: typed phrase must match exactly ----
   const phraseOk = d.mode !== "live" || input.liveConfirmation === livePhrase(order.symbol, order.side, order.qty);
-  const reasons = [...risk.reasons, ...(phraseOk ? [] : ["live_confirmation: type the exact confirmation phrase to place a live order."])];
-  const passed = risk.approved && phraseOk;
+  const reasons = [...staleReasons, ...risk.reasons, ...(phraseOk ? [] : ["live_confirmation: type the exact confirmation phrase to place a live order."])];
+  const passed = risk.approved && phraseOk && staleReasons.length === 0;
 
   const inputHash = await sha256Hex(riskInput);
   if (!passed) {
     await d.repo.logRisk({ type: "check_failed", proposedOrderId: proposal.id, actor: "owner", details: { reasons, inputHash } });
-    return { ok: false, decision: "blocked", risk: { ...risk, approved: false, reasons }, error: reasons[0] };
+    return { ok: false, decision: "blocked", risk: { ...risk, approved: false, reasons }, error: reasons[0], ...(warnings.length ? { warnings } : {}) };
   }
-  await d.repo.logRisk({ type: "check_passed", proposedOrderId: proposal.id, actor: "owner", details: { inputHash, engineVersion: risk.engineVersion } });
+  // The marker the database requires before it accepts an approved decision. Written with the service role, bound to this
+  // exact input hash and to the proposal's economics, so editing the proposal afterwards invalidates it.
+  await d.repo.logRisk({
+    type: "check_passed", proposedOrderId: proposal.id, actor: "system:desk-approve-order",
+    details: { inputHash, engineVersion: risk.engineVersion, qty: order.qty, stopPrice: order.stopPrice, limitPrice: order.limitPrice ?? null, targetPrice: order.targetPrice ?? null },
+  });
 
   // ---- approval (owner session) then order (trigger-gated) then broker ----
-  const approvalId = await d.repo.insertApproval({
-    proposedOrderId: proposal.id, decision: "approved", riskPassed: true, riskDecision: risk, riskInputHash: inputHash, mode: d.mode,
-    liveConfirmed: d.mode === "live" && phraseOk, liveConfirmation: input.liveConfirmation, decidedBy: d.ownerId,
-  });
+  const approvalId = reuse
+    ? reuse.id
+    : await d.repo.insertApproval({
+        proposedOrderId: proposal.id, decision: "approved", riskPassed: true, riskDecision: risk, riskInputHash: inputHash, mode: d.mode,
+        liveConfirmed: d.mode === "live" && phraseOk, liveConfirmation: input.liveConfirmation, decidedBy: d.ownerId,
+      });
 
   const orderId = await d.repo.insertOrder({
     approvalId, proposedOrderId: proposal.id, instrumentId: order.instrumentId, mode: d.mode, broker: d.broker.name, clientOrderId: approvalId,
@@ -125,31 +175,20 @@ export async function approveOrder(d: ApproveDeps, input: ApproveInput): Promise
 
   try {
     const fill = await d.broker.submitOrder({ clientOrderId: approvalId, approvalId, symbol: order.symbol, order: brokerOrder, decision: risk, mode: d.mode });
-    const status = fill.status === "filled" ? "filled" : fill.status === "partially_filled" ? "partially_filled" : fill.status === "rejected" ? "rejected" : fill.status === "canceled" ? "canceled" : "submitted";
-    await d.repo.updateOrder(orderId, { status, brokerOrderId: fill.brokerOrderId, filledQty: fill.filledQty, avgFillPrice: fill.avgFillPrice });
-
-    if (fill.status === "rejected" || fill.status === "canceled") {
-      await d.repo.setProposalStatus(proposal.id, "failed");
-      return { ok: false, decision: "approved", risk, order: { id: orderId, status, filledQty: 0 }, error: "Broker rejected the order." };
+    const settled = await settleFill({
+      repo: d.repo, orderId, approvalId, proposal, fill, sized: risk.sized, mode: d.mode, fallbackPrice: refPrice ?? undefined,
+    });
+    const orderOut = { id: orderId, status: settled.orderStatus, brokerOrderId: fill.brokerOrderId, filledQty: fill.filledQty, avgFillPrice: fill.avgFillPrice };
+    const extra = { ...(warnings.length ? { warnings } : {}) };
+    if (settled.orderStatus === "rejected" || settled.orderStatus === "canceled") {
+      return { ok: settled.proposalStatus === "executed", decision: "approved", risk, order: { ...orderOut, filledQty: settled.proposalStatus === "executed" ? fill.filledQty : 0 }, error: settled.proposalStatus === "executed" ? undefined : "Broker rejected the order.", ...extra };
     }
-
-    if (fill.filledQty > 0) {
-      const entry = fill.avgFillPrice ?? refPrice ?? 0;
-      if (order.intent === "open") {
-        await d.repo.openPosition({
-          instrumentId: order.instrumentId, symbol: order.symbol, thesisId: order.thesisId, agentName: order.agentName, mode: d.mode,
-          structure: order.structure, legs: order.legs, qty: fill.filledQty, avgPrice: entry, stopPrice: order.stopPrice as number,
-          targetPrice: order.targetPrice, maxLoss: risk.sized.maxLoss, exposure: risk.sized.exposure, openedOrderId: orderId, positionGroup: optionOrder ? approvalId : order.positionGroup,
-        });
-      } else if (order.positionId) {
-        await d.repo.closePosition(order.positionId, entry, orderId);
-      }
-    }
-    await d.repo.setProposalStatus(proposal.id, "executed");
-    return { ok: true, decision: "approved", risk, order: { id: orderId, status, brokerOrderId: fill.brokerOrderId, filledQty: fill.filledQty, avgFillPrice: fill.avgFillPrice } };
+    if (settled.proposalStatus === "executed") return { ok: true, decision: "approved", risk, order: orderOut, ...extra };
+    // Accepted by the broker but not filled (or unconfirmed): never reported as executed. The reconciler settles it.
+    return { ok: true, decision: "approved", risk, order: orderOut, pendingFill: true, warnings: [...warnings, settled.note ?? "Order accepted but not filled yet. It will be settled by reconciliation; the position appears once it fills."] };
   } catch (e) {
-    // Order row stays 'submitting'; reconciliation (getOrder by client id) settles it. A retry cannot double-submit.
+    // Order row stays 'submitting'; reconciliation (getOrder by client id) settles it. A retry reuses the same approval and client order id.
     await d.repo.updateOrder(orderId, { status: "submitting", error: (e as Error).message });
-    return { ok: false, decision: "approved", risk, order: { id: orderId, status: "submitting", filledQty: 0 }, error: `Broker call failed: ${(e as Error).message}` };
+    return { ok: false, decision: "approved", risk, order: { id: orderId, status: "submitting", filledQty: 0 }, error: `Broker call failed: ${(e as Error).message}`, ...(warnings.length ? { warnings } : {}) };
   }
 }

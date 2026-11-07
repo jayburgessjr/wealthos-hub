@@ -19,7 +19,7 @@ function world() {
   repo.watchlist = ["AAPL", "MSFT"];
   const store = new InMemoryPaperStore(100_000);
   const broker = new PaperBroker(store, async (s) => market.price(s));
-  const deps = () => ({ repo, broker, mode: "paper" as const, ownerId: OWNER, now: () => new Date(`${DATES[market.asOf]}T16:00:00Z`), quote: async (s: string) => market.price(s) });
+  const deps = () => ({ repo, broker, mode: "paper" as const, ownerId: OWNER, now: () => new Date(`${DATES[market.asOf]}T16:00:00Z`), quote: async (s: string) => ({ price: market.price(s), asOf: DATES[market.asOf] }) });
   const today = () => DATES[market.asOf];
   return { market, repo, store, broker, deps, today };
 }

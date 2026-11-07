@@ -1,9 +1,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { realAuthDeps } from "../_shared/auth-deno.ts";
+import { corsHeaders as sharedCors, logError, logWarn, errorResponse, fetchT, isResponse, preflight, readJsonBody, requireUser } from "../_shared/auth.ts";
+import { BODY_CAP_BYTES, DATA_DAILY_CAP, consumeUsage, usageResponse } from "../_shared/limits.ts";
+import { validateScreener } from "../_shared/validate.ts";
 
 interface ScreenerFilters {
   min_price?: number;
@@ -57,38 +57,34 @@ function isStandardTicker(ticker: string): boolean {
 }
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
+  const deps = realAuthDeps();
+  const env = deps.env;
+  const corsHeaders = sharedCors(req, env);
 
-  // ── Auth guard ──────────────────────────────────────────────────────────────
-  const authHeader = req.headers.get("authorization");
-  if (!authHeader?.startsWith("Bearer ")) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
-    return new Response("ok", { headers: corsHeaders });
-  }
+  const pre = preflight(req, env);
+  if (pre) return pre;
+  const auth = await requireUser(req, deps);
+  if (isResponse(auth)) return auth;
+  const parsed = await readJsonBody(req, env, BODY_CAP_BYTES.default, { allowEmpty: true });
+  if (!parsed.ok) return parsed.response;
+
+  const { filters: validated, limit } = validateScreener(parsed.body);
+  const filters: ScreenerFilters = validated;
+
+  const gate = await consumeUsage(auth.client, "data", "screen-assets", DATA_DAILY_CAP);
+  if (gate !== "ok") return usageResponse(req, env, gate);
 
   try {
-    const POLYGON_KEY = Deno.env.get("POLYGON_KEY");
-    if (!POLYGON_KEY) {
-      return new Response(
-        JSON.stringify({ error: "POLYGON_KEY not configured" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const body = await req.json().catch(() => ({}));
-    const filters: ScreenerFilters = body.filters ?? {};
-    const limit: number = body.limit ?? 50;
+    const POLYGON_KEY = env("POLYGON_KEY");
+    if (!POLYGON_KEY) return errorResponse(req, env, 500, "POLYGON_KEY not configured");
 
     const date = getLastTradingDay();
     const url = `https://api.polygon.io/v2/aggs/grouped/locale/us/market/stocks/${date}?adjusted=true&apiKey=${POLYGON_KEY}`;
 
-    const polygonRes = await fetch(url);
+    const polygonRes = await fetchT(url);
 
     if (!polygonRes.ok) {
-      console.error(`Polygon error: ${polygonRes.status} ${polygonRes.statusText}`);
+      logError(`Polygon error: ${polygonRes.status} ${polygonRes.statusText}`);
       return new Response(
         JSON.stringify({ results: [], message: `Polygon API error: ${polygonRes.status}` }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -158,10 +154,6 @@ serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
-    console.error("screen-assets error:", err);
-    return new Response(
-      JSON.stringify({ error: "Internal server error", details: String(err) }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return errorResponse(req, env, 500, err);
   }
 });

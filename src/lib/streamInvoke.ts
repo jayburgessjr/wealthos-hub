@@ -19,6 +19,17 @@ export interface StreamCallbacks {
   onError: (msg: string) => void;
 }
 
+/** Mirrors MAX_MESSAGES in supabase/functions/_shared/limits.ts: the server rejects longer chat histories. */
+export const MAX_CHAT_MESSAGES = 20;
+
+/** User-facing text for the statuses the edge functions use deliberately; null means "use the server text". */
+export function describeHttpStatus(status: number): string | null {
+  if (status === 401) return "Your session has expired — please sign in again.";
+  if (status === 403) return "Your account is awaiting approval. You'll get access once it has been approved.";
+  if (status === 429) return "You've reached today's usage limit. It resets at midnight UTC.";
+  return null;
+}
+
 export async function streamInvoke(
   functionName: string,
   body: Record<string, unknown>,
@@ -32,6 +43,11 @@ export async function streamInvoke(
   }
 
   const url = `${SUPABASE_URL}/functions/v1/${functionName}`;
+  // Long chats send the whole history; keep only the most recent messages the server accepts.
+  const payload =
+    Array.isArray(body.messages) && body.messages.length > MAX_CHAT_MESSAGES
+      ? { ...body, messages: body.messages.slice(-MAX_CHAT_MESSAGES) }
+      : body;
 
   let resp: Response;
   try {
@@ -42,7 +58,7 @@ export async function streamInvoke(
         "Authorization": `Bearer ${session.access_token}`,
         "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string,
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(payload),
     });
   } catch (err) {
     callbacks.onError("Network error — could not reach the server.");
@@ -51,7 +67,7 @@ export async function streamInvoke(
 
   if (!resp.ok) {
     const errBody = await resp.json().catch(() => ({ error: `HTTP ${resp.status}` }));
-    callbacks.onError(errBody.error ?? `Request failed (${resp.status})`);
+    callbacks.onError(describeHttpStatus(resp.status) ?? errBody.error ?? `Request failed (${resp.status})`);
     return;
   }
 

@@ -5,7 +5,7 @@ import type { OpenPositionSnapshot } from "../risk/engine.ts";
 import { isOptionStructure } from "../risk/options.ts";
 import type {
   ApprovalRow, DeskRepo, DeskState, OrderRow, OrderStatus, PositionRow, ProposalStatus, RunPatch,
-  ScoreDbRow, StoredPosition, StoredProposal, StoredSignal, StoredThesis,
+  ScoreDbRow, StoredApproval, StoredOrder, StoredPosition, StoredProposal, StoredSignal, StoredThesis,
 } from "./repo.ts";
 import type { AssetClass, ProposedOrder, Signal, Thesis } from "../types.ts";
 
@@ -24,7 +24,8 @@ export class InMemoryRepo implements DeskRepo {
   theses = new Map<string, StoredThesis>();
   proposals = new Map<string, StoredProposal & { thesisId?: string }>();
   approvals = new Map<string, ApprovalRow & { id: string; decidedAt: number; consumed: boolean }>();
-  orders = new Map<string, OrderRow & { id: string; status: OrderStatus; filledQty: number; avgFillPrice?: number; brokerOrderId?: string; error?: string }>();
+  closedBy = new Map<string, string>();
+  orders = new Map<string, OrderRow & { id: string; createdAt?: string; status: OrderStatus; filledQty: number; avgFillPrice?: number; brokerOrderId?: string; error?: string }>();
   positions = new Map<string, StoredPosition>();
   risk: { type: string; proposedOrderId?: string; actor: string; details?: unknown }[] = [];
   scores: ScoreDbRow[] = [];
@@ -116,6 +117,16 @@ export class InMemoryRepo implements DeskRepo {
     if (this.caller !== this.ownerId || a.decidedBy !== this.ownerId) throw new Error("approvals require the owner session");
     const po = this.proposals.get(a.proposedOrderId);
     if (!po || po.status !== "pending") throw new Error("proposal not pending");
+    // Mirrors desk_approvals_guard: an approved+passed decision needs a fresh server-written check_passed marker for this proposal.
+    if (a.decision === "approved" && a.riskPassed) {
+      const o = po.order;
+      const hit = this.risk.some((e) => {
+        const d = (e.details ?? {}) as Record<string, unknown>;
+        return e.type === "check_passed" && e.proposedOrderId === a.proposedOrderId && d.inputHash === a.riskInputHash
+          && d.qty === o.qty && d.stopPrice === o.stopPrice && (d.limitPrice ?? null) === (o.limitPrice ?? null) && (d.targetPrice ?? null) === (o.targetPrice ?? null);
+      });
+      if (!hit) throw new Error("approval rejected: no server risk check on record for this proposal");
+    }
     if ([...this.approvals.values()].some((x) => x.proposedOrderId === a.proposedOrderId)) throw new Error("one decision per proposal");
     const id = nid("ap");
     this.approvals.set(id, { ...a, id, decidedAt: this.now().getTime(), consumed: false });
@@ -133,8 +144,19 @@ export class InMemoryRepo implements DeskRepo {
     if (this.state.halted && o.intent === "open") throw new Error("kill switch engaged");
     a.consumed = true;
     const id = nid("ord");
-    this.orders.set(id, { ...o, id, status: "submitting", filledQty: 0 });
+    this.orders.set(id, { ...o, id, createdAt: this.now().toISOString(), status: "submitting", filledQty: 0 });
     return id;
+  }
+  async getApprovalForProposal(proposedOrderId: string): Promise<StoredApproval | null> {
+    const a = [...this.approvals.values()].find((x) => x.proposedOrderId === proposedOrderId);
+    return a ? { id: a.id, proposedOrderId: a.proposedOrderId, decision: a.decision, riskPassed: a.riskPassed, riskDecision: a.riskDecision, mode: a.mode, consumed: a.consumed, decidedAt: new Date(a.decidedAt).toISOString() } : null;
+  }
+  async listUnsettledOrders(): Promise<StoredOrder[]> {
+    return [...this.orders.values()].filter((o) => ["submitting", "submitted", "partially_filled"].includes(o.status))
+      .map((o) => ({ id: o.id, approvalId: o.approvalId, proposedOrderId: o.proposedOrderId, clientOrderId: o.clientOrderId, broker: o.broker, status: o.status, createdAt: o.createdAt ?? this.now().toISOString() }));
+  }
+  async orderHasPosition(orderId: string): Promise<boolean> {
+    return [...this.positions.values()].some((p) => p.openedOrderId === orderId || this.closedBy.get(p.id) === orderId);
   }
   async updateOrder(id: string, p: { status: OrderStatus; brokerOrderId?: string; filledQty?: number; avgFillPrice?: number; error?: string }): Promise<void> {
     const o = this.orders.get(id);
@@ -149,9 +171,10 @@ export class InMemoryRepo implements DeskRepo {
     const p = this.positions.get(id);
     if (p) p.markPrice = price;
   }
-  async closePosition(id: string, price: number): Promise<void> {
+  async closePosition(id: string, price: number, closedOrderId?: string): Promise<void> {
     const p = this.positions.get(id);
     if (p) {
+      if (closedOrderId) this.closedBy.set(id, closedOrderId);
       p.status = "closed";
       p.markPrice = price;
     }

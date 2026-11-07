@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,7 +11,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Settings, LogOut, TrendingUp, Landmark, Home, Terminal } from "lucide-react";
+import { Settings, LogOut, TrendingUp, Landmark, Home, Terminal, Menu, House } from "lucide-react";
+import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { SidebarNavList } from "./Sidebar";
+import { useNavMode } from "@/lib/navMode";
 import { useIsOwner } from "@/lib/desk/hooks";
 import { toast } from "sonner";
 
@@ -25,11 +28,11 @@ const StatItem = ({
   color?: string;
 }) => (
   <div className="flex items-center gap-1.5 px-3">
-    <span className="text-[10px] uppercase tracking-wider text-muted-foreground/50">
+    <span className="text-xs text-muted-foreground">
       {label}
     </span>
     <span
-      className={`font-mono text-[11px] font-semibold ${color ?? "text-foreground"}`}
+      className={`font-mono text-xs font-semibold ${color ?? "text-foreground"}`}
     >
       {value}
     </span>
@@ -46,7 +49,10 @@ export default function Navbar() {
   const isHousehold = location.pathname.startsWith("/household");
   const isWealth = location.pathname.startsWith("/wealth");
   const isDesk = location.pathname.startsWith("/desk");
-  const mode = isHousehold ? "household" : isWealth ? "wealth" : isDesk ? "desk" : "invest";
+  const mode = location.pathname === "/home" ? "home" : isHousehold ? "household" : isWealth ? "wealth" : isDesk ? "desk" : "invest";
+  const { mode: navMode, setMode: setNavMode } = useNavMode();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const isPro = navMode === "pro";
   const { data: isDeskOwner } = useIsOwner();
 
   const handleLogout = async () => {
@@ -110,48 +116,80 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 flex h-10 items-center justify-between border-b border-border/40 bg-background/95 backdrop-blur-sm px-3 gap-3">
+      {/* Mobile drawer trigger (below lg) */}
+      <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
+        <SheetTrigger asChild>
+          <button
+            aria-label="Open navigation menu"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded text-muted-foreground hover:text-foreground lg:hidden"
+          >
+            <Menu className="h-5 w-5" aria-hidden="true" />
+          </button>
+        </SheetTrigger>
+        <SheetContent side="left" className="flex w-[280px] flex-col p-0">
+          <SheetTitle className="px-4 pt-4 text-base">Menu</SheetTitle>
+          <SheetDescription className="sr-only">Site navigation</SheetDescription>
+          <SidebarNavList isOpen onNavigate={() => setDrawerOpen(false)} />
+        </SheetContent>
+      </Sheet>
+
       {/* Left — mode switcher */}
-      <div className="flex items-center gap-0.5 shrink-0">
+      <div className="flex items-center gap-0.5 shrink-0 overflow-x-auto">
         <button
-          onClick={() => navigate("/invs/dashboard")}
-          className={`flex items-center gap-1 rounded px-2.5 py-1 text-[11px] font-semibold transition-colors ${
-            mode === "invest"
+          onClick={() => navigate("/home")}
+          className={`flex items-center gap-1 rounded px-2.5 py-1 text-xs font-semibold transition-colors ${
+            mode === "home"
               ? "bg-primary/15 text-primary"
-              : "text-muted-foreground/50 hover:text-foreground"
+              : "text-muted-foreground hover:text-foreground"
           }`}
         >
-          <TrendingUp className="h-3 w-3" />
-          <span>Invest</span>
+          <House className="h-3 w-3" aria-hidden="true" />
+          <span>Home</span>
         </button>
-        <button
-          onClick={() => navigate("/wealth")}
-          className={`flex items-center gap-1 rounded px-2.5 py-1 text-[11px] font-semibold transition-colors ${
-            mode === "wealth"
-              ? "bg-primary/15 text-primary"
-              : "text-muted-foreground/50 hover:text-foreground"
-          }`}
-        >
-          <Landmark className="h-3 w-3" />
-          <span>Wealth</span>
-        </button>
-        <button
-          onClick={() => navigate("/household")}
-          className={`flex items-center gap-1 rounded px-2.5 py-1 text-[11px] font-semibold transition-colors ${
-            mode === "household"
-              ? "bg-primary/15 text-primary"
-              : "text-muted-foreground/50 hover:text-foreground"
-          }`}
-        >
-          <Home className="h-3 w-3" />
-          <span>Household</span>
-        </button>
+        {isPro && (
+          <div className="hidden items-center gap-0.5 sm:flex">
+            <button
+              onClick={() => navigate("/invs/dashboard")}
+              className={`flex items-center gap-1 rounded px-2.5 py-1 text-xs font-semibold transition-colors ${
+                mode === "invest"
+                  ? "bg-primary/15 text-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <TrendingUp className="h-3 w-3" aria-hidden="true" />
+              <span>Invest</span>
+            </button>
+            <button
+              onClick={() => navigate("/wealth")}
+              className={`flex items-center gap-1 rounded px-2.5 py-1 text-xs font-semibold transition-colors ${
+                mode === "wealth"
+                  ? "bg-primary/15 text-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Landmark className="h-3 w-3" aria-hidden="true" />
+              <span>Wealth</span>
+            </button>
+            <button
+              onClick={() => navigate("/household")}
+              className={`flex items-center gap-1 rounded px-2.5 py-1 text-xs font-semibold transition-colors ${
+                mode === "household"
+                  ? "bg-primary/15 text-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Home className="h-3 w-3" aria-hidden="true" />
+              <span>Household</span>
+            </button>
+          </div>
+        )}
         {isDeskOwner === true && (
           <button
             onClick={() => navigate("/desk")}
-            className={`flex items-center gap-1 rounded px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+            className={`flex items-center gap-1 rounded px-2.5 py-1 text-xs font-semibold transition-colors ${
               mode === "desk"
                 ? "bg-primary/15 text-primary"
-                : "text-muted-foreground/50 hover:text-foreground"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             <Terminal className="h-3 w-3" />
@@ -161,7 +199,7 @@ export default function Navbar() {
       </div>
 
       {/* Center — portfolio stats */}
-      {mode === "invest" && (
+      {isPro && mode === "invest" && (
         <div className="hidden items-center divide-x divide-border/40 xl:flex flex-1 justify-center">
           {isLoading ? (
             <div className="flex gap-3 px-2">
@@ -200,11 +238,29 @@ export default function Navbar() {
 
       {/* Right — theme + user */}
       <div className="flex items-center gap-2 shrink-0 ml-auto">
+        <div
+          role="group"
+          aria-label="Navigation mode"
+          className="flex items-center rounded-md border border-border/60 p-0.5 text-xs font-semibold"
+        >
+          {(["simple", "pro"] as const).map((m) => (
+            <button
+              key={m}
+              onClick={() => setNavMode(m)}
+              aria-pressed={navMode === m}
+              className={`rounded px-2 py-0.5 transition-colors ${
+                navMode === m ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {m === "simple" ? "Simple" : "Pro"}
+            </button>
+          ))}
+        </div>
         <ThemeToggle />
         {user && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-primary text-[10px] font-bold hover:bg-primary/25 transition-colors focus:outline-none">
+              <button aria-label="Account menu" className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-primary text-xs font-bold hover:bg-primary/25 transition-colors focus:outline-none">
                 {user.email?.substring(0, 2).toUpperCase()}
               </button>
             </DropdownMenuTrigger>

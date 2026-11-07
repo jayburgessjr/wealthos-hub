@@ -9,3 +9,16 @@ verify_jwt = false
 
 [functions.desk-scorecard]
 verify_jwt = false
+
+[functions.desk-reconcile-orders]
+verify_jwt = false
+
+# Edge auth hardening. Both verify credentials in code, so gateway JWT verification is turned off:
+#  - stripe-webhook: Stripe cannot send a JWT; the Stripe signature is verified in code.
+#  - check-alerts: schedulers carry no user JWT; the handler requires x-cron-secret (DESK_CRON_SECRET) or a verified approved user.
+# Every other function keeps gateway JWT verification ON as a second layer behind requireUser().
+[functions.check-alerts]
+verify_jwt = false
+
+[functions.stripe-webhook]
+verify_jwt = false

@@ -127,19 +127,33 @@ export async function runScanner(agent: ScannerAgent, d: ScanDeps): Promise<Scan
 // Research agent
 // ---------------------------------------------------------------------------------------------
 export const THESIS_TOOL = "submit_thesis";
+
+/** Hard caps on model output and prompt inputs. Over a cap the thesis is rejected (fail closed), never silently truncated. */
+export const THESIS_LIMITS = {
+  CASE_CHARS: 2000, INVALIDATION_CHARS: 600, CATALYSTS: 10, EVENT_CHARS: 300, DATE_CHARS: 40,
+  SUMMARY_CHARS: 2000, SOURCES: 10, URL_CHARS: 300,
+  /** Target may be at most this fraction away from entry (50%): an unbounded target would flatter reward-to-risk. */
+  MAX_TARGET_MOVE: 0.5,
+} as const;
+
+const ENTITY: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;", "\n": " ", "\r": " " };
+/** Escapes a value for use inside a quoted prompt attribute so it cannot close the tag or inject markup. */
+export const escapeAttr = (v: unknown): string => String(v ?? "").slice(0, 80).replace(/[&<>"'\r\n]/g, (c) => ENTITY[c]);
+/** Only plain http(s) URLs of bounded length, with no whitespace, angle brackets or quotes. */
+export const safeUrl = (u: unknown): string | null => (typeof u === "string" && u.length <= THESIS_LIMITS.URL_CHARS && /^https?:\/\/[^\s<>"'`]+$/i.test(u) ? u : null);
 export const THESIS_SCHEMA = {
   type: "object",
   required: ["direction", "bull_case", "bear_case", "catalysts", "entry", "stop", "target", "confidence", "invalidation", "horizon_days"],
   properties: {
     direction: { type: "string", enum: ["long", "short", "neutral"] },
-    bull_case: { type: "string" },
-    bear_case: { type: "string" },
-    catalysts: { type: "array", items: { type: "object", required: ["event"], properties: { event: { type: "string" }, date: { type: "string" } } } },
+    bull_case: { type: "string", maxLength: 2000 },
+    bear_case: { type: "string", maxLength: 2000 },
+    catalysts: { type: "array", maxItems: 10, items: { type: "object", required: ["event"], properties: { event: { type: "string", maxLength: 300 }, date: { type: "string", maxLength: 40 } } } },
     entry: { type: "number" },
     stop: { type: "number" },
     target: { type: "number" },
     confidence: { type: "number", minimum: 0, maximum: 1 },
-    invalidation: { type: "string" },
+    invalidation: { type: "string", maxLength: 600 },
     horizon_days: { type: "integer", minimum: 1, maximum: 60 },
   },
 } as const;
@@ -176,6 +190,14 @@ export function validateThesis(raw: unknown, lastClose: number): { ok: true; v: 
   if (Math.abs(r.entry / lastClose - 1) > 0.05) return { ok: false, reason: "entry is more than 5% from the last close" };
   if (r.direction === "long" && !(r.stop < r.entry && r.entry < r.target)) return { ok: false, reason: "long needs stop < entry < target" };
   if (r.direction === "short" && !(r.stop > r.entry && r.entry > r.target)) return { ok: false, reason: "short needs stop > entry > target" };
+  const L = THESIS_LIMITS;
+  if (r.bull_case.length > L.CASE_CHARS || r.bear_case.length > L.CASE_CHARS) return { ok: false, reason: `bull or bear case longer than ${L.CASE_CHARS} characters` };
+  if (r.invalidation.length > L.INVALIDATION_CHARS) return { ok: false, reason: `invalidation longer than ${L.INVALIDATION_CHARS} characters` };
+  if (r.catalysts.length > L.CATALYSTS) return { ok: false, reason: `more than ${L.CATALYSTS} catalysts` };
+  for (const c of r.catalysts as { event?: unknown; date?: unknown }[]) {
+    if (c && ((typeof c.event === "string" && c.event.length > L.EVENT_CHARS) || (typeof c.date === "string" && c.date.length > L.DATE_CHARS))) return { ok: false, reason: "catalyst text too long" };
+  }
+  if (Math.abs(r.target / r.entry - 1) > L.MAX_TARGET_MOVE) return { ok: false, reason: `target is more than ${L.MAX_TARGET_MOVE * 100}% from entry` };
   const horizon = isNum(r.horizon_days) && r.horizon_days >= 1 ? Math.min(60, Math.round(r.horizon_days)) : 20;
   return {
     ok: true,
@@ -210,9 +232,9 @@ export async function runResearch(signalId: string, d: ResearchDeps): Promise<Re
     if (!isNum(last) || last <= 0) throw new Error("no reference price available");
 
     const user = [
-      `<signal agent="${signal.agentName}" symbol="${signal.symbol}" class="${signal.assetClass}" direction="${signal.direction}" strength="${signal.strength}">`,
-      signal.summary.replace(/</g, "\u2039").replace(/>/g, "\u203a"), // cannot close the <signal> delimiter
-      `sources: ${signal.sourceLinks.map((s) => s.url).join(" ")}`,
+      `<signal agent="${escapeAttr(signal.agentName)}" symbol="${escapeAttr(signal.symbol)}" class="${escapeAttr(signal.assetClass)}" direction="${escapeAttr(signal.direction)}" strength="${escapeAttr(signal.strength)}">`,
+      signal.summary.slice(0, THESIS_LIMITS.SUMMARY_CHARS).replace(/</g, "\u2039").replace(/>/g, "\u203a"), // cannot close the <signal> delimiter
+      `sources: ${signal.sourceLinks.slice(0, THESIS_LIMITS.SOURCES).map((s) => safeUrl(s.url)).filter((u): u is string => u !== null).join(" ")}`,
       `</signal>`,
       `Reference price (server quote): ${last}. Recent closes: ${bars.slice(-8).map((b) => b.close).join(", ")}.`,
       `Produce the thesis.`,

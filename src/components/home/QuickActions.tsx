@@ -34,8 +34,8 @@ const actions = [
 export function QuickActions({ billsDueCount }: QuickActionsProps) {
   return (
     <div className="rounded-xl border border-border bg-card p-4 space-y-3">
-      <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
-        ⚡ Quick Actions
+      <p className="text-xs font-semibold text-muted-foreground">
+        Quick actions
       </p>
       <div className="space-y-1.5">
         {actions.map((action) => (
