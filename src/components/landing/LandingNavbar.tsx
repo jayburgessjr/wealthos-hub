@@ -8,9 +8,8 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 
 const navLinks = [
   { name: "Features", href: "#features" },
-  { name: "How It Works", href: "#pricing" },
-  { name: "Asset Classes", href: "#pricing" },
-  { name: "Pricing", href: "#pricing" },
+  { name: "How it works", href: "#how-it-works" },
+  { name: "What you get", href: "#what-you-get" },
   { name: "FAQ", href: "#faq" },
 ];
 
@@ -62,15 +61,12 @@ export default function LandingNavbar() {
           <ThemeToggle />
           {user ? (
             <Button asChild variant="default" size="sm" className="rounded-full px-5">
-              <Link to="/dashboard">Dashboard</Link>
+              <Link to="/home">Home</Link>
             </Button>
           ) : (
             <>
-              <Button asChild variant="ghost" size="sm" className="text-muted-foreground transition-colors hover:text-foreground">
-                <Link to="/login">Login</Link>
-              </Button>
               <Button asChild variant="default" size="sm" className="rounded-full px-5">
-                <Link to="/signup">Get Started</Link>
+                <Link to="/login">Sign in</Link>
               </Button>
             </>
           )}
@@ -81,6 +77,8 @@ export default function LandingNavbar() {
           <ThemeToggle />
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isMenuOpen}
             className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-foreground focus:outline-none"
           >
             {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -105,15 +103,12 @@ export default function LandingNavbar() {
             <div className="mt-4 flex flex-col gap-2 px-3">
               {user ? (
                 <Button asChild variant="default" className="w-full rounded-full">
-                  <Link to="/dashboard">Dashboard</Link>
+                  <Link to="/home">Home</Link>
                 </Button>
               ) : (
                 <>
-                  <Button asChild variant="outline" className="w-full rounded-full">
-                    <Link to="/login">Login</Link>
-                  </Button>
                   <Button asChild variant="default" className="w-full rounded-full">
-                    <Link to="/signup">Get Started</Link>
+                    <Link to="/login">Sign in</Link>
                   </Button>
                 </>
               )}

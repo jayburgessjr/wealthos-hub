@@ -1,7 +1,8 @@
 // Owner claim. The caller must be a confirmed user whose email is on the DESK_OWNER_EMAIL allowlist
-// (comma-separated). desk_owner holds at most two rows, enforced by a database trigger.
+// (comma-separated), re-checked on every owner-gated call. desk_owner holds at most two rows, enforced by a database trigger.
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { OWNER_DENIAL_MESSAGES, ownerEligibility } from "../_shared/desk/owner.ts";
 import { adminClient, getEnv, json, optionsResponse } from "../_shared/desk-auth.ts";
 
 serve(async (req) => {
@@ -14,10 +15,10 @@ serve(async (req) => {
   const { data, error } = await user.auth.getUser();
   if (error || !data.user) return json(req, { ok: false, owner: false, error: "Unauthorized" }, 401);
 
-  const allowed = getEnv("DESK_OWNER_EMAIL").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
-  const email = (data.user.email ?? "").trim().toLowerCase();
-  if (!email || !allowed.includes(email) || !data.user.email_confirmed_at) {
-    return json(req, { ok: true, owner: false });
+  const eligible = ownerEligibility(data.user, getEnv("DESK_OWNER_EMAIL"));
+  if (!eligible.ok) {
+    console.error("desk claim refused", eligible.internal);
+    return json(req, { ok: true, owner: false, reason: eligible.reason, error: OWNER_DENIAL_MESSAGES[eligible.reason] });
   }
 
   const admin = adminClient();
@@ -29,7 +30,8 @@ serve(async (req) => {
   if (ins.error) {
     // Concurrent double claim by the same user hits the PK; the cap rejects a third owner.
     const again = await admin.from("desk_owner").select("user_id").eq("user_id", data.user.id).maybeSingle();
-    return json(req, { ok: true, owner: !!again.data });
+    if (again.data) return json(req, { ok: true, owner: true });
+    return json(req, { ok: true, owner: false, reason: "owner_cap_reached", error: OWNER_DENIAL_MESSAGES.owner_cap_reached });
   }
   await admin.from("desk_risk_events").insert({ event_type: "owner_claimed", actor: "system:desk-claim-owner", details: {} });
   return json(req, { ok: true, owner: true });

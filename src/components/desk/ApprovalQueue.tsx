@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAccount, useDecideOrder, useInstruments, useOpenPositions, usePatchProposal, usePendingProposals, useTheses } from "@/lib/desk/hooks";
 import { money, pct, price, qtyText, shortTime, toNum } from "@/lib/desk/format";
-import { approvalBlockers, buildOrder, draftFrom, livePhrase, previewRisk, snapshotPositions, type Draft } from "@/lib/desk/preview";
+import { approvalBlockers, buildOrder, draftFrom, livePhrase, previewRisk, snapshotPositions, staleQuoteNote, type Draft } from "@/lib/desk/preview";
 import type { OpenPositionSnapshot } from "../../../supabase/functions/_shared/desk/risk/engine.ts";
 import type { DeskAccount, ProposedOrderRow, ThesisRow } from "@/lib/desk/types";
 import { FIELD, GHOST_BTN, MICRO, NUM, ORANGE_BG, ORANGE_TEXT, Panel, PanelState } from "./Panel";
@@ -50,6 +50,7 @@ export function ProposalCard({ proposal: p, thesis, symbol, account, openPositio
     expectedPhrase: expected,
     dirty,
     busy: decide.isPending || patch.isPending,
+    staleQuote: staleQuoteNote(account, symbol),
   });
   const set = (k: keyof Draft) => (v: string) => setDraft((d) => ({ ...d, [k]: v }));
 
@@ -67,7 +68,8 @@ export function ProposalCard({ proposal: p, thesis, symbol, account, openPositio
           } else if (decisionValue === "rejected") {
             toast.success(`${symbol} proposal rejected`);
           } else {
-            toast.success(`${symbol} order ${res.order?.status ?? "submitted"}`);
+            toast.success(res.pendingFill ? `${symbol} order accepted, waiting for a fill` : `${symbol} order ${res.order?.status ?? "submitted"}`);
+            if (res.warnings?.length) toast.warning(res.warnings.join(" "));
           }
         },
         onError: (e) => toast.error(e.message),
@@ -177,6 +179,11 @@ export function ProposalCard({ proposal: p, thesis, symbol, account, openPositio
               Quote {account?.quotes?.[symbol] ? price(account.quotes[symbol]) : "n/a"} | Max qty {qtyText(decision.sized.maxQty)} | Risk {money(decision.sized.riskAmount)} | Exposure {money(decision.sized.exposure)}
               {account ? ` | ${pct(decision.sized.riskAmount / account.account.equity)} of equity` : ""}
             </p>
+            {staleQuoteNote(account, symbol) && (
+              <p role="alert" className={cn("mt-0.5 font-semibold", ORANGE_TEXT)}>
+                {staleQuoteNote(account, symbol)}{p.intent === "close" ? " Closes are still allowed." : ""}
+              </p>
+            )}
             <ul className="mt-0.5 grid gap-x-4 md:grid-cols-2">
               {decision.checks.map((c) => (
                 <li key={c.rule} className="flex gap-2">

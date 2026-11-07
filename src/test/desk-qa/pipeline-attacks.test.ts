@@ -28,7 +28,7 @@ function world(prices: Record<string, number> = { AAPL: 100, SPY: 1 }, startCash
   const px = { ...prices };
   const quote = async (s: string) => px[s] ?? null;
   const broker = new PaperBroker(store, quote, 0);
-  const deps = () => ({ repo, broker, mode: "paper" as const, ownerId: OWNER, now: () => clock, quote });
+  const deps = () => ({ repo, broker, mode: "paper" as const, ownerId: OWNER, now: () => clock, quote: async (sym: string) => { const v = px[sym]; return v == null ? null : { price: v, asOf: etDate(clock) }; } });
   return { repo, store, broker, deps, px, setNow: (d: Date) => (clock = d), instId: () => repo.upsertInstrument({ symbol: "AAPL", assetClass: "equity" }) };
 }
 const order = (o: Partial<ProposedOrder> = {}): ProposedOrder => ({

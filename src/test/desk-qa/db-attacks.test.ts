@@ -57,7 +57,7 @@ describe("attack: GUC spoofing", () => {
     await expect(h.q("service_role", null, `select public.desk_reset_kill_switch('x')`)).rejects.toThrow(/owner only/);
     await expect(h.q("authenticated", OTHER, `select public.desk_reset_kill_switch('x')`)).rejects.toThrow(/owner only/);
     await expect(h.q("anon", null, `select public.desk_reset_kill_switch('x')`)).rejects.toThrow();
-    await h.q("authenticated", OWNER, `select public.desk_reset_kill_switch('reviewed')`);
+    await h.q("authenticated", OWNER, `select public.desk_reset_kill_switch('reviewed after drawdown')`);
     expect((await h.q("postgres", null, `select halted from public.desk_state`))[0].halted).toBe(false);
     expect((await h.q("postgres", null, `select count(*)::int c from public.desk_risk_events where event_type='kill_switch_reset'`))[0].c).toBe(1);
   });

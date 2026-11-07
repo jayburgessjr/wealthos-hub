@@ -27,11 +27,15 @@ serve(async (req) => {
     const mode = resolveMode({ TRADING_MODE: getEnv("TRADING_MODE"), LIVE_TRADING_ENABLED: getEnv("LIVE_TRADING_ENABLED") });
     const market = new PolygonMarket(getEnv("POLYGON_KEY"));
     // Phase 0 prices from the latest daily close. Live trading must switch to a real-time quote before LIVE_TRADING_ENABLED is ever set.
-    const quote = async (symbol: string) => (await market.bars(symbol, 3)).at(-1)?.close ?? null;
+    // The bar date travels with the price so the approve flow can refuse opening orders priced off a stale bar.
+    const quote = async (symbol: string) => {
+      const last = (await market.bars(symbol, 3)).at(-1);
+      return last ? { price: last.close, asOf: last.date } : null;
+    };
     const alpaca = getEnv("ALPACA_KEY_ID") && getEnv("ALPACA_SECRET") ? { keyId: getEnv("ALPACA_KEY_ID"), secret: getEnv("ALPACA_SECRET") } : undefined;
     const broker = makeBroker(mode, {
       paperStore: new DbPaperStore(ctx.admin, Number(getEnv("PAPER_STARTING_EQUITY")) || 100_000),
-      quote,
+      quote: async (symbol: string) => (await quote(symbol))?.price ?? null,
       alpaca,
       paperVenue: getEnv("PAPER_VENUE") === "alpaca" ? "alpaca" : "internal",
       alpacaExecutionEnabled: getEnv("ALPACA_EXECUTION_ENABLED") === "true",

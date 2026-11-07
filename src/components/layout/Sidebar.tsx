@@ -1,6 +1,6 @@
 import { NavLink as RouterNavLink, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { Pin, PinOff, Search, ShieldAlert } from "lucide-react";
+import { Pin, PinOff, ShieldAlert, Home as HomeIcon } from "lucide-react";
 import {
   LayoutDashboard,
   Radar,
@@ -69,6 +69,8 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { toast } from "sonner";
 import AjeLogo from "@/components/AjeLogo";
 import { useAuth } from "@/components/AuthProvider";
+import { useNavMode } from "@/lib/navMode";
+import { simpleNavItems, isSimpleItemActive } from "./simpleNav";
 
 const navSections = [
   {
@@ -283,17 +285,16 @@ const householdNavSections = [
   },
 ];
 
-export default function Sidebar() {
+interface SidebarNavListProps {
+  isOpen: boolean;
+  onNavigate?: () => void;
+}
+
+/** The navigation list, shared by the desktop sidebar and the mobile drawer. */
+export function SidebarNavList({ isOpen, onNavigate }: SidebarNavListProps) {
   const location = useLocation();
   const { isAdmin } = useSubscription();
-  const { user } = useAuth();
-
-  const [isPinned, setIsPinned] = useState(
-    () => localStorage.getItem("sidebar-pinned") === "true",
-  );
-  const [isHovered, setIsHovered] = useState(false);
-
-  const isOpen = isPinned || isHovered;
+  const { mode } = useNavMode();
 
   const isHousehold = location.pathname.startsWith("/household");
   const isWealth = location.pathname.startsWith("/wealth");
@@ -305,15 +306,165 @@ export default function Sidebar() {
       : navSections;
 
   const sectionLabelColor = isHousehold
-    ? "text-emerald-500/50"
+    ? "text-emerald-500"
     : isWealth
-      ? "text-amber-500/50"
-      : "text-foreground/20";
+      ? "text-amber-500"
+      : "text-foreground/60";
+
+  const linkBase =
+    "relative flex items-center rounded-md mx-1 px-2 py-[7px] text-[13px] font-medium transition-colors duration-100";
+  const activeCls =
+    "bg-foreground/[0.07] text-foreground before:absolute before:left-0 before:top-[6px] before:bottom-[6px] before:w-[2px] before:rounded-r-full before:bg-primary before:content-['']";
+  const idleCls = "text-foreground/70 hover:bg-foreground/[0.04] hover:text-foreground";
+
+  if (mode === "simple") {
+    return (
+      <nav aria-label="Main" className="sidebar-scroll flex-1 overflow-y-auto px-2 py-2">
+        {simpleNavItems.map((item) => {
+          const active = isSimpleItemActive(item, location.pathname);
+          return (
+            <RouterNavLink
+              key={item.to}
+              to={item.to}
+              title={!isOpen ? item.label : undefined}
+              aria-label={item.label}
+              aria-current={active ? "page" : undefined}
+              onClick={onNavigate}
+              className={`${linkBase} ${isOpen ? "gap-2.5" : "justify-center"} ${active ? activeCls : idleCls}`}
+            >
+              <item.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <span
+                className={`overflow-hidden whitespace-nowrap transition-all duration-200 ${
+                  isOpen ? "max-w-[160px] opacity-100" : "max-w-0 opacity-0"
+                }`}
+              >
+                {item.label}
+              </span>
+            </RouterNavLink>
+          );
+        })}
+      </nav>
+    );
+  }
+
+  return (
+    <nav aria-label="Main" className="sidebar-scroll flex-1 overflow-y-auto px-2 py-2">
+      {/* Home stays one click away in pro mode */}
+      <RouterNavLink
+        to="/home"
+        title={!isOpen ? "Home" : undefined}
+        aria-label="Home"
+        onClick={onNavigate}
+        className={`${linkBase} mb-1 ${isOpen ? "gap-2.5" : "justify-center"} ${
+          location.pathname === "/home" ? activeCls : idleCls
+        }`}
+      >
+        <HomeIcon className="h-[14px] w-[14px] shrink-0" aria-hidden="true" />
+        <span
+          className={`overflow-hidden whitespace-nowrap transition-all duration-200 ${
+            isOpen ? "max-w-[160px] opacity-100" : "max-w-0 opacity-0"
+          }`}
+        >
+          Home
+        </span>
+      </RouterNavLink>
+
+      {sections.map((section) => (
+        <div key={section.label} className="mb-1">
+          <div
+            className={`overflow-hidden transition-all duration-200 ${isOpen ? "max-h-8 opacity-100" : "max-h-0 opacity-0"}`}
+          >
+            <span
+              className={`mb-0.5 block px-2 text-xs font-bold uppercase tracking-[0.1em] ${sectionLabelColor}`}
+            >
+              {section.label}
+            </span>
+          </div>
+
+          {section.items.map((item) => {
+            const isTabbed = (item as any).tabbed;
+            const active = isTabbed
+              ? location.pathname.startsWith(item.to)
+              : location.pathname === item.to;
+            const isRestricted = (item as any).adminOnly && !isAdmin;
+
+            return (
+              <RouterNavLink
+                key={item.to + item.label}
+                to={isRestricted ? "#" : item.to}
+                title={!isOpen ? item.label : undefined}
+                aria-label={item.label}
+                onClick={(e) => {
+                  if (isRestricted) {
+                    e.preventDefault();
+                    toast.error("Admin permissions required");
+                  } else {
+                    onNavigate?.();
+                  }
+                }}
+                className={`${linkBase} ${isOpen ? "gap-2.5" : "justify-center"} ${
+                  active
+                    ? activeCls
+                    : isRestricted
+                      ? "text-foreground/40 cursor-not-allowed"
+                      : idleCls
+                }`}
+              >
+                <item.icon
+                  className={`h-[14px] w-[14px] shrink-0 ${isRestricted ? "opacity-60" : ""}`}
+                  aria-hidden="true"
+                />
+                <span
+                  className={`overflow-hidden whitespace-nowrap transition-all duration-200 ${
+                    isOpen ? "max-w-[160px] opacity-100" : "max-w-0 opacity-0"
+                  }`}
+                >
+                  {item.label}
+                </span>
+                {isTabbed && isOpen && (
+                  <span className="ml-auto flex shrink-0 gap-[3px]" aria-hidden="true">
+                    <span className="h-[3px] w-[3px] rounded-full bg-current opacity-40" />
+                    <span className="h-[3px] w-[3px] rounded-full bg-current opacity-40" />
+                    <span className="h-[3px] w-[3px] rounded-full bg-current opacity-40" />
+                  </span>
+                )}
+                {isRestricted && isOpen && (
+                  <>
+                    <ShieldAlert className="ml-auto h-3 w-3 shrink-0 opacity-60" aria-hidden="true" />
+                    <span className="sr-only">(admin only)</span>
+                  </>
+                )}
+              </RouterNavLink>
+            );
+          })}
+        </div>
+      ))}
+    </nav>
+  );
+}
+
+export default function Sidebar() {
+  const { user } = useAuth();
+
+  const [isPinned, setIsPinned] = useState(() => {
+    try {
+      return localStorage.getItem("sidebar-pinned") === "true";
+    } catch {
+      return false;
+    }
+  });
+  const [isHovered, setIsHovered] = useState(false);
+
+  const isOpen = isPinned || isHovered;
 
   const togglePin = () => {
     const next = !isPinned;
     setIsPinned(next);
-    localStorage.setItem("sidebar-pinned", String(next));
+    try {
+      localStorage.setItem("sidebar-pinned", String(next));
+    } catch {
+      // ignore
+    }
   };
 
   const avatarInitials = user?.email?.substring(0, 2).toUpperCase() ?? "??";
@@ -333,22 +484,20 @@ export default function Sidebar() {
           <div className="flex items-center gap-2 px-3 py-2.5">
             <AjeLogo size={22} />
             <div className="flex min-w-0 flex-1 flex-col">
-              <span className="text-[13px] font-bold leading-tight text-foreground">
-                BWH
-              </span>
-              <span className="text-[9px] leading-tight text-foreground/30">
-                Build Wealth Here
-              </span>
+              <span className="text-[13px] font-bold leading-tight text-foreground">BWH</span>
+              <span className="text-xs leading-tight text-foreground/60">Build Wealth Here</span>
             </div>
             <button
               onClick={togglePin}
               title={isPinned ? "Unpin sidebar" : "Pin sidebar open"}
-              className="ml-auto shrink-0 rounded-md p-1 text-foreground/20 transition-colors hover:text-foreground/50"
+              aria-label={isPinned ? "Unpin sidebar" : "Pin sidebar open"}
+              aria-pressed={isPinned}
+              className="ml-auto shrink-0 rounded-md p-1 text-foreground/50 transition-colors hover:text-foreground"
             >
               {isPinned ? (
-                <PinOff className="h-3 w-3" />
+                <PinOff className="h-3 w-3" aria-hidden="true" />
               ) : (
-                <Pin className="h-3 w-3" />
+                <Pin className="h-3 w-3" aria-hidden="true" />
               )}
             </button>
           </div>
@@ -359,103 +508,20 @@ export default function Sidebar() {
         )}
       </div>
 
-      {/* Search bar — only when open */}
-      <div
-        className={`shrink-0 overflow-hidden border-b border-border/20 transition-all duration-200 ${isOpen ? "max-h-12 opacity-100" : "max-h-0 opacity-0"}`}
-      >
-        <div className="px-3 py-2">
-          <div className="flex items-center gap-2 rounded-md bg-foreground/[0.05] px-3 py-1.5">
-            <Search className="h-[14px] w-[14px] shrink-0 text-foreground/30" />
-            <span className="flex-1 text-xs text-foreground/30">Search...</span>
-            <span className="text-[10px] text-foreground/20">⌘K</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Nav */}
-      <nav className="sidebar-scroll flex-1 overflow-y-auto px-2 py-2">
-        {sections.map((section) => (
-          <div key={section.label} className="mb-1">
-            {/* Section label */}
-            <div
-              className={`overflow-hidden transition-all duration-200 ${isOpen ? "max-h-8 opacity-100" : "max-h-0 opacity-0"}`}
-            >
-              <span
-                className={`mb-0.5 block px-2 text-[9px] font-bold uppercase tracking-[0.14em] ${sectionLabelColor}`}
-              >
-                {section.label}
-              </span>
-            </div>
-
-            {section.items.map((item) => {
-              const isTabbed = (item as any).tabbed;
-              const active = isTabbed
-                ? location.pathname.startsWith(item.to)
-                : location.pathname === item.to;
-              const isRestricted = (item as any).adminOnly && !isAdmin;
-
-              return (
-                <RouterNavLink
-                  key={item.to + item.label}
-                  to={isRestricted ? "#" : item.to}
-                  title={!isOpen ? item.label : undefined}
-                  onClick={(e) => {
-                    if (isRestricted) {
-                      e.preventDefault();
-                      toast.error("Admin permissions required");
-                    }
-                  }}
-                  className={`relative flex items-center rounded-md mx-1 px-2 py-[7px] text-[12.5px] font-medium transition-colors duration-100 ${
-                    isOpen ? "gap-2.5" : "justify-center"
-                  } ${
-                    active
-                      ? "bg-foreground/[0.07] text-foreground before:absolute before:left-0 before:top-[6px] before:bottom-[6px] before:w-[2px] before:rounded-r-full before:bg-primary before:content-['']"
-                      : isRestricted
-                        ? "text-foreground/15 cursor-not-allowed"
-                        : "text-foreground/35 hover:bg-foreground/[0.04] hover:text-foreground/70"
-                  }`}
-                >
-                  <item.icon
-                    className={`h-[14px] w-[14px] shrink-0 ${isRestricted ? "opacity-30" : ""}`}
-                  />
-                  <span
-                    className={`overflow-hidden whitespace-nowrap transition-all duration-200 ${
-                      isOpen ? "max-w-[160px] opacity-100" : "max-w-0 opacity-0"
-                    }`}
-                  >
-                    {item.label}
-                  </span>
-                  {isTabbed && isOpen && (
-                    <span className="ml-auto flex shrink-0 gap-[3px]">
-                      <span className="h-[3px] w-[3px] rounded-full bg-current opacity-25" />
-                      <span className="h-[3px] w-[3px] rounded-full bg-current opacity-25" />
-                      <span className="h-[3px] w-[3px] rounded-full bg-current opacity-25" />
-                    </span>
-                  )}
-                  {isRestricted && isOpen && (
-                    <ShieldAlert className="ml-auto h-3 w-3 shrink-0 opacity-30" />
-                  )}
-                </RouterNavLink>
-              );
-            })}
-          </div>
-        ))}
-      </nav>
+      <SidebarNavList isOpen={isOpen} />
 
       {/* User footer */}
       <div className="shrink-0 border-t border-border/20 p-3">
         {isOpen ? (
           <div className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/15 text-[11px] font-bold text-primary">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">
               {avatarInitials}
             </div>
-            <span className="min-w-0 truncate text-[12px] text-foreground/60">
-              {user?.email ?? ""}
-            </span>
+            <span className="min-w-0 truncate text-xs text-foreground/70">{user?.email ?? ""}</span>
           </div>
         ) : (
           <div className="flex justify-center">
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-[11px] font-bold text-primary">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">
               {avatarInitials}
             </div>
           </div>

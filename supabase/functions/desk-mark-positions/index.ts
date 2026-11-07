@@ -1,7 +1,8 @@
 // Cron: mark positions, roll the day, ratchet the high-water mark, trip the kill switch, propose (never place) exits.
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { makeReadOnlyBroker } from "../_shared/desk/broker/readonly.ts";
-import { resolveMode } from "../_shared/desk/broker/factory.ts";
+import { resolveMode } from "../_shared/desk/mode.ts";
+import { optionNetPremium } from "../_shared/desk/pipeline/option-mark.ts";
 import { markPositions } from "../_shared/desk/pipeline/mark.ts";
 import { DbPaperStore } from "../_shared/desk/pipeline/paper-store.ts";
 import { PolygonMarket } from "../_shared/desk/pipeline/market.ts";
@@ -23,10 +24,17 @@ serve(async (req) => {
     const account = await broker.getAccount();
     const open = await repo.listOpenPositions();
     const quotes: Record<string, number> = {};
-    for (const s of new Set(open.map((p) => p.symbol))) {
+    const optionMarks: Record<string, number> = {};
+    for (const p of open.filter((x) => x.legs)) {
+      try {
+        const net = await optionNetPremium(p.symbol, p.legs as never, async (t) => (await market.bars(t, 3)).map((b) => ({ date: b.date, close: b.close })), new Date());
+        if (net !== null) optionMarks[p.id] = net;
+      } catch { /* an unmarked option is reported by the job, never guessed */ }
+    }
+    for (const s of new Set(open.filter((p) => !p.legs).map((p) => p.symbol))) {
       try { const last = (await market.bars(s, 3)).at(-1); if (last) quotes[s] = last.close; } catch { /* skip this symbol */ }
     }
-    const result = await markPositions({ repo, equity: account.equity, quotes, now: new Date() });
+    const result = await markPositions({ repo, equity: account.equity, quotes, optionMarks, now: new Date() });
     return json(req, { ok: true, ...result });
   } catch (e) {
     console.error("desk-mark-positions failed", (e as Error).message);

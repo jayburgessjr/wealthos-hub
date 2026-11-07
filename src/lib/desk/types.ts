@@ -124,5 +124,9 @@ export interface DeskAccount {
     last_equity: number;
   };
   quotes: Record<string, number>;
+  /** Bar date (YYYY-MM-DD) of each quote. Quotes are the latest daily close, not real time. */
+  quoteAsOf?: Record<string, string>;
+  /** Symbols whose quote is too old to price an opening order. */
+  staleQuotes?: string[];
   limits: typeof RISK_LIMITS;
 }

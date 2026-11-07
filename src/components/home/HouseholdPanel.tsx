@@ -23,23 +23,23 @@ export function HouseholdPanel({
     <div className="rounded-xl border border-border border-t-2 border-t-amber-500 bg-card p-4 space-y-4">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs font-mono uppercase tracking-widest text-amber-500">
-            🏠 Household
+          <p className="text-xs font-semibold text-amber-500">
+            Household
           </p>
-          <p className="mt-0.5 text-sm font-bold">Budget & Finance</p>
+          <p className="mt-0.5 text-sm font-bold">Budget and bills</p>
         </div>
         <Link
-          to="/household/command-center"
+          to="/household"
           className="rounded-md bg-amber-500 px-2 py-1 text-xs font-bold text-black hover:bg-amber-400 transition-colors"
         >
-          → Command Center
+          Open budget
         </Link>
       </div>
 
       {/* Budget progress */}
       <div>
         <div className="flex justify-between text-xs text-muted-foreground mb-1">
-          <span>Monthly Budget</span>
+          <span>Monthly budget</span>
           <span>
             {formatCurrency(budgetSpent)} / {formatCurrency(budgetTotal)}
           </span>
@@ -63,13 +63,13 @@ export function HouseholdPanel({
           >
             {billsDueCount}
           </p>
-          <p className="text-xs text-muted-foreground mt-0.5">Bills Due</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Bills due</p>
         </div>
         <div className="rounded-lg bg-muted/50 p-3 text-center">
           <p className="font-mono text-lg font-bold text-foreground">
             {activeGoalsCount}
           </p>
-          <p className="text-xs text-muted-foreground mt-0.5">Active Goals</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Active goals</p>
         </div>
         <div className="rounded-lg bg-muted/50 p-3 text-center">
           <p
@@ -79,7 +79,7 @@ export function HouseholdPanel({
             {monthlyNet >= 0 ? "+" : ""}
             {formatCurrency(monthlyNet)}
           </p>
-          <p className="text-xs text-muted-foreground mt-0.5">Monthly Net</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Monthly net</p>
         </div>
       </div>
     </div>

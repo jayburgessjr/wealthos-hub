@@ -1,5 +1,6 @@
 // Auth and HTTP helpers for Desk edge functions (Deno only).
 import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2";
+import { OWNER_DENIAL_MESSAGES, ownerEligibility } from "./desk/owner.ts";
 
 const env = (k: string) => Deno.env.get(k) ?? "";
 
@@ -31,13 +32,19 @@ export interface OwnerCtx {
   admin: SupabaseClient;
 }
 
-/** Verifies the caller's JWT and that they are the claimed desk owner. Returns a Response on failure. */
+/** Verifies the caller's JWT, that their email is still on the owner allowlist, and that they are the claimed desk owner. Returns a Response on failure. */
 export async function requireOwner(req: Request): Promise<OwnerCtx | Response> {
   const auth = req.headers.get("authorization") ?? "";
   if (!auth.startsWith("Bearer ")) return json(req, { ok: false, error: "Unauthorized" }, 401);
   const user = createClient(env("SUPABASE_URL"), env("SUPABASE_ANON_KEY"), { global: { headers: { Authorization: auth } }, auth: { persistSession: false } });
   const { data, error } = await user.auth.getUser();
   if (error || !data.user) return json(req, { ok: false, error: "Unauthorized" }, 401);
+  // Re-check the allowlist on EVERY call, not only at claim time: removing an email revokes the desk functions at once.
+  const eligible = ownerEligibility(data.user, env("DESK_OWNER_EMAIL"));
+  if (!eligible.ok) {
+    console.error("desk owner check refused", eligible.internal);
+    return json(req, { ok: false, error: OWNER_DENIAL_MESSAGES[eligible.reason], reason: eligible.reason }, 403);
+  }
   const { data: isOwner, error: rpcErr } = await user.rpc("is_desk_owner");
   if (rpcErr || isOwner !== true) return json(req, { ok: false, error: "Not available" }, 403);
   return { userId: data.user.id, email: data.user.email ?? null, user, admin: adminClient() };

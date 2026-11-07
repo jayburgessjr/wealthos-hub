@@ -1,8 +1,10 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/components/AuthProvider";
+import { useDemo } from "@/components/DemoProvider";
 
 export default function ProtectedRoute() {
   const { user, loading } = useAuth();
+  const { isDemoMode } = useDemo();
   const location = useLocation();
 
   if (loading) {
@@ -13,7 +15,8 @@ export default function ProtectedRoute() {
     );
   }
 
-  if (!user) {
+  // Logged-out visitors in demo mode may browse; DemoProvider clears demo for signed-in users.
+  if (!user && !isDemoMode) {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 

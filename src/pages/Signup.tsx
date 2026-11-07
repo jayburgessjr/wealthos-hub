@@ -15,9 +15,9 @@ const passwordRequirements = [
 ];
 
 const features = [
-  { icon: TrendingUp, text: "AI-ranked signals across 10+ asset classes" },
-  { icon: Brain, text: "Two AI advisors with full portfolio context" },
-  { icon: Shield, text: "Institutional-grade risk controls built in" },
+  { icon: TrendingUp, text: "One clear next step on your wealth ladder" },
+  { icon: Brain, text: "An AI coach to help you decide what to do next" },
+  { icon: Shield, text: "Private to your account, for friends and family" },
 ];
 
 export default function Signup() {
@@ -133,13 +133,13 @@ export default function Signup() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-primary">
-                Start Free Today
+              <p className="mb-4 text-sm font-semibold text-primary">
+                Welcome, invited guest
               </p>
               <h2 className="font-display text-5xl font-bold leading-tight text-foreground">
-                Run your capital<br />
-                like a hedge fund.<br />
-                <span className="text-primary">Without the fees.</span>
+                Build wealth<br />
+                from your<br />
+                <span className="text-primary">first dollar.</span>
               </h2>
 
               <div className="mt-10 space-y-5">
@@ -164,9 +164,9 @@ export default function Signup() {
           {/* Quote — bottom */}
           <div className="rounded-2xl border border-border/40 bg-card/60 p-5 backdrop-blur-sm">
             <p className="text-sm text-foreground/80 leading-relaxed">
-              "The goal isn't to predict the market. It's to have better decision infrastructure than everyone else."
+              "Small steps, taken steadily, add up. Start with what you have."
             </p>
-            <p className="mt-2 text-xs font-semibold text-primary">— AJE Philosophy</p>
+            <p className="mt-2 text-xs font-semibold text-primary">BWH</p>
           </div>
         </div>
       </div>
@@ -201,12 +201,13 @@ export default function Signup() {
           <form onSubmit={handleSignup} className="space-y-5">
             {/* Email */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              <label htmlFor="signup-field-1" className="text-xs font-semibold text-muted-foreground">
                 Email
               </label>
               <div className="relative">
                 <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <input
+ id="signup-field-1"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -219,12 +220,13 @@ export default function Signup() {
 
             {/* Password */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              <label htmlFor="signup-field-2" className="text-xs font-semibold text-muted-foreground">
                 Password
               </label>
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <input
+ id="signup-field-2"
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -234,6 +236,7 @@ export default function Signup() {
                 />
                 <button
                   type="button"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                   onClick={() => setShowPassword((v) => !v)}
                   className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 >
@@ -257,12 +260,13 @@ export default function Signup() {
 
             {/* Confirm password */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              <label htmlFor="signup-field-3" className="text-xs font-semibold text-muted-foreground">
                 Confirm Password
               </label>
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <input
+ id="signup-field-3"
                   type={showConfirm ? "text" : "password"}
                   value={confirm}
                   onChange={(e) => setConfirm(e.target.value)}
@@ -278,6 +282,7 @@ export default function Signup() {
                 />
                 <button
                   type="button"
+                  aria-label={showConfirm ? "Hide password" : "Show password"}
                   onClick={() => setShowConfirm((v) => !v)}
                   className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 >
