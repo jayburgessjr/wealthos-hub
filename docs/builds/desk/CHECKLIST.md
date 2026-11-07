@@ -24,7 +24,7 @@ Migration: `supabase/migrations/20261110000000_desk_hardening.sql` (additive; th
 | B1 | fixed | `desk_approvals_guard` needs a fresh service-written `check_passed` marker bound to the input hash and proposal economics. | The marker is a risk event (no API role can write them), so no new table or secret. Approve flow writes it before inserting the approval. |
 | B2 | fixed | Idempotent retry with the same approval inside 4.5 min; otherwise released to `failed` with an audited `proposal_released` event. | No revert to `pending`: approvals are immutable and unique per proposal, and loosening that would weaken the approval invariant. |
 | B3 | fixed | Dated quotes; stale, undated or future quotes refuse opens, warn on closes; UI stale tag and Approve block for opens. | Limits 4 calendar days (stock), 2 (crypto). A bare-number quote counts as undated and fails closed. Options price from legs, not quotes, so are not covered. |
-| B4 | fixed | SQL requires a non-empty note, halted state, logs prior HWM, reset_by, prior halt reason; edge fn maps errors. | SQL minimum is non-empty (the edge function and UI keep the 10 character minimum); note capped at 500. |
+| B4 | fixed | SQL requires a non-empty note, halted state, logs prior HWM, reset_by, prior halt reason; edge fn maps errors. | SQL minimum is 10 characters after trimming (same as the edge function and UI); note capped at 500. |
 | B5 | fixed | Option positions marked from Polygon option daily bars; premium-stop breach writes a pending close proposal only. | Stops are premium stops (as stored). Stale or missing leg prices leave the option unmarked and counted, never guessed. Stock/crypto paper stop enforcement is unchanged (proposals only). Needs an options-enabled Polygon plan. |
 | B6 | fixed | `executed` only on a real fill; `pendingFill` result; new `settle.ts`, `reconcile.ts`, `desk-reconcile-orders` (cron, read-only); real `AlpacaReader.getOrder`. | Alpaca execution stays OFF behind `ALPACA_EXECUTION_ENABLED`. A partial close fill is not auto-applied; it is flagged for manual review. |
 | B7 | fixed | `requireOwner` re-checks the allowlist every call; claim returns `reason` (not_allowlisted, email_unconfirmed, allowlist_empty, no_email, owner_cap_reached). | Empty allowlist locks everyone out. RLS read access of a removed owner ends only when the `desk_owner` row is deleted by hand (documented). |
@@ -40,7 +40,10 @@ Other deliberate notes:
 ## Needs Jay
 - Production backend (Hard Stop: prod migration, secrets, deploys): apply the three migrations in order, confirm `OPENAI_API_KEY` / `DESK_OWNER_EMAIL` / `DESK_CRON_SECRET`, deploy the 8 desk-* functions, schedule `desk-reconcile` per RUNBOOK.md.
 
+## Fix cycle (security gate F2-F4)
+- F2: SQL reset note must be at least 10 characters after trimming (cap 500 kept). F3: email confirmation is checked before the allowlist; not-allowlisted and empty-allowlist share one generic public reason, specifics go to server logs only. F4: reconcile logs per-order failures (order id and message).
+
 ## Later (max 3)
+- F1 (security follow-up): bind the sized maxLoss/exposure into the service-written `check_passed` marker so the stored approval's risk_decision cannot drift from what the engine computed. Only reachable with `ALPACA_EXECUTION_ENABLED`, which is off by default.
 - Real-time quotes before live trading is ever enabled (daily bars only today).
-- Four-eyes approval for kill-switch resets if the second owner is ever someone other than a trusted partner.
 - Auto-revoke `desk_owner` rows when an email leaves the allowlist (today a manual SQL step).

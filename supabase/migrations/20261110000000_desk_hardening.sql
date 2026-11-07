@@ -60,13 +60,13 @@ begin
 end $$;
 revoke all on function public.desk_approvals_guard() from public, anon, authenticated;
 
--- ---------- B4: kill switch reset needs a note, only works while halted, and records the prior high-water mark ----------
+-- ---------- B4: kill switch reset needs a note of at least 10 characters (trimmed), only works while halted, and records the prior high-water mark ----------
 create or replace function public.desk_reset_kill_switch(p_note text) returns void
 language plpgsql security definer set search_path = '' as $$
 declare st public.desk_state; uid uuid := (select auth.uid()); note text := left(btrim(coalesce(p_note, '')), 500);
 begin
   if not public.is_desk_owner() then raise exception 'owner only'; end if;
-  if note = '' then raise exception 'a reset note is required'; end if;
+  if char_length(note) < 10 then raise exception 'a reset note is required (at least 10 characters)'; end if;
   select * into st from public.desk_state for update;
   if not st.halted then raise exception 'kill switch is not engaged: nothing to reset'; end if;
   perform set_config('desk.reset', '1', true);

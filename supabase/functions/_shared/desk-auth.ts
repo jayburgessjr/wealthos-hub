@@ -41,7 +41,10 @@ export async function requireOwner(req: Request): Promise<OwnerCtx | Response> {
   if (error || !data.user) return json(req, { ok: false, error: "Unauthorized" }, 401);
   // Re-check the allowlist on EVERY call, not only at claim time: removing an email revokes the desk functions at once.
   const eligible = ownerEligibility(data.user, env("DESK_OWNER_EMAIL"));
-  if (!eligible.ok) return json(req, { ok: false, error: OWNER_DENIAL_MESSAGES[eligible.reason], reason: eligible.reason }, 403);
+  if (!eligible.ok) {
+    console.error("desk owner check refused", eligible.internal);
+    return json(req, { ok: false, error: OWNER_DENIAL_MESSAGES[eligible.reason], reason: eligible.reason }, 403);
+  }
   const { data: isOwner, error: rpcErr } = await user.rpc("is_desk_owner");
   if (rpcErr || isOwner !== true) return json(req, { ok: false, error: "Not available" }, 403);
   return { userId: data.user.id, email: data.user.email ?? null, user, admin: adminClient() };

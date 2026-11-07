@@ -295,14 +295,14 @@ describe('kill switch', () => {
 
   it('owner reset clears the halt, rebases the high-water mark and logs a risk event', async () => {
     await approvedAndHalted();
-    await h.q('authenticated', OWNER, `select public.desk_reset_kill_switch('reviewed')`);
+    await h.q('authenticated', OWNER, `select public.desk_reset_kill_switch('reviewed after drawdown')`);
     const s = await h.q('authenticated', OWNER, `select halted, high_water_mark, reset_by from public.desk_state`);
     expect(s[0].halted).toBe(false);
     expect(Number(s[0].high_water_mark)).toBe(90000);
     expect(s[0].reset_by).toBe(OWNER);
     const ev = await h.q('authenticated', OWNER, `select details from public.desk_risk_events where event_type = 'kill_switch_reset'`);
     expect(ev).toHaveLength(1);
-    expect((ev[0].details as { note: string }).note).toBe('reviewed');
+    expect((ev[0].details as { note: string }).note).toBe('reviewed after drawdown');
     // and it stays one-way afterwards
     await expect(h.q('service_role', null, `update public.desk_state set high_water_mark = 1`)).rejects.toThrow(/high-water/);
   });

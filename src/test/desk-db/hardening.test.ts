@@ -140,6 +140,16 @@ describe('B4 kill switch reset', () => {
     expect((await h.q('postgres', null, `select halted from public.desk_state`))[0].halted).toBe(true);
   });
 
+  it('requires a trimmed note of at least 10 characters: 9 rejected, 10 accepted', async () => {
+    await halt();
+    for (const note of ['x', 'abcdefghi', '   abcdefghi   ']) {
+      await expect(h.q('authenticated', OWNER, `select public.desk_reset_kill_switch('${note}')`)).rejects.toThrow(/note is required/);
+    }
+    expect((await h.q('postgres', null, `select halted from public.desk_state`))[0].halted).toBe(true);
+    await h.q('authenticated', OWNER, `select public.desk_reset_kill_switch('  abcdefghij  ')`);
+    expect((await h.q('postgres', null, `select halted from public.desk_state`))[0].halted).toBe(false);
+  });
+
   it('refuses when the kill switch is not halted, and writes no event', async () => {
     await expect(h.q('authenticated', OWNER, `select public.desk_reset_kill_switch('reviewed the drawdown')`)).rejects.toThrow(/not engaged/);
     expect((await h.q('postgres', null, `select count(*)::int c from public.desk_risk_events where event_type='kill_switch_reset'`))[0].c).toBe(0);

@@ -49,8 +49,9 @@ export async function reconcileOrders(d: { repo: DeskRepo; broker: ReconcileSour
         await d.repo.logRisk({ type: "order_reconciled", proposedOrderId: proposal.id, actor: "system:desk-reconcile-orders", details: { orderId: o.id, from: o.status, to: r.orderStatus, proposal: r.proposalStatus, note: r.note ?? null } });
       }
       if (r.proposalStatus === "executed" || r.proposalStatus === "failed") res.settled++; else res.stillOpen++;
-    } catch {
+    } catch (e) {
       res.errors++; // one bad order never sinks the run
+      console.error("desk reconcile order failed", o.id, (e as Error).message);
     }
   }
   return res;

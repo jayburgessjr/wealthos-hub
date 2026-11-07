@@ -16,7 +16,10 @@ serve(async (req) => {
   if (error || !data.user) return json(req, { ok: false, owner: false, error: "Unauthorized" }, 401);
 
   const eligible = ownerEligibility(data.user, getEnv("DESK_OWNER_EMAIL"));
-  if (!eligible.ok) return json(req, { ok: true, owner: false, reason: eligible.reason, error: OWNER_DENIAL_MESSAGES[eligible.reason] });
+  if (!eligible.ok) {
+    console.error("desk claim refused", eligible.internal);
+    return json(req, { ok: true, owner: false, reason: eligible.reason, error: OWNER_DENIAL_MESSAGES[eligible.reason] });
+  }
 
   const admin = adminClient();
   const existing = await admin.from("desk_owner").select("user_id").eq("user_id", data.user.id).maybeSingle();

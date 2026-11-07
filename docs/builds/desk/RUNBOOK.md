@@ -15,7 +15,7 @@ Internal trading desk at `/desk` for up to two owners (emails on the `DESK_OWNER
 
 Existing: `OPENAI_API_KEY` (research agent; this is the key the code reads), `POLYGON_KEY`, `APP_URL`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`.
 
-New: `DESK_OWNER_EMAIL` (comma-separated allowlist, at most two owners; re-checked on EVERY owner call, so removing an email stops that account's desk functions at once; an empty value locks everyone out), `DESK_CRON_SECRET`. Optional: `ALPACA_EXECUTION_ENABLED` (leave unset; see Alpaca below), `DESK_MODEL` (default `gpt-4o`), `PAPER_STARTING_EQUITY` (default 100000), `PAPER_VENUE=alpaca` (route paper orders to Alpaca's paper endpoint), `ALPACA_KEY_ID`, `ALPACA_SECRET`, `SEC_USER_AGENT`, `TRADING_MODE` (leave unset), `LIVE_TRADING_ENABLED` (leave unset).
+New: `DESK_OWNER_EMAIL` (comma-separated allowlist, at most two owners; re-checked on EVERY owner call, so removing an email stops that account's desk functions at once; an empty value locks everyone out; callers only see a generic "not eligible" answer, the specific cause is in the function logs), `DESK_CRON_SECRET`. Optional: `ALPACA_EXECUTION_ENABLED` (leave unset; see Alpaca below), `DESK_MODEL` (default `gpt-4o`), `PAPER_STARTING_EQUITY` (default 100000), `PAPER_VENUE=alpaca` (route paper orders to Alpaca's paper endpoint), `ALPACA_KEY_ID`, `ALPACA_SECRET`, `SEC_USER_AGENT`, `TRADING_MODE` (leave unset), `LIVE_TRADING_ENABLED` (leave unset).
 
 ## First-time setup
 

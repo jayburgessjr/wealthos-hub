@@ -1,6 +1,6 @@
 // @vitest-environment node
 // Desk hardening (audit B2, B3, B5, B6, B7, B9): unit and flow tests over the shared TypeScript.
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { approveOrder, type ApproveDeps } from "../../../supabase/functions/_shared/desk/pipeline/approve.ts";
 import { markPositions } from "../../../supabase/functions/_shared/desk/pipeline/mark.ts";
 import { InMemoryRepo } from "../../../supabase/functions/_shared/desk/pipeline/memory.ts";
@@ -42,18 +42,34 @@ describe("B7 owner allowlist re-check", () => {
     expect(ownerEligibility(user, " jay@example.com , other@example.com")).toEqual({ ok: true });
   });
   it("a removed email is refused with an explicit reason on every call", () => {
-    expect(ownerEligibility(user, "other@example.com")).toEqual({ ok: false, reason: "not_allowlisted" });
+    expect(ownerEligibility(user, "other@example.com")).toMatchObject({ ok: false, reason: "not_allowlisted", internal: "not_allowlisted" });
   });
   it("an empty or unset allowlist denies everyone (fail closed)", () => {
-    expect(ownerEligibility(user, "")).toEqual({ ok: false, reason: "allowlist_empty" });
-    expect(ownerEligibility(user, undefined)).toEqual({ ok: false, reason: "allowlist_empty" });
+    expect(ownerEligibility(user, "")).toMatchObject({ ok: false, reason: "not_allowlisted", internal: "allowlist_empty" });
+    expect(ownerEligibility(user, undefined)).toMatchObject({ ok: false, reason: "not_allowlisted", internal: "allowlist_empty" });
   });
   it("unconfirmed or missing email is refused", () => {
-    expect(ownerEligibility({ email: "jay@example.com", email_confirmed_at: null }, "jay@example.com")).toEqual({ ok: false, reason: "email_unconfirmed" });
-    expect(ownerEligibility({ email: null }, "jay@example.com")).toEqual({ ok: false, reason: "no_email" });
+    expect(ownerEligibility({ email: "jay@example.com", email_confirmed_at: null }, "jay@example.com")).toMatchObject({ ok: false, reason: "email_unconfirmed" });
+    expect(ownerEligibility({ email: null }, "jay@example.com")).toMatchObject({ ok: false, reason: "no_email" });
+  });
+  it("an unconfirmed account gets the same answer whether or not its email is allowlisted (no membership oracle)", () => {
+    const unconfirmed = { email: "jay@example.com", email_confirmed_at: null };
+    const a = ownerEligibility(unconfirmed, "jay@example.com");
+    const b = ownerEligibility(unconfirmed, "someone-else@example.com");
+    const c = ownerEligibility(unconfirmed, "");
+    expect(a).toEqual(b);
+    expect(a).toEqual(c);
+    expect(a).toMatchObject({ ok: false, reason: "email_unconfirmed" });
+  });
+  it("public messages never name the env var or reveal an empty allowlist", () => {
+    for (const m of Object.values(OWNER_DENIAL_MESSAGES)) expect(m).not.toMatch(/DESK_OWNER_EMAIL|allowlist|configured/i);
+    const empty = ownerEligibility(user, "");
+    const missing = ownerEligibility(user, "other@example.com");
+    expect(empty).toMatchObject({ reason: "not_allowlisted" });
+    expect((empty as { reason: string }).reason).toBe((missing as { reason: string }).reason);
   });
   it("every denial has a human-readable message, including the third-owner cap", () => {
-    for (const k of ["no_email", "email_unconfirmed", "allowlist_empty", "not_allowlisted", "owner_cap_reached"] as const) expect(OWNER_DENIAL_MESSAGES[k].length).toBeGreaterThan(10);
+    for (const k of ["no_email", "email_unconfirmed", "not_allowlisted", "owner_cap_reached"] as const) expect(OWNER_DENIAL_MESSAGES[k].length).toBeGreaterThan(10);
     expect(parseAllowlist("A@x.com, ,b@x.com")).toEqual(["a@x.com", "b@x.com"]);
   });
 });
@@ -242,6 +258,17 @@ describe("B6 fills, executed status and reconciliation", () => {
     expect(late.failed).toBe(1);
     expect(w.repo.proposals.get(id)!.status).toBe("failed");
     expect([...w.repo.orders.values()][0].status).toBe("failed");
+  });
+  it("a per-order failure is logged server-side with the order id and message only", async () => {
+    const { w } = await submittedOrder();
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    await reconcileOrders({ repo: w.repo, broker: { getOrder: async () => { throw new Error("503 upstream"); } }, now: NOW });
+    expect(spy).toHaveBeenCalledTimes(1);
+    const args = spy.mock.calls[0];
+    expect(args[1]).toMatch(/^ord-/);
+    expect(args[2]).toBe("503 upstream");
+    expect(args).toHaveLength(3);
+    spy.mockRestore();
   });
   it("a broker lookup error leaves the order untouched (an outage is never read as absence)", async () => {
     const { w, id } = await submittedOrder();
