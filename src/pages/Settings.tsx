@@ -5,8 +5,7 @@ import { toast } from "sonner";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
-import { useSubscription } from "@/hooks/useSubscription";
-import { CreditCard, ShieldCheck, Rocket, Wand2 } from "lucide-react";
+import { ShieldCheck, Wand2 } from "lucide-react";
 
 const RISK_TIERS = ["conservative", "moderate", "aggressive"] as const;
 
@@ -14,12 +13,6 @@ export default function SettingsPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const {
-    isPro,
-    subscriptionStatus,
-    subscriptionPlan,
-    isLoading: subLoading,
-  } = useSubscription();
 
   const [displayName, setDisplayName] = useState("");
   const [riskTier, setRiskTier] = useState<string>("moderate");
@@ -266,61 +259,23 @@ export default function SettingsPage() {
             ))}
           </div>
 
-          {/* Subscription */}
+          {/* Access */}
           <div className="space-y-4 rounded-lg border border-border bg-card p-5">
-            <div className="flex items-center justify-between">
-              <h3 className="font-display text-sm font-semibold text-foreground">
-                Subscription
-              </h3>
-              {isPro && (
-                <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
-                  <ShieldCheck size={12} /> Pro Member
-                </span>
-              )}
-            </div>
-
+            <h3 className="font-display text-sm font-semibold text-foreground">
+              Access
+            </h3>
             <div className="flex items-center gap-4 rounded-xl border border-border bg-background p-4">
               <div className="rounded-full bg-accent p-3 text-muted-foreground">
-                <CreditCard size={20} />
+                <ShieldCheck size={20} />
               </div>
               <div>
                 <p className="text-sm font-bold text-foreground">
-                  {subscriptionPlan === "pro" ? "AJE Pro Plan" : "Free Tier"}
+                  Friends and family access
                 </p>
-                <p className="text-xs text-muted-foreground uppercase">
-                  Status:{" "}
-                  <span className={isPro ? "text-bullish font-bold" : ""}>
-                    {subscriptionStatus}
-                  </span>
+                <p className="text-xs text-muted-foreground">
+                  Everything in the app is open to you.
                 </p>
               </div>
-            </div>
-
-            <div className="pt-2">
-              {!isPro ? (
-                <button
-                  onClick={async () => {
-                    try {
-                      const { data, error } =
-                        await supabase.functions.invoke("stripe-checkout");
-                      if (error) throw error;
-                      if (data?.url) window.location.href = data.url;
-                    } catch (err) {
-                      toast.error("Failed to initiate upgrade");
-                    }
-                  }}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2 text-sm font-bold text-primary-foreground transition-fast hover:brightness-110"
-                >
-                  <Rocket size={16} /> Upgrade to Pro — $29/mo
-                </button>
-              ) : (
-                <button
-                  onClick={() => toast.info("Portal integration coming soon")}
-                  className="w-full rounded-lg border border-border bg-background py-2 text-sm font-semibold text-foreground transition-fast hover:bg-accent"
-                >
-                  Manage Subscription
-                </button>
-              )}
             </div>
           </div>
 

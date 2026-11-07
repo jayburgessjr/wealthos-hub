@@ -2,14 +2,25 @@ import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useHouseholdBudget } from "@/context/HouseholdBudgetContext";
 import { useAuth } from "@/components/AuthProvider";
+import { useDemo } from "@/components/DemoProvider";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { useDebtsQuery } from "@/hooks/useHouseholdBudgetData";
+import { useMonthlyFinancialSummary } from "@/hooks/useHouseholdFinancialSummary";
+import { useNavMode } from "@/lib/navMode";
+import { loadAnswers } from "@/lib/onboardingProfile";
+import { computeWealthLadder, type LadderInput } from "@/lib/wealthLadder";
+import { DEMO_LADDER_INPUT } from "@/lib/demoSnapshot";
 import {
   HeroBar,
   InvestPanel,
   HouseholdPanel,
   WealthPanel,
   QuickActions,
+  WealthLadder,
+  NextBestMove,
+  StarterChecklist,
 } from "@/components/home";
+import type { ChecklistItem } from "@/components/home/StarterChecklist";
 
 function getGreeting(): string {
   const hour = new Date().getHours();
@@ -18,9 +29,21 @@ function getGreeting(): string {
   return "Good evening";
 }
 
+interface DebtRow {
+  current_balance: number | null;
+  interest_rate: number | null;
+  is_active: boolean | null;
+}
+
+const INVEST_GOAL_PATTERN = /invest|retire|brokerage|401|ira\b|index|stock/i;
+
 export default function HomeDashboard() {
   const { user } = useAuth();
+  const { isDemoMode } = useDemo();
+  const { mode } = useNavMode();
   const { budget, totalSpent, householdId } = useHouseholdBudget();
+  const { data: debtData } = useDebtsQuery(householdId);
+  const { data: summaries } = useMonthlyFinancialSummary(householdId);
 
   const displayName = useMemo(() => {
     if (user?.user_metadata?.full_name) return user.user_metadata.full_name;
@@ -28,18 +51,34 @@ export default function HomeDashboard() {
     return "there";
   }, [user]);
 
-  const netWorth = useMemo(() => {
-    const assets = budget.bankAccounts
-      .filter((a) => a.isActive)
-      .reduce((sum, a) => sum + a.currentBalance, 0);
-    return assets;
-  }, [budget.bankAccounts]);
+  const onboarding = useMemo(() => loadAnswers(user?.id), [user?.id]);
+
+  const cash = useMemo(
+    () =>
+      budget.bankAccounts
+        .filter((a) => a.isActive)
+        .reduce((sum, a) => sum + a.currentBalance, 0),
+    [budget.bankAccounts],
+  );
+
+  const activeDebts = useMemo(
+    () =>
+      ((debtData?.debts ?? []) as unknown as DebtRow[])
+        .filter((d) => d.is_active !== false)
+        .map((d) => ({
+          balance: Number(d.current_balance ?? 0),
+          apr: d.interest_rate == null ? null : Number(d.interest_rate),
+        })),
+    [debtData],
+  );
+  const debtsTotal = activeDebts.reduce((s, d) => s + d.balance, 0);
+
+  // Net worth = assets minus debts. Assets are the active bank balances tracked here.
+  const netWorth = isDemoMode ? 320 - 1200 : cash - debtsTotal;
 
   const budgetTotal =
     budget.income > 0 ? budget.income : budget.expectedMonthlyIncome;
-
   const budgetLeft = Math.max(0, budgetTotal - totalSpent);
-
   const budgetPct =
     budgetTotal > 0
       ? Math.min(100, Math.round((totalSpent / budgetTotal) * 100))
@@ -57,32 +96,54 @@ export default function HomeDashboard() {
     }).length;
   }, [budget.bills]);
 
-  const activeGoalsCount = useMemo(() => {
-    return budget.goals.filter((g) => g.currentAmount < g.targetAmount).length;
-  }, [budget.goals]);
+  const activeGoalsCount = useMemo(
+    () => budget.goals.filter((g) => g.currentAmount < g.targetAmount).length,
+    [budget.goals],
+  );
+
+  const investedAmount = useMemo(
+    () =>
+      budget.goals
+        .filter((g) => INVEST_GOAL_PATTERN.test(g.name))
+        .reduce((s, g) => s + g.currentAmount, 0),
+    [budget.goals],
+  );
+
+  const ladder = useMemo(() => {
+    if (isDemoMode) return computeWealthLadder(DEMO_LADDER_INPUT);
+    const latest = summaries?.[0];
+    const input: LadderInput = {
+      onboarding,
+      hasHousehold: !!householdId,
+      cashBalance: cash,
+      debts: activeDebts,
+      debtsKnown: !!householdId && debtData !== undefined,
+      emergencyMonths: latest ? latest.emergencyFundMonths : null,
+      investedAmount,
+    };
+    return computeWealthLadder(input);
+  }, [isDemoMode, onboarding, householdId, cash, activeDebts, debtData, summaries, investedAmount]);
+
+  const checklist: ChecklistItem[] = [
+    { id: "onboarding", label: "Tell us your goal", done: isDemoMode || !!onboarding, to: "/onboarding" },
+    {
+      id: "balance",
+      label: "Add what you have saved",
+      done: isDemoMode || cash > 0,
+      to: householdId ? "/household/money-in/bank-accounts" : "/household/setup",
+    },
+    {
+      id: "goal",
+      label: "Set your first savings goal",
+      done: isDemoMode || budget.goals.length > 0,
+      to: householdId ? "/household/future/goals" : "/household/setup",
+    },
+    { id: "learn", label: "Read a two-minute lesson", done: false, to: "/learn" },
+  ];
 
   const monthlyNet = budgetTotal - totalSpent;
-
   const greeting = getGreeting();
-
-  if (!householdId) {
-    return (
-      <DashboardLayout>
-        <div className="flex flex-col items-center justify-center h-full gap-4 text-center py-16">
-          <p className="text-2xl font-bold">Welcome to AJE</p>
-          <p className="text-muted-foreground max-w-sm">
-            Set up your household to unlock budgeting, bills, goals, and more.
-          </p>
-          <Link
-            to="/household/setup"
-            className="rounded-md bg-amber-500 px-4 py-2 text-sm font-bold text-black hover:bg-amber-400 transition-colors"
-          >
-            Set Up Household →
-          </Link>
-        </div>
-      </DashboardLayout>
-    );
-  }
+  const showPro = mode === "pro";
 
   return (
     <DashboardLayout>
@@ -96,25 +157,51 @@ export default function HomeDashboard() {
           billsDueCount={billsDueCount}
         />
 
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <NextBestMove move={ladder.nextMove} />
+          <WealthLadder result={ladder} />
+        </div>
+
+        <StarterChecklist items={checklist} />
+
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {/* Left column — spans 2 */}
-          <div className="md:col-span-2 space-y-4">
-            <InvestPanel />
-            <HouseholdPanel
-              budgetSpent={totalSpent}
-              budgetTotal={budgetTotal}
-              billsDueCount={billsDueCount}
-              activeGoalsCount={activeGoalsCount}
-              monthlyNet={monthlyNet}
-            />
+          <div className="space-y-4 md:col-span-2">
+            {householdId ? (
+              <HouseholdPanel
+                budgetSpent={totalSpent}
+                budgetTotal={budgetTotal}
+                billsDueCount={billsDueCount}
+                activeGoalsCount={activeGoalsCount}
+                monthlyNet={monthlyNet}
+              />
+            ) : (
+              <div className="rounded-xl border border-border bg-card p-4">
+                <h2 className="font-display text-base font-bold">Track your money</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Create a private household to keep your balances, bills, debts and goals in one
+                  place. It starts empty, and you can begin with $0.
+                </p>
+                <Link
+                  to="/household/setup"
+                  className="mt-3 inline-block rounded-md bg-primary px-3 py-2 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
+                >
+                  Set up my household
+                </Link>
+              </div>
+            )}
+            {showPro && <InvestPanel />}
           </div>
 
-          {/* Right column — spans 1 */}
           <div className="space-y-4">
             <WealthPanel />
-            <QuickActions billsDueCount={billsDueCount} />
+            {showPro && <QuickActions billsDueCount={billsDueCount} />}
           </div>
         </div>
+
+        <p className="text-xs text-muted-foreground">
+          Educational tools only, not investment advice. Investments can lose value and nothing
+          here promises any return.
+        </p>
       </div>
     </DashboardLayout>
   );

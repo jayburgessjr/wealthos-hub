@@ -10,18 +10,19 @@ export default function DemoBanner() {
 
   return (
     <div className="sticky top-0 z-[60] flex w-full items-center justify-between bg-primary px-4 py-2 text-primary-foreground shadow-lg animate-in slide-in-from-top duration-500">
-      <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest">
+      <div className="flex items-center gap-2 text-xs font-bold">
         <Sparkles size={14} className="animate-pulse" />
-        <span>Live Demo Mode — All Premium Features Unlocked</span>
+        <span>Demo mode: sample data only, nothing is saved</span>
       </div>
       
       <div className="flex items-center gap-4">
-        <Button asChild variant="secondary" size="sm" className="h-7 rounded-full bg-white text-primary hover:bg-white/90 text-[10px] font-bold">
+        <Button asChild variant="secondary" size="sm" className="h-7 rounded-full bg-white text-primary hover:bg-white/90 text-xs font-bold">
           <Link to="/login" onClick={() => setDemoMode(false)}>
-            <UserPlus size={12} className="mr-1" /> Create Real Account
+            <UserPlus size={12} className="mr-1" /> Sign in
           </Link>
         </Button>
         <button 
+          aria-label="Close demo banner"
           onClick={() => setDemoMode(false)}
           className="rounded-full p-1 hover:bg-black/10 transition-colors"
         >
