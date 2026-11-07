@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 export const MIGRATION_PATH = resolve(__dirname, '../../../supabase/migrations/20261107000000_desk_core.sql');
+export const MULTI_OWNER_PATH = resolve(__dirname, '../../../supabase/migrations/20261108000000_desk_multi_owner.sql');
 export const OWNER = '11111111-1111-1111-1111-111111111111';
 export const OTHER = '22222222-2222-2222-2222-222222222222';
 
@@ -38,6 +39,7 @@ export async function makeHarness(): Promise<Harness> {
   const db = new PGlite();
   await db.exec(BOOTSTRAP);
   await db.exec(readFileSync(MIGRATION_PATH, 'utf8'));
+  await db.exec(readFileSync(MULTI_OWNER_PATH, 'utf8'));
   await db.exec(`
     insert into auth.users(id, email) values ('${OWNER}', 'owner@example.test'), ('${OTHER}', 'other@example.test');
     insert into public.desk_owner(user_id) values ('${OWNER}');
