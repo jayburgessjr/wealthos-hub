@@ -271,8 +271,11 @@ describe("attack: owner session abuse and roles", () => {
        values ('${ap}','${cp[0].id}','${h.instrumentId}','paper','paper','${ap}','close','stock','sell',10,'market',95) returning id`);
     expect(o.length).toBe(1);
   });
-  it("a second desk_owner row cannot be inserted, even by service role", async () => {
-    await expect(h.q("service_role", null, `insert into public.desk_owner(user_id) values ('${OTHER}')`)).rejects.toThrow();
+  it("a non-owner cannot insert a desk_owner row, and the cap holds for service role", async () => {
+    await expect(h.q("authenticated", OTHER, `insert into public.desk_owner(user_id) values ('${OTHER}')`)).rejects.toThrow();
+    await h.q("service_role", null, `insert into public.desk_owner(user_id) values ('${OTHER}')`);
+    await h.db.exec(`insert into auth.users(id, email) values ('33333333-3333-3333-3333-333333333333', 'third@example.test')`);
+    await expect(h.q("service_role", null, `insert into public.desk_owner(user_id) values ('33333333-3333-3333-3333-333333333333')`)).rejects.toThrow(/cap/);
   });
   // Documented design gap (non-blocking): positions are plain service-role inserts with no order link enforced.
   it.fails("a position cannot exist without a real opening order", async () => {

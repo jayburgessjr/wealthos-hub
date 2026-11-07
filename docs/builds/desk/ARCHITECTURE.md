@@ -517,3 +517,7 @@ Runs daily after the US close (`desk-scorecard`), idempotent, immutable once wri
 
 ## 9. Test plan hooks (for the builder)
 Unit per rule incl. boundary values (1.5%, 25%, 3 options, 3% day, 10% DD exact); property test that any allowed options structure has finite `maxLoss` and naked shorts are rejected; trigger tests with a service-role client proving order insert fails without approval and approval insert fails without owner JWT; kill-switch reset only via the rpc; import-boundary grep test; scorecard fixture test; paper broker idempotency test.
+
+
+## Amendment: two owners (migration 20261108000000)
+`desk_owner` is no longer single-row. Primary key is `user_id`, with a trigger capping it at 2 rows. `DESK_OWNER_EMAIL` is a comma-separated allowlist. `is_desk_owner()` and all RLS policies are unchanged.

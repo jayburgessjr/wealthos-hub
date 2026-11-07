@@ -375,8 +375,14 @@ describe('RLS', () => {
     expect(r[0].n).toBe(0);
   });
 
-  it('single owner row: a second owner claim is rejected', async () => {
-    await expect(h.db.exec(`insert into public.desk_owner(user_id) values ('${OTHER}')`)).rejects.toThrow();
+  it('a second owner is allowed, gains access, and a third is rejected by the cap', async () => {
+    await h.db.exec(`insert into public.desk_owner(user_id) values ('${OTHER}')`);
+    expect((await h.q('authenticated', OTHER, `select public.is_desk_owner() as o`))[0].o).toBe(true);
+    await h.db.exec(`insert into auth.users(id, email) values ('33333333-3333-3333-3333-333333333333', 'third@example.test')`);
+    await expect(h.db.exec(`insert into public.desk_owner(user_id) values ('33333333-3333-3333-3333-333333333333')`)).rejects.toThrow(/cap/);
+  });
+  it('the same user cannot be inserted as owner twice', async () => {
+    await expect(h.db.exec(`insert into public.desk_owner(user_id) values ('${OWNER}')`)).rejects.toThrow();
   });
 
   const score = (kind: string, id: string, h5 = 5) =>
