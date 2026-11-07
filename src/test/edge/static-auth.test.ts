@@ -27,7 +27,7 @@ const CLASS: Record<string, 'ai' | 'data' | 'cron-or-user' | 'user' | 'own-auth'
 };
 
 /** Functions that verify credentials in code and legitimately run with gateway verify_jwt = false. */
-const VERIFY_JWT_FALSE_ALLOWED = ['desk-mark-positions', 'desk-run-agent', 'desk-scorecard', 'check-alerts', 'stripe-webhook'];
+const VERIFY_JWT_FALSE_ALLOWED = ['desk-mark-positions', 'desk-run-agent', 'desk-scorecard', 'desk-reconcile-orders', 'check-alerts', 'stripe-webhook'];
 
 const EXCLUDED = (d: string) => d === '_shared' || d.startsWith('desk-') || d === 'stripe-webhook';
 
@@ -99,7 +99,7 @@ describe('config.toml', () => {
     for (const fn of off) expect(VERIFY_JWT_FALSE_ALLOWED).toContain(fn);
   });
   it('lists every required verify_jwt = false entry', () => {
-    for (const fn of ['check-alerts', 'stripe-webhook', 'desk-mark-positions', 'desk-run-agent', 'desk-scorecard']) {
+    for (const fn of ['check-alerts', 'stripe-webhook', 'desk-mark-positions', 'desk-run-agent', 'desk-scorecard', 'desk-reconcile-orders']) {
       expect(off).toContain(fn);
     }
   });
