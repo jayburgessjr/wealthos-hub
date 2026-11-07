@@ -1,3 +1,6 @@
+STATUS: CLOSED
+RESULT: INCOMPLETE
+
 # CHECKLIST: tenancy-hardening
 STATUS: OPEN (built, awaiting independent verification)
 
@@ -16,14 +19,14 @@ STATUS: OPEN (built, awaiting independent verification)
 - [x] Frontend wrapper + legacy fallback (only on PGRST202 / 42883 / 404 / "Could not find the function", memoised per session)
 - [x] Tests: 66 added (40 pglite, 26 frontend)
 - [x] Independent verification: verifier PASS, security gate PASS, RLS audits (user_roles, invitations, profiles) reviewed; fix cycle 1 queued (truncate revoke, drift guard, runbook)
-- [ ] Verifier re-check of fix cycle 1 delta, then PR, merge, deploy confirm
+- [~] PARKED: verifier re-check of fix cycle 1 delta was dispatched and had not reported when this build closed; PR, merge and deploy confirm not done
 - [~] PARKED: Needs Jay (production step, no approved RELEASE.md). Jay-run production apply (runbook in ARCHITECTURE.md section 11)
 
 ## Needs Jay (MANDATORY pre-apply read-only checks; full queries in ARCHITECTURE.md section 11)
-- [ ] T1 forged-membership review (user_roles with household, email, role, created_at, accepted-invite flag; profiles whose household has no accepted invitation and are not the earliest owner). Delete suspect rows in the SQL editor BEFORE applying, otherwise the backfill legitimises forged pointers.
-- [ ] T2 run Q1 and compare policy names exactly (the migration's drift guard also fails loudly and rolls back).
-- [ ] T3 Supabase Auth, Providers, Email: "Confirm email" must be ON.
-- [ ] T6 run Q8 duplicates check; after apply confirm `profiles_stripe_customer_id_key` exists.
+- [~] PARKED: Needs Jay (read-only production pre-apply check). T1 forged-membership review (user_roles with household, email, role, created_at, accepted-invite flag; profiles whose household has no accepted invitation and are not the earliest owner). Delete suspect rows in the SQL editor BEFORE applying, otherwise the backfill legitimises forged pointers.
+- [~] PARKED: Needs Jay (read-only production pre-apply check). T2 run Q1 and compare policy names exactly (the migration's drift guard also fails loudly and rolls back).
+- [~] PARKED: Needs Jay (read-only production pre-apply check). T3 Supabase Auth, Providers, Email: "Confirm email" must be ON.
+- [~] PARKED: Needs Jay (read-only production pre-apply check). T6 run Q8 duplicates check; after apply confirm `profiles_stripe_customer_id_key` exists.
 
 ## Engineer notes (conservative choices)
 - Migration version is 20261111000000 (override of the design's 20261110000000, taken by desk_hardening). ARCHITECTURE.md updated.
