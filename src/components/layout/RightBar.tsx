@@ -5,7 +5,7 @@ import {
   MessageSquare, Send, Loader2,
   TrendingUp, Lightbulb, BarChart2, Globe, Cpu, Newspaper, Shield,
   Zap, Briefcase, Radar, Brain, CheckCircle2, Circle,
-  ArrowRight, HelpCircle,
+  ArrowRight, HelpCircle, X,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
@@ -680,6 +680,13 @@ type Tab = "chat" | "decisions" | "guide";
 export default function RightBar() {
   const location = useLocation();
   const [tab, setTab] = useState<Tab>("chat");
+  // Collapsed by default: a slim rail with a button. Opening overlays the page instead of shrinking it.
+  const [open, setOpen] = useState(() => localStorage.getItem("rightbar-open") === "true");
+  const toggleOpen = () => {
+    const next = !open;
+    setOpen(next);
+    localStorage.setItem("rightbar-open", String(next));
+  };
 
   // ── Chat state ─────────────────────────────────────────────────────────────
   type Msg = { role: "user" | "assistant"; content: string };
@@ -751,10 +758,34 @@ export default function RightBar() {
   ];
 
   return (
-    <div className="flex h-full shrink-0">
+    <div className="relative flex h-full w-11 shrink-0 border-l border-black/[0.06] bg-[#f2f2f2] dark:border-white/[0.06] dark:bg-[#111111]">
+      <button
+        type="button"
+        onClick={toggleOpen}
+        aria-label={open ? "Close assistant" : "Open assistant"}
+        aria-expanded={open}
+        title={open ? "Close assistant" : "Open assistant"}
+        className="mx-auto mt-2 flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-foreground/[0.06] hover:text-foreground"
+      >
+        <MessageSquare size={16} />
+      </button>
+      {open && (
       <div
-        className="flex h-full w-[300px] flex-col overflow-hidden border-l border-black/[0.06] dark:border-white/[0.06] bg-[#f2f2f2] dark:bg-[#111111]"
+        role="complementary"
+        aria-label="Assistant"
+        className="absolute right-0 top-0 z-40 flex h-full w-[320px] flex-col overflow-hidden border-l border-black/[0.06] bg-[#f2f2f2] shadow-2xl dark:border-white/[0.06] dark:bg-[#111111]"
           >
+            <div className="flex shrink-0 items-center justify-between border-b border-border px-3 py-1.5">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Assistant</span>
+              <button
+                type="button"
+                onClick={toggleOpen}
+                aria-label="Close assistant"
+                className="flex h-6 w-6 items-center justify-center rounded text-muted-foreground hover:bg-foreground/[0.06] hover:text-foreground"
+              >
+                <X size={14} />
+              </button>
+            </div>
             {/* Tab bar */}
             <div className="flex shrink-0 border-b border-border">
               {TABS.map(t => (
@@ -1027,6 +1058,7 @@ export default function RightBar() {
             })()}
 
       </div>
+      )}
     </div>
   );
 }
