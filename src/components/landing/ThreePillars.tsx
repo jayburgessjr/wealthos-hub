@@ -1,149 +1,81 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { TrendingUp, Home, PiggyBank, ArrowRight } from "lucide-react";
+import { Wallet, Sprout, Wrench, ArrowRight } from "lucide-react";
 
 const pillars = [
   {
-    mode: "INVEST",
-    icon: TrendingUp,
-    accentText: "text-primary",
-    accentBorder: "border-primary/20",
-    accentBg: "bg-primary/10",
-    accentDot: "bg-primary",
-    title: "Personal Hedge Fund OS",
+    icon: Wallet,
+    title: "Know where you stand",
     description:
-      "Trade like an institution. AI signals, compound modeling, and market intelligence — all calibrated to your capital and risk profile.",
-    features: [
-      "AI Signals",
-      "Decision Hub",
-      "Compound Engine",
-      "Market Intelligence",
-      "Prediction Markets",
-    ],
+      "Add what you have and what you owe. See your net worth, bills, and budget in plain words, starting from zero if you need to.",
+    features: ["Net worth", "Bills and budget", "Debts", "Savings goals"],
+    route: "/home",
+  },
+  {
+    icon: Sprout,
+    title: "Climb the wealth ladder",
+    description:
+      "Starter fund, emergency fund, clearing costly debt, then investing basics. The app shows the one next move and why it matters.",
+    features: ["Next best move", "Starter checklist", "Short lessons", "AI coach"],
+    route: "/learn",
+  },
+  {
+    icon: Wrench,
+    title: "Pro tools when you want them",
+    description:
+      "Market charts, signals, and planning tools are there when you are ready. They stay out of the way until you switch to Pro mode.",
+    features: ["Charts and screener", "Signals", "Planning tools", "Journal"],
     route: "/invs/dashboard",
-  },
-  {
-    mode: "HOUSEHOLD",
-    icon: Home,
-    accentText: "text-emerald-400",
-    accentBorder: "border-emerald-400/20",
-    accentBg: "bg-emerald-400/10",
-    accentDot: "bg-emerald-400",
-    title: "Household Command Center",
-    description:
-      "Run your household finances like a CFO. Budgets, bills, subscriptions, debt payoff, and AI-generated monthly health reports.",
-    features: [
-      "Budget & Expenses",
-      "Bills & Subscriptions",
-      "Income Tracking",
-      "Goals & Net Worth",
-      "AI CFO Reports",
-    ],
-    route: "/household",
-  },
-  {
-    mode: "WEALTH",
-    icon: PiggyBank,
-    accentText: "text-amber-400",
-    accentBorder: "border-amber-400/20",
-    accentBg: "bg-amber-400/10",
-    accentDot: "bg-amber-400",
-    title: "Long-term Wealth Builder",
-    description:
-      "Plan decades ahead. Retirement projections, real estate tracking, dividends, insurance, and estate planning in one place.",
-    features: [
-      "Retirement Planning",
-      "Real Estate",
-      "Dividends",
-      "Insurance",
-      "Estate Planning",
-    ],
-    route: "/wealth",
   },
 ];
 
 export default function ThreePillars() {
   return (
-    <section className="py-20 md:py-32 relative overflow-hidden">
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-background via-card/20 to-background" />
-
+    <section id="features" className="py-20 md:py-28">
       <div className="container px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
           className="mb-14 text-center"
         >
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
-            The Platform
-          </div>
           <h2 className="font-display text-3xl font-bold tracking-tight sm:text-5xl">
-            One OS. <span className="text-primary">Three Modes.</span>
+            One place for your whole money picture
           </h2>
-          <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-            Choose the lens that fits your moment — or run all three
-            simultaneously.
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+            Simple by default. More depth is one switch away.
           </p>
         </motion.div>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          {pillars.map((pillar, i) => (
+          {pillars.map((p, i) => (
             <motion.div
-              key={pillar.mode}
-              initial={{ opacity: 0, y: 30 }}
+              key={p.title}
+              initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.12 }}
-              className={`group relative flex flex-col overflow-hidden rounded-2xl border ${pillar.accentBorder} bg-card p-6 transition-all hover:shadow-xl`}
+              transition={{ delay: i * 0.1 }}
+              className="flex flex-col rounded-2xl border border-border/50 bg-card p-6"
             >
-              {/* Icon */}
-              <div
-                className={`mb-5 flex h-12 w-12 items-center justify-center rounded-xl ${pillar.accentBg}`}
-              >
-                <pillar.icon className={`h-6 w-6 ${pillar.accentText}`} />
+              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <p.icon className="h-5 w-5" aria-hidden="true" />
               </div>
-
-              {/* Mode label */}
-              <div
-                className={`mb-2 text-xs font-mono font-bold uppercase tracking-widest ${pillar.accentText} opacity-70`}
-              >
-                {pillar.mode}
-              </div>
-
-              {/* Title */}
-              <h3 className="mb-3 font-display text-xl font-bold">
-                {pillar.title}
-              </h3>
-
-              {/* Description */}
-              <p className="mb-5 text-sm text-muted-foreground leading-relaxed">
-                {pillar.description}
-              </p>
-
-              {/* Feature list */}
-              <ul className="mb-6 flex flex-col gap-1.5">
-                {pillar.features.map((feat) => (
-                  <li key={feat} className="flex items-center gap-2">
-                    <span
-                      className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${pillar.accentDot}`}
-                    />
-                    <span className="text-xs text-muted-foreground">
-                      {feat}
-                    </span>
+              <h3 className="font-display text-xl font-bold">{p.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{p.description}</p>
+              <ul className="mt-4 space-y-1.5 text-sm text-muted-foreground">
+                {p.features.map((f) => (
+                  <li key={f} className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" aria-hidden="true" />
+                    {f}
                   </li>
                 ))}
               </ul>
-
-              {/* Explore link */}
-              <div className="mt-auto">
-                <Link
-                  to={pillar.route}
-                  className={`inline-flex items-center gap-1.5 text-sm font-medium ${pillar.accentText} hover:opacity-80 transition-opacity`}
-                >
-                  Explore <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
-              </div>
+              <Link
+                to={p.route}
+                className="mt-auto inline-flex items-center gap-1 pt-6 text-sm font-semibold text-primary hover:underline"
+              >
+                Open <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+              </Link>
             </motion.div>
           ))}
         </div>

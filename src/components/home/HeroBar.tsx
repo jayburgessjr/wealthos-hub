@@ -1,3 +1,4 @@
+import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import { formatCurrency } from "@/lib/household-format";
 
 interface HeroBarProps {
@@ -23,7 +24,7 @@ export function HeroBar({
   return (
     <div className="space-y-3">
       <div>
-        <p className="text-xs uppercase tracking-widest text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           {greeting}
         </p>
         <h1 className="font-display text-[28px] font-extrabold leading-none tracking-tight">
@@ -31,33 +32,29 @@ export function HeroBar({
         </h1>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-3">
         {/* Net Worth */}
         <div className="rounded-xl border border-border bg-card p-3">
-          <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
+          <p className="text-xs font-semibold text-muted-foreground">
             Net Worth
           </p>
-          <p className="mt-1 font-mono text-xl font-bold text-emerald-500">
-            {formatCurrency(netWorth)}
+          <p
+            className={`mt-1 font-mono text-xl font-bold ${netWorth < 0 ? "text-red-400" : "text-emerald-500"}`}
+            data-testid="net-worth-value"
+          >
+            {netWorth < 0 ? "-" : ""}
+            {formatCurrency(Math.abs(netWorth))}
           </p>
+          <p className="text-xs text-muted-foreground">Cash minus debts</p>
         </div>
 
-        {/* Portfolio — placeholder until brokerage connected */}
-        <div className="rounded-xl border border-border bg-card p-3">
-          <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
-            Portfolio
-          </p>
-          <p className="mt-1 font-mono text-xl font-bold text-foreground">$—</p>
-          <p className="text-xs text-muted-foreground">Connect broker</p>
-        </div>
-
-        {/* Budget Left */}
+        {/* Budget left */}
         <div
           className="rounded-xl border border-border bg-card p-3"
           data-testid="budget-left-chip"
         >
-          <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
-            Budget Left
+          <p className="text-xs font-semibold text-muted-foreground">
+            Budget left
           </p>
           <p
             className={`mt-1 font-mono text-xl font-bold ${
@@ -67,16 +64,23 @@ export function HeroBar({
           >
             {formatCurrency(budgetLeft)}
           </p>
-          <p className="text-xs text-muted-foreground">{budgetPct}% used</p>
+          <p className="flex items-center gap-1 text-xs text-muted-foreground">
+            {budgetAmber ? (
+              <AlertTriangle className="h-3 w-3" aria-hidden="true" />
+            ) : (
+              <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
+            )}
+            {budgetPct}% used{budgetAmber ? ", running low" : ", on track"}
+          </p>
         </div>
 
-        {/* Bills Due */}
+        {/* Bills due */}
         <div
           className="rounded-xl border border-border bg-card p-3"
           data-testid="bills-due-chip"
         >
-          <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
-            Bills Due
+          <p className="text-xs font-semibold text-muted-foreground">
+            Bills due
           </p>
           <p
             className={`mt-1 font-mono text-xl font-bold ${
@@ -86,7 +90,14 @@ export function HeroBar({
           >
             {billsDueCount}
           </p>
-          <p className="text-xs text-muted-foreground">next 7 days</p>
+          <p className="flex items-center gap-1 text-xs text-muted-foreground">
+            {billsRed ? (
+              <AlertTriangle className="h-3 w-3" aria-hidden="true" />
+            ) : (
+              <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
+            )}
+            {billsRed ? "due in the next 7 days" : "none due in 7 days"}
+          </p>
         </div>
       </div>
     </div>

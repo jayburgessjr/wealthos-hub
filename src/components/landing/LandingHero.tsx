@@ -1,22 +1,8 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  ArrowRight,
-  Sparkles,
-  LayoutDashboard,
-  TrendingUp,
-  Brain,
-  Home,
-} from "lucide-react";
+import { ArrowRight, Sparkles, LayoutDashboard, Sprout, Brain, ListChecks } from "lucide-react";
 import { useDemo } from "../DemoProvider";
-
-const stats = [
-  { label: "Invest Tools", value: "50+" },
-  { label: "Household Modules", value: "18" },
-  { label: "Wealth Sections", value: "9" },
-  { label: "AI Models", value: "Multi" },
-];
 
 export default function LandingHero() {
   const { setDemoMode } = useDemo();
@@ -24,28 +10,21 @@ export default function LandingHero() {
 
   const handleDemo = () => {
     setDemoMode(true);
-    navigate("/invs/dashboard");
+    navigate("/home");
   };
 
   return (
-    <section className="relative overflow-hidden pt-32 pb-20 md:pt-48 md:pb-32">
-      {/* Background glows */}
-      <div className="absolute top-0 left-1/2 -z-10 h-[1000px] w-[1000px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-[120px]" />
-      <div className="absolute top-60 left-20 -z-10 h-[400px] w-[400px] rounded-full bg-neutral/5 blur-[100px]" />
-      <div className="absolute top-60 right-20 -z-10 h-[400px] w-[400px] rounded-full bg-watch/5 blur-[100px]" />
-
+    <section className="relative overflow-hidden pt-32 pb-20 md:pt-44 md:pb-28">
       <div className="container relative">
-        <div className="mx-auto max-w-5xl text-center">
+        <div className="mx-auto max-w-4xl text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
-              <Sparkles className="h-4 w-4" />
-              <span>
-                Build Wealth Here — Your Complete Financial Operating System
-              </span>
+              <Sparkles className="h-4 w-4" aria-hidden="true" />
+              <span>A private app for friends and family, invited by Jay</span>
             </div>
           </motion.div>
 
@@ -53,24 +32,19 @@ export default function LandingHero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="font-display text-5xl font-bold tracking-tight sm:text-7xl lg:text-8xl"
+            className="font-display text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl"
           >
-            One Platform. Every Dimension
-            <br />
-            <span className="bg-gradient-to-r from-primary via-neutral to-primary bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient">
-              of Your Financial Life.
-            </span>
+            Build wealth from your <span className="text-primary">first dollar.</span>
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="mt-8 text-lg text-muted-foreground sm:text-xl lg:text-2xl max-w-3xl mx-auto"
+            className="mx-auto mt-8 max-w-2xl text-lg text-muted-foreground sm:text-xl"
           >
-            Invest like a hedge fund. Manage your household like a CFO. Build
-            long-term wealth with precision. BWH brings all three together in
-            one AI-powered system.
+            See where your money stands, get one clear next step, and let AI help you
+            decide what to do next. You can begin with $1, or even $0.
           </motion.p>
 
           <motion.div
@@ -79,26 +53,21 @@ export default function LandingHero() {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
           >
-            <Button
-              asChild
-              size="lg"
-              className="h-12 rounded-full px-8 text-base"
-            >
-              <Link to="/signup" className="flex items-center gap-2">
-                Start For Free <ArrowRight className="h-4 w-4" />
+            <Button asChild size="lg" className="h-12 rounded-full px-8 text-base">
+              <Link to="/login" className="flex items-center gap-2">
+                Sign in <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </Button>
             <Button
               onClick={handleDemo}
               variant="outline"
               size="lg"
-              className="h-12 rounded-full px-8 text-base border-primary/20 bg-primary/5 text-primary hover:bg-primary/10"
+              className="h-12 rounded-full border-primary/20 bg-primary/5 px-8 text-base text-primary hover:bg-primary/10"
             >
-              <LayoutDashboard className="mr-2 h-4 w-4" /> Try Live Demo
+              <LayoutDashboard className="mr-2 h-4 w-4" aria-hidden="true" /> Try the demo
             </Button>
           </motion.div>
 
-          {/* Trust pills */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -106,99 +75,24 @@ export default function LandingHero() {
             className="mt-8 flex flex-wrap items-center justify-center gap-3"
           >
             {[
-              { icon: Brain, text: "AI-powered decisions" },
-              { icon: Home, text: "Household + Wealth" },
-              { icon: TrendingUp, text: "10+ asset classes" },
+              { icon: Sprout, text: "Start with any amount" },
+              { icon: ListChecks, text: "One clear next step" },
+              { icon: Brain, text: "AI helps you decide" },
             ].map(({ icon: Icon, text }) => (
               <div
                 key={text}
                 className="flex items-center gap-1.5 rounded-full border border-border/40 bg-card/50 px-3 py-1 text-xs text-muted-foreground"
               >
-                <Icon className="h-3 w-3 text-primary" />
+                <Icon className="h-3 w-3 text-primary" aria-hidden="true" />
                 {text}
               </div>
             ))}
           </motion.div>
 
-          {/* Dashboard screenshot */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 30 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.55 }}
-            className="mt-16 relative mx-auto max-w-6xl"
-          >
-            {/* Glow behind screenshot */}
-            <div className="absolute -inset-4 rounded-3xl bg-primary/10 blur-2xl -z-10" />
-
-            <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-card shadow-2xl shadow-primary/10">
-              {/* Gradient overlay at bottom */}
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/60 z-10 pointer-events-none" />
-
-              <img
-                src="/dashboardimage.png"
-                alt="BWH Dashboard"
-                className="w-full object-cover object-top"
-                onError={(e) => {
-                  // Fallback to a dark placeholder if image not yet saved
-                  (e.target as HTMLImageElement).style.display = "none";
-                  (e.target as HTMLImageElement).parentElement!.classList.add(
-                    "min-h-[420px]",
-                    "flex",
-                    "items-center",
-                    "justify-center",
-                  );
-                }}
-              />
-
-              {/* Floating stat badges */}
-              <div className="absolute top-6 left-6 z-20 hidden md:flex flex-col gap-2">
-                <div className="flex items-center gap-2 rounded-xl border border-primary/30 bg-background/80 backdrop-blur-sm px-3 py-2 text-xs">
-                  <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-                  <span className="text-primary font-medium">LIVE</span>
-                  <span className="text-muted-foreground">
-                    Decision Hub Active
-                  </span>
-                </div>
-              </div>
-
-              <div className="absolute top-6 right-6 z-20 hidden md:block">
-                <div className="rounded-xl border border-watch/30 bg-background/80 backdrop-blur-sm px-3 py-2 text-xs">
-                  <div className="text-watch font-medium">
-                    BULL Market Regime
-                  </div>
-                  <div className="text-muted-foreground">Risk-On · VIX 15</div>
-                </div>
-              </div>
-
-              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20">
-                <span className="rounded-full border border-border/60 bg-background/80 px-4 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur-sm tracking-widest uppercase">
-                  BWH Dashboard
-                </span>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Stats row */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.7 }}
-            className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-4"
-          >
-            {stats.map((stat) => (
-              <div
-                key={stat.label}
-                className="rounded-2xl border border-border/40 bg-card/50 px-4 py-5 text-center"
-              >
-                <div className="font-display text-3xl font-black text-primary">
-                  {stat.value}
-                </div>
-                <div className="mt-1 text-xs text-muted-foreground">
-                  {stat.label}
-                </div>
-              </div>
-            ))}
-          </motion.div>
+          <p className="mx-auto mt-8 max-w-xl text-xs text-muted-foreground">
+            Educational tools only. This is not investment advice and nothing here promises
+            any return. All investing involves risk, including loss of money.
+          </p>
         </div>
       </div>
     </section>

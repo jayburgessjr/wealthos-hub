@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useLocation, NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  MessageSquare, Send, Loader2,
+  MessageSquare,
   TrendingUp, Lightbulb, BarChart2, Globe, Cpu, Newspaper, Shield,
   Zap, Briefcase, Radar, Brain, CheckCircle2, Circle,
   ArrowRight, HelpCircle,
@@ -11,39 +11,39 @@ import ReactMarkdown from "react-markdown";
 
 // ── Page context for AI ────────────────────────────────────────────────────────
 const PAGE_CONTEXT: Record<string, { label: string; icon: any; summary: string; prompts: string[] }> = {
-  "/dashboard":         { label: "Dashboard",       icon: BarChart2,  summary: "You are viewing the main portfolio dashboard — P&L metrics, equity curve, recent signals, and allocation overview.", prompts: ["Summarise my portfolio performance", "What should I focus on today?", "How is my risk exposure?", "What are the best signals right now?"] },
-  "/signals":           { label: "Signals",          icon: Radar,      summary: "You are on the Signals page — AI-generated trade signals with scores, confidence, and asset recommendations.", prompts: ["Explain the top signal", "How do I read a signal score?", "What signals should I act on?", "Filter for high-conviction signals"] },
+  "/dashboard":         { label: "Dashboard",       icon: BarChart2,  summary: "You are viewing the main portfolio dashboard, P&L metrics, equity curve, recent signals, and allocation overview.", prompts: ["Summarise my portfolio performance", "What should I focus on today?", "How is my risk exposure?", "What are the best signals right now?"] },
+  "/signals":           { label: "Signals",          icon: Radar,      summary: "You are on the Signals page, AI-generated trade signals with scores, confidence, and asset recommendations.", prompts: ["Explain the top signal", "How do I read a signal score?", "What signals should I act on?", "Filter for high-conviction signals"] },
   "/positions":         { label: "Positions",        icon: Briefcase,  summary: "You are managing open positions and can place new orders via the order ticket on this page.", prompts: ["How do I size my position correctly?", "When should I close this position?", "Explain Kelly Criterion sizing", "What is a good stop-loss strategy?"] },
-  "/quantum":           { label: "Quantum Engine",   icon: Cpu,        summary: "You are on the Quantum Decision Engine — runs Monte Carlo simulation and Simulated Annealing to optimise portfolio weights.", prompts: ["Explain Monte Carlo simulation", "What is Simulated Annealing?", "How do I interpret VaR?", "What is a good Sharpe ratio?"] },
-  "/strategy-allocator":{ label: "Strategy",         icon: Zap,        summary: "You are on the Strategy Allocator — manage strategy tiers, allocations, and lifecycle stages (Draft → Live-Ready).", prompts: ["What is the best allocation strategy?", "Explain strategy lifecycle stages", "How do I backtest a strategy?", "What is a good Sharpe ratio for a strategy?"] },
-  "/news":              { label: "News & Intel",      icon: Newspaper,  summary: "You are on the News & Intelligence page — AI-scored wire feed, economic calendar, and market sentiment analytics.", prompts: ["What is market sentiment today?", "How do I trade around FOMC?", "Explain the yield curve inversion", "What news should I act on?"] },
-  "/compound":          { label: "Compound Engine",  icon: Zap,        summary: "You are on the Compound Engine — visualises compound growth strategies and blended return calculations.", prompts: ["Explain compound growth", "How do I maximise compounding?", "What is blended return?", "Optimal reinvestment strategy?"] },
-  "/performance":       { label: "Performance",      icon: BarChart2,  summary: "You are on the Performance analytics page — equity curve, win rate, drawdown metrics, and return attribution.", prompts: ["How do I improve my win rate?", "What is max drawdown?", "Explain Calmar ratio", "How to reduce drawdown?"] },
-  "/market-regime":     { label: "Market Regime",    icon: Globe,      summary: "You are on the Market Regime page — classifies current macro regime (risk-on/risk-off) and suggests strategy adjustments.", prompts: ["What is a risk-off regime?", "How do I trade in a bear market?", "What is the VIX telling us?", "Best sectors in stagflation?"] },
-  "/crypto":            { label: "Crypto",           icon: TrendingUp, summary: "You are on the Crypto page — live crypto prices, sentiment, and trade ideas.", prompts: ["Explain Bitcoin halving", "What drives crypto volatility?", "Is crypto correlated to equities?", "Best crypto trading strategy?"] },
-  "/markets":           { label: "Markets",          icon: Globe,      summary: "You are on the Markets page — Forex, commodities, fixed income, prediction markets, and sports trading.", prompts: ["How do I trade Forex?", "What moves gold prices?", "Explain yield curve spread", "What is Kelly Criterion?"] },
-  "/security":          { label: "Security",         icon: Shield,     summary: "You are on the Security & Audit page — security score, risk assessment, and account audit trail.", prompts: ["How do I improve my security score?", "What is 2FA?", "Explain API key best practices", "How do I set a daily loss limit?"] },
-  "/watchlist":         { label: "Watchlist",        icon: TrendingUp, summary: "You are on the Watchlist page — tracked assets with price alerts and sentiment.", prompts: ["How do I build a watchlist?", "What stocks should I watch?", "How do I set price alerts?", "What is relative strength?"] },
-  "/ai-advisor":        { label: "AI Advisor",       icon: MessageSquare, summary: "You are on the full AI Advisor page — extended chat interface for deep portfolio analysis.", prompts: ["What should I buy today?", "Review my risk profile", "How do I compound faster?", "Explain my P&L"] },
+  "/quantum":           { label: "Quantum Engine",   icon: Cpu,        summary: "You are on the Quantum Decision Engine, runs Monte Carlo simulation and Simulated Annealing to optimise portfolio weights.", prompts: ["Explain Monte Carlo simulation", "What is Simulated Annealing?", "How do I interpret VaR?", "What is a good Sharpe ratio?"] },
+  "/strategy-allocator":{ label: "Strategy",         icon: Zap,        summary: "You are on the Strategy Allocator, manage strategy tiers, allocations, and lifecycle stages (Draft → Live-Ready).", prompts: ["What is the best allocation strategy?", "Explain strategy lifecycle stages", "How do I backtest a strategy?", "What is a good Sharpe ratio for a strategy?"] },
+  "/news":              { label: "News & Intel",      icon: Newspaper,  summary: "You are on the News & Intelligence page, AI-scored wire feed, economic calendar, and market sentiment analytics.", prompts: ["What is market sentiment today?", "How do I trade around FOMC?", "Explain the yield curve inversion", "What news should I act on?"] },
+  "/compound":          { label: "Compound Engine",  icon: Zap,        summary: "You are on the Compound Engine, visualises compound growth strategies and blended return calculations.", prompts: ["Explain compound growth", "How do I maximise compounding?", "What is blended return?", "Optimal reinvestment strategy?"] },
+  "/performance":       { label: "Performance",      icon: BarChart2,  summary: "You are on the Performance analytics page, equity curve, win rate, drawdown metrics, and return attribution.", prompts: ["How do I improve my win rate?", "What is max drawdown?", "Explain Calmar ratio", "How to reduce drawdown?"] },
+  "/market-regime":     { label: "Market Regime",    icon: Globe,      summary: "You are on the Market Regime page, classifies current macro regime (risk-on/risk-off) and suggests strategy adjustments.", prompts: ["What is a risk-off regime?", "How do I trade in a bear market?", "What is the VIX telling us?", "Best sectors in stagflation?"] },
+  "/crypto":            { label: "Crypto",           icon: TrendingUp, summary: "You are on the Crypto page, live crypto prices, sentiment, and trade ideas.", prompts: ["Explain Bitcoin halving", "What drives crypto volatility?", "Is crypto correlated to equities?", "Best crypto trading strategy?"] },
+  "/markets":           { label: "Markets",          icon: Globe,      summary: "You are on the Markets page, Forex, commodities, fixed income, prediction markets, and sports trading.", prompts: ["How do I trade Forex?", "What moves gold prices?", "Explain yield curve spread", "What is Kelly Criterion?"] },
+  "/security":          { label: "Security",         icon: Shield,     summary: "You are on the Security & Audit page, security score, risk assessment, and account audit trail.", prompts: ["How do I improve my security score?", "What is 2FA?", "Explain API key best practices", "How do I set a daily loss limit?"] },
+  "/watchlist":         { label: "Watchlist",        icon: TrendingUp, summary: "You are on the Watchlist page, tracked assets with price alerts and sentiment.", prompts: ["How do I build a watchlist?", "What stocks should I watch?", "How do I set price alerts?", "What is relative strength?"] },
+  "/ai-advisor":        { label: "AI Advisor",       icon: MessageSquare, summary: "You are on the full AI Advisor page, extended chat interface for deep portfolio analysis.", prompts: ["What should I buy today?", "Review my risk profile", "How do I compound faster?", "Explain my P&L"] },
 };
 
 function getPageCtx(pathname: string) {
   return PAGE_CONTEXT[pathname] ?? {
     label: "AJE",
     icon: BarChart2,
-    summary: "You are using AJE — an AI-powered personal hedge fund dashboard.",
+    summary: "You are using BWH, a private money and investing app.",
     prompts: ["What can AJE do?", "How do I get started?", "Explain portfolio optimisation", "What is a hedge fund strategy?"],
   };
 }
 
 // ── Simulated AI responses (contextual) ──────────────────────────────────────
 const AI_RESPONSES: Record<string, string> = {
-  "Explain Monte Carlo simulation": "**Monte Carlo simulation** runs thousands of random portfolio paths using Gaussian noise to estimate the distribution of outcomes.\n\nIn AJE's Quantum Engine, each asset's volatility is inferred from its 24h price change, then 2,000 paths are simulated to estimate:\n- **μ (expected return)** per asset\n- **σ (covariance matrix)** between assets\n\nThe result isn't a single prediction — it's a *probability distribution*. The key outputs are **VaR 95%** (worst 5% of outcomes) and **CVaR** (average loss in that tail).",
-  "What is a good Sharpe ratio?": "**Sharpe Ratio = (Return − Risk-Free Rate) / Volatility**\n\nGeneral benchmarks:\n- **< 0.5** — Poor, not compensating for risk\n- **0.5 – 1.0** — Acceptable\n- **1.0 – 2.0** — Good\n- **> 2.0** — Excellent (rare in live trading)\n\nThe AJE Quantum Engine uses a 5% risk-free rate proxy. A Sharpe above 1.0 suggests the strategy is generating more return per unit of risk than the market.",
-  "How do I interpret VaR?": "**VaR 95%** means: *'There is a 5% chance of losing more than X% in a given year.'*\n\nExample: VaR 95% = 12.3% means if you hold this portfolio for a year, there's a 95% chance your loss won't exceed 12.3%.\n\n**CVaR** (Conditional VaR) goes further — it's the *average* loss in the worst 5% of scenarios. Always look at CVaR alongside VaR for a more complete tail-risk picture.",
-  "Explain the yield curve inversion": "A **yield curve inversion** occurs when short-term Treasury yields (2Y) exceed long-term yields (10Y). It signals that bond markets expect the Fed to *cut rates in the future* — which typically happens during recessions.\n\n**Historical record:** Inversions have preceded every US recession since 1955, with a 12–18 month lag. It's not a perfect timer, but it is the most reliable leading macro indicator we have.\n\nWatch the **10Y–2Y spread** on the Fixed Income tab in AJE Markets.",
+  "Explain Monte Carlo simulation": "**Monte Carlo simulation** runs thousands of random portfolio paths using Gaussian noise to estimate the distribution of outcomes.\n\nIn AJE's Quantum Engine, each asset's volatility is inferred from its 24h price change, then 2,000 paths are simulated to estimate:\n- **μ (expected return)** per asset\n- **σ (covariance matrix)** between assets\n\nThe result isn't a single prediction, it's a *probability distribution*. The key outputs are **VaR 95%** (worst 5% of outcomes) and **CVaR** (average loss in that tail).",
+  "What is a good Sharpe ratio?": "**Sharpe Ratio = (Return − Risk-Free Rate) / Volatility**\n\nGeneral benchmarks:\n- **< 0.5**, Poor, not compensating for risk\n- **0.5 – 1.0**, Acceptable\n- **1.0 – 2.0**, Good\n- **> 2.0**, Excellent (rare in live trading)\n\nThe AJE Quantum Engine uses a 5% risk-free rate proxy. A Sharpe above 1.0 suggests the strategy is generating more return per unit of risk than the market.",
+  "How do I interpret VaR?": "**VaR 95%** means: *'There is a 5% chance of losing more than X% in a given year.'*\n\nExample: VaR 95% = 12.3% means if you hold this portfolio for a year, there's a 95% chance your loss won't exceed 12.3%.\n\n**CVaR** (Conditional VaR) goes further, it's the *average* loss in the worst 5% of scenarios. Always look at CVaR alongside VaR for a more complete tail-risk picture.",
+  "Explain the yield curve inversion": "A **yield curve inversion** occurs when short-term Treasury yields (2Y) exceed long-term yields (10Y). It signals that bond markets expect the Fed to *cut rates in the future*, which typically happens during recessions.\n\n**Historical record:** Inversions have preceded every US recession since 1955, with a 12–18 month lag. It's not a perfect timer, but it is the most reliable leading macro indicator we have.\n\nWatch the **10Y–2Y spread** on the Fixed Income tab in AJE Markets.",
   "What is Kelly Criterion?": "**Kelly Criterion** calculates the *optimal fraction of your bankroll* to risk on a bet/trade:\n\n`f = (b·p − q) / b`\n\nWhere:\n- **p** = probability of winning\n- **q** = probability of losing (1 − p)\n- **b** = net odds (decimal odds − 1)\n\n**In practice**, traders use **½ Kelly** or **¼ Kelly** to reduce variance. Full Kelly is mathematically optimal but psychologically brutal during drawdown phases.",
-  "default": "I'm your AJE AI co-pilot. Based on the current page context, I can help you analyse positions, interpret signals, understand quantitative concepts, or think through trade ideas.\n\nTry one of the quick prompts below, or ask me anything specific to what you're working on.",
+  "default": "This is a short, prepared guide, not an AI. Pick one of the questions below for a quick answer. For a real conversation, use the AI coach (Wealth AI page).",
 };
 
 function getAIResponse(question: string): string {
@@ -71,7 +71,7 @@ const PAGE_DECISIONS: Record<string, PageDecision> = {
     aiPrompt: "Based on my dashboard, what is the single most important thing I should do with my portfolio today?",
   },
   "/signals": {
-    brief: "Evaluate signals before committing capital. A high score alone is not enough — confirm regime alignment.",
+    brief: "Evaluate signals before committing capital. A high score alone is not enough, confirm regime alignment.",
     checkpoints: [
       { text: "Signal score ≥ 80 before entering", critical: true },
       { text: "Regime supports trade direction", critical: true },
@@ -158,7 +158,7 @@ const PAGE_DECISIONS: Record<string, PageDecision> = {
     aiPrompt: "How should I decide which tickers to add or remove from my watchlist?",
   },
   "/performance": {
-    brief: "Understand your edge before placing the next trade. Metrics don't lie — your memory does.",
+    brief: "Understand your edge before placing the next trade. Metrics don't lie, your memory does.",
     checkpoints: [
       { text: "Win rate trend (improving or declining)?", critical: true },
       { text: "Max drawdown within risk tolerance?" },
@@ -198,7 +198,7 @@ const PAGE_DECISIONS: Record<string, PageDecision> = {
     aiPrompt: "How do I use paper trading effectively to validate a new strategy before going live?",
   },
   "/news": {
-    brief: "Don't trade the news — trade the reaction. Understand sentiment before acting.",
+    brief: "Don't trade the news, trade the reaction. Understand sentiment before acting.",
     checkpoints: [
       { text: "High-impact news events identified" },
       { text: "Avoid entry 30min before major events" },
@@ -244,12 +244,12 @@ interface PageGuide {
 
 const PAGE_GUIDES: Record<string, PageGuide> = {
   "/dashboard": {
-    tagline: "Your portfolio command center — P&L, signals, equity curve, and allocation at a glance.",
+    tagline: "Your portfolio command center, P&L, signals, equity curve, and allocation at a glance.",
     steps: [
       { title: "Read the Morning Pulse", body: "The top banner gives you today's market regime, key macro signals, and any critical alerts before you look at anything else." },
       { title: "Check your signal cards", body: "Each card shows a live AI signal with score, action, and conviction. Green = bullish setup, Red = bearish. Score ≥ 80 is actionable." },
       { title: "Review the equity curve", body: "The chart shows your cumulative P&L over time. A rising curve with shallow dips means your edge is working. A flattening curve is a warning sign." },
-      { title: "Check open positions", body: "The positions table shows every open trade. Red P&L rows need a decision — hold, trail stop, or exit." },
+      { title: "Check open positions", body: "The positions table shows every open trade. Red P&L rows need a decision, hold, trail stop, or exit." },
       { title: "Review allocation", body: "The donut chart shows how capital is split across strategies. No single strategy should exceed 40% of total capital." },
     ],
     concepts: [
@@ -258,16 +258,16 @@ const PAGE_GUIDES: Record<string, PageGuide> = {
       { term: "Morning Pulse", def: "AI-generated daily brief covering regime, key events, and your top decision for the day." },
     ],
     tips: [
-      "Check the dashboard before the market opens, not during — reactive decisions are worse decisions.",
+      "Check the dashboard before the market opens, not during, reactive decisions are worse decisions.",
       "If your equity curve has been flat for 10+ trading days, reduce position size until you identify why.",
     ],
   },
   "/signals": {
-    tagline: "AI-generated trade signals ranked by conviction score — your order flow before the market moves.",
+    tagline: "AI-generated trade signals ranked by conviction score, your order flow before the market moves.",
     steps: [
       { title: "Filter by score", body: "Start with signals scored 80+. Anything below 70 requires additional confirmation before acting." },
       { title: "Check the action type", body: "Each signal has an action: Strong Buy, Buy, Watch, or Avoid. Only enter on Buy or Strong Buy." },
-      { title: "Read the reasoning", body: "Expand a signal to see the 3 reasons behind it. If you disagree with the reasoning, skip the trade — your conviction matters." },
+      { title: "Read the reasoning", body: "Expand a signal to see the 3 reasons behind it. If you disagree with the reasoning, skip the trade, your conviction matters." },
       { title: "Verify regime alignment", body: "A bullish signal in a BEAR regime is a lower-confidence trade. Check the Market Regime page before entering." },
       { title: "Size using Position Sizer", body: "Never enter without calculating your position size first. Risk ≤ 2% of account per trade." },
     ],
@@ -277,23 +277,23 @@ const PAGE_GUIDES: Record<string, PageGuide> = {
       { term: "Regime Alignment", def: "Bullish signals in a BULL regime outperform the same signals in a BEAR regime by a wide margin." },
     ],
     tips: [
-      "Refresh signals each morning — they are regenerated based on overnight price action and macro data.",
+      "Refresh signals each morning, they are regenerated based on overnight price action and macro data.",
       "Never chase a signal that has already moved significantly from its entry price.",
     ],
   },
   "/positions": {
-    tagline: "Manage every open trade — entry, sizing, stop loss, and exit — from one place.",
+    tagline: "Manage every open trade, entry, sizing, stop loss, and exit, from one place.",
     steps: [
       { title: "Open the order ticket", body: "Click 'New Position' to log a trade. Fill in ticker, entry price, position size, stop loss, and target before entering the market." },
-      { title: "Review each position's P&L", body: "The table shows unrealized P&L, signal score, and days held. Focus first on any red positions — they need a decision." },
+      { title: "Review each position's P&L", body: "The table shows unrealized P&L, signal score, and days held. Focus first on any red positions, they need a decision." },
       { title: "Update stops on winners", body: "For any position up more than 20%, move your stop to breakeven. For 50%+ winners, trail the stop to the most recent pullback low." },
       { title: "Exit losers decisively", body: "If P&L is below −10% or the signal score has dropped below 50, exit. There is no recovery from hope trading." },
       { title: "Log the close", body: "When you exit, record the reasoning in the Trading Journal so you can identify patterns in your exits over time." },
     ],
     concepts: [
-      { term: "Stop Loss", def: "A pre-defined price where you exit to limit loss. Set before entry — never after." },
+      { term: "Stop Loss", def: "A pre-defined price where you exit to limit loss. Set before entry, never after." },
       { term: "Trail Stop", def: "Moving your stop up as price rises, locking in gains while letting winners run." },
-      { term: "Signal Score Decay", def: "A score that was 90 at entry may fall to 60 weeks later — that is a signal to reduce exposure." },
+      { term: "Signal Score Decay", def: "A score that was 90 at entry may fall to 60 weeks later, that is a signal to reduce exposure." },
     ],
     tips: [
       "The hardest skill in trading is sitting on a winning position. Exits kill more P&L than entries.",
@@ -301,7 +301,7 @@ const PAGE_GUIDES: Record<string, PageGuide> = {
     ],
   },
   "/decisions": {
-    tagline: "Your daily briefing — every action ranked by urgency with context and direct links to act.",
+    tagline: "Your daily briefing, every action ranked by urgency with context and direct links to act.",
     steps: [
       { title: "Read the stat cards first", body: "Market regime, available capital, win rate, and critical action count give you the session context in under 10 seconds." },
       { title: "Generate an AI Session Brief", body: "Click the button in the top right to get a 4-5 sentence brief on what to focus on, whether to add or reduce exposure, and key risks." },
@@ -312,7 +312,7 @@ const PAGE_GUIDES: Record<string, PageGuide> = {
     concepts: [
       { term: "Directive Urgency", def: "Critical = act now. High = act today. Medium = review this session." },
       { term: "Regime-Aware Actions", def: "Every recommendation factors in whether the market is BULL, BEAR, VOLATILE, or SIDEWAYS." },
-      { term: "Session Brief", def: "AI-generated summary of your specific situation — not generic advice." },
+      { term: "Session Brief", def: "AI-generated summary of your specific situation, not generic advice." },
     ],
     tips: [
       "Open the Decision Hub before you open any other page. Let it set the agenda.",
@@ -320,28 +320,28 @@ const PAGE_GUIDES: Record<string, PageGuide> = {
     ],
   },
   "/strategy-123": {
-    tagline: "The 1-2-3 reversal pattern — a structured entry system that defines risk before you commit capital.",
+    tagline: "The 1-2-3 reversal pattern, a structured entry system that defines risk before you commit capital.",
     steps: [
       { title: "Read the Reference tab first", body: "If you are new to the strategy, start on the Reference tab. Learn FTGL, FTGH, and the 6 key terms before using the tracker." },
       { title: "Set your direction and ticker", body: "Choose Call (bullish) or Put (bearish), then enter the ticker. Live price and recent news will load automatically." },
       { title: "Mark your 3 points", body: "P1 = the key high or low. P2 = the counter-move extreme. P3 = the return move that stays between P1 and P2." },
       { title: "Check the verdict", body: "The GO/WARN/NO card tells you instantly if the setup is valid and if the R/R is worth taking." },
-      { title: "Enter only on P2 break", body: "Do not enter until a candle closes past P2. Early entries are the most common mistake — they bypass the confirmation." },
+      { title: "Enter only on P2 break", body: "Do not enter until a candle closes past P2. Early entries are the most common mistake, they bypass the confirmation." },
       { title: "Copy the Operations Brief", body: "Before entering the trade, copy the brief to your trading journal. Every detail is pre-filled." },
     ],
     concepts: [
-      { term: "P1", def: "The initial extreme — a key low (calls) or key high (puts). Your setup anchor." },
+      { term: "P1", def: "The initial extreme, a key low (calls) or key high (puts). Your setup anchor." },
       { term: "P2", def: "The counter-move extreme. Price must break past P2 to confirm the trade entry." },
       { term: "P3", def: "The pullback that holds above P1 (calls) or below P1 (puts). It must sit between P1 and P2." },
       { term: "Measured Move", def: "P2−P1 distance projected from the entry point. The automatic target if you leave the target blank." },
     ],
     tips: [
-      "If P3 touches P1 or goes past it, the setup is cancelled. Start over — do not force it.",
+      "If P3 touches P1 or goes past it, the setup is cancelled. Start over, do not force it.",
       "The best 1-2-3 setups form on daily or weekly charts. Lower timeframes produce more noise.",
     ],
   },
   "/compound": {
-    tagline: "Model how consistent returns compound into long-term wealth — and what small improvements mean over time.",
+    tagline: "Model how consistent returns compound into long-term wealth, and what small improvements mean over time.",
     steps: [
       { title: "Enter your starting capital", body: "Use your actual account size, not an aspirational number. Garbage in = garbage out." },
       { title: "Set a realistic return rate", body: "A 60% win rate with 1:2 R/R produces roughly 20–30% annual returns for most strategies. Be conservative." },
@@ -360,7 +360,7 @@ const PAGE_GUIDES: Record<string, PageGuide> = {
     ],
   },
   "/strategy-allocator": {
-    tagline: "Manage your strategy tiers — allocate capital across approaches and track each from draft to live-ready.",
+    tagline: "Manage your strategy tiers, allocate capital across approaches and track each from draft to live-ready.",
     steps: [
       { title: "Create strategy tiers", body: "Each strategy gets its own tier: Draft, Testing, Active, or Retired. A strategy should prove itself in Testing before capital is allocated." },
       { title: "Set allocation percentages", body: "Assign a capital percentage to each active strategy. All allocations must sum to 100%." },
@@ -374,12 +374,12 @@ const PAGE_GUIDES: Record<string, PageGuide> = {
       { term: "Sharpe Ratio", def: "Return per unit of risk. Above 1.0 is good. Above 2.0 is excellent." },
     ],
     tips: [
-      "Never allocate more than 40% to a single strategy — even your best one.",
+      "Never allocate more than 40% to a single strategy, even your best one.",
       "Paper trade a new strategy for at least 1 month before allocating real capital.",
     ],
   },
   "/quantum": {
-    tagline: "Monte Carlo simulation and portfolio optimisation — stress-test your allocation before committing capital.",
+    tagline: "Monte Carlo simulation and portfolio optimisation, stress-test your allocation before committing capital.",
     steps: [
       { title: "Add your assets", body: "Enter each position or target allocation. The engine uses 24h volatility to infer asset-level risk." },
       { title: "Run the simulation", body: "Click Optimise. 2,000 random portfolio paths are simulated using the covariance matrix of your assets." },
@@ -394,12 +394,12 @@ const PAGE_GUIDES: Record<string, PageGuide> = {
       { term: "CVaR", def: "Conditional VaR: the average loss in the worst 5% of scenarios. More conservative than VaR." },
     ],
     tips: [
-      "Run the Quantum Engine when considering a new large position — see how it affects the overall portfolio risk profile.",
+      "Run the Quantum Engine when considering a new large position, see how it affects the overall portfolio risk profile.",
       "A Sharpe above 2.0 in simulation often degrades in live trading. Target 1.0–1.5 as realistic.",
     ],
   },
   "/market-regime": {
-    tagline: "Understand the macro environment driving all price action — and adjust your strategy accordingly.",
+    tagline: "Understand the macro environment driving all price action, and adjust your strategy accordingly.",
     steps: [
       { title: "Read the regime label", body: "BULL, BEAR, VOLATILE, or SIDEWAYS. This is the single most important context for every trade decision today." },
       { title: "Check the composite score", body: "0–100 score aggregating yield curve, VIX, sector momentum, and Fed policy. Above 65 = risk-on. Below 35 = risk-off." },
@@ -417,7 +417,7 @@ const PAGE_GUIDES: Record<string, PageGuide> = {
     ],
   },
   "/watchlist": {
-    tagline: "Your curated list of assets you are tracking for potential entry — not random tickers, but active setups.",
+    tagline: "Your curated list of assets you are tracking for potential entry, not random tickers, but active setups.",
     steps: [
       { title: "Add assets with purpose", body: "Only add a ticker if you have a specific thesis or setup in mind. A watchlist of 30 random tickers is useless." },
       { title: "Set an alert level", body: "For each ticker, know the price level that would trigger your entry. That is the only reason to be watching it." },
@@ -426,7 +426,7 @@ const PAGE_GUIDES: Record<string, PageGuide> = {
     ],
     concepts: [
       { term: "Entry Thesis", def: "The specific reason you are watching a ticker. Without a thesis, it is noise." },
-      { term: "Alert Level", def: "The price that would trigger your action — either an entry or a deeper analysis." },
+      { term: "Alert Level", def: "The price that would trigger your action, either an entry or a deeper analysis." },
     ],
     tips: [
       "The best watchlists have fewer than 15 tickers. Quality over quantity.",
@@ -434,7 +434,7 @@ const PAGE_GUIDES: Record<string, PageGuide> = {
     ],
   },
   "/ai-advisor": {
-    tagline: "Deep conversation with your AI portfolio analyst — for complex questions that need more than a quick answer.",
+    tagline: "Deep conversation with your AI portfolio analyst, for complex questions that need more than a quick answer.",
     steps: [
       { title: "Provide context upfront", body: "Start with your situation: account size, open positions, risk tolerance, and what decision you are trying to make. Vague questions get vague answers." },
       { title: "Ask one question at a time", body: "Break complex questions into focused sub-questions. The AI works better with specifics than with broad open-ended prompts." },
@@ -443,15 +443,15 @@ const PAGE_GUIDES: Record<string, PageGuide> = {
     ],
     tips: [
       "The AI does not know your actual positions unless you describe them. Give it numbers.",
-      "Use the sidebar AI Chat for quick questions. Use this page for deep, multi-turn analysis sessions.",
+      "Use the AI coach for quick questions. Use this page for deep, multi-turn analysis sessions.",
     ],
   },
   "/financial-advisor": {
-    tagline: "Personalised financial planning guidance — strategy, goals, and long-term wealth building.",
+    tagline: "Personalised financial planning guidance, strategy, goals, and long-term wealth building.",
     steps: [
-      { title: "Define your financial goal", body: "Retirement, financial independence, home purchase, or wealth building — state it clearly before asking for guidance." },
+      { title: "Define your financial goal", body: "Retirement, financial independence, home purchase, or wealth building, state it clearly before asking for guidance." },
       { title: "Share your constraints", body: "Time horizon, risk tolerance, tax situation, and monthly contribution capacity all shape the advice. Include them." },
-      { title: "Ask for a plan", body: "Request a structured plan with specific allocations, timelines, and milestones — not just general principles." },
+      { title: "Ask for a plan", body: "Request a structured plan with specific allocations, timelines, and milestones, not just general principles." },
       { title: "Revisit quarterly", body: "Come back every quarter to review progress and adjust the plan as your situation changes." },
     ],
     tips: [
@@ -460,12 +460,12 @@ const PAGE_GUIDES: Record<string, PageGuide> = {
     ],
   },
   "/performance": {
-    tagline: "Track your edge — win rate, drawdown, return attribution, and equity curve over time.",
+    tagline: "Track your edge, win rate, drawdown, return attribution, and equity curve over time.",
     steps: [
       { title: "Start with win rate trend", body: "Is your win rate improving, declining, or flat over the last 20 trades? Trend matters more than the absolute number." },
       { title: "Check max drawdown", body: "How far did your account fall from peak to trough? A drawdown above 20% usually signals a strategy problem, not just bad luck." },
       { title: "Review return by strategy", body: "Which strategy or setup is producing the most P&L? Concentrate on what works and reduce what does not." },
-      { title: "Look at your losing trades", body: "Filter for losses. Find the pattern — same ticker type, same time of day, same market condition. That pattern is costing you money." },
+      { title: "Look at your losing trades", body: "Filter for losses. Find the pattern, same ticker type, same time of day, same market condition. That pattern is costing you money." },
       { title: "Set a benchmark", body: "Compare your returns to SPY over the same period. If you are underperforming the index with more risk, reconsider your approach." },
     ],
     concepts: [
@@ -474,12 +474,12 @@ const PAGE_GUIDES: Record<string, PageGuide> = {
       { term: "Expectancy", def: "Average amount you make per trade: (Win% × Avg Win) − (Loss% × Avg Loss). Must be positive to be profitable." },
     ],
     tips: [
-      "Run a performance review after every 20 trades — not after every trade. Sample size matters.",
+      "Run a performance review after every 20 trades, not after every trade. Sample size matters.",
       "If your Sharpe ratio is below 0.5, you are taking more risk than the return justifies.",
     ],
   },
   "/pnl-calendar": {
-    tagline: "Visualise your P&L day by day — find your best and worst trading days, weeks, and patterns.",
+    tagline: "Visualise your P&L day by day, find your best and worst trading days, weeks, and patterns.",
     steps: [
       { title: "Look at your green and red days", body: "The calendar heatmap shows daily P&L. Clusters of red days reveal when your edge breaks down." },
       { title: "Identify your best trading days", body: "Are you consistently better on Monday mornings? Tuesday afternoons? Find your high-performance window." },
@@ -492,12 +492,12 @@ const PAGE_GUIDES: Record<string, PageGuide> = {
     ],
   },
   "/heat-map": {
-    tagline: "Sector and asset class performance at a glance — see what is leading and lagging right now.",
+    tagline: "Sector and asset class performance at a glance, see what is leading and lagging right now.",
     steps: [
       { title: "Read the colour intensity", body: "Deep green = strong outperformance. Deep red = sharp underperformance. White/grey = flat." },
       { title: "Find sector rotation", body: "Money flows from sector to sector. If Energy is green and Tech is red, capital is rotating defensively." },
-      { title: "Align signals with leaders", body: "Focus your signal research on the sectors currently leading — momentum traders outperform in the direction of rotation." },
-      { title: "Watch for divergence", body: "If SPY is green but most sectors are red, the rally is narrow — a warning sign of underlying weakness." },
+      { title: "Align signals with leaders", body: "Focus your signal research on the sectors currently leading, momentum traders outperform in the direction of rotation." },
+      { title: "Watch for divergence", body: "If SPY is green but most sectors are red, the rally is narrow, a warning sign of underlying weakness." },
     ],
     tips: [
       "Check the heat map at market open to orient your trading for the session.",
@@ -505,7 +505,7 @@ const PAGE_GUIDES: Record<string, PageGuide> = {
     ],
   },
   "/earnings-calendar": {
-    tagline: "Track upcoming earnings dates — know before you hold which positions face binary event risk.",
+    tagline: "Track upcoming earnings dates, know before you hold which positions face binary event risk.",
     steps: [
       { title: "Check earnings dates for open positions", body: "Every open position near an earnings date is a binary risk event. Know the date before it surprises you." },
       { title: "Decide pre-earnings", body: "You have 3 choices: exit before earnings, hold through (with defined risk), or use options to hedge. Make the decision deliberately." },
@@ -514,15 +514,15 @@ const PAGE_GUIDES: Record<string, PageGuide> = {
     ],
     tips: [
       "Never enter a new position 5 days or fewer before earnings unless you specifically want the event exposure.",
-      "Implied volatility collapses after earnings — options lose value even if the move is in your direction.",
+      "Implied volatility collapses after earnings, options lose value even if the move is in your direction.",
     ],
   },
   "/position-sizer": {
-    tagline: "Calculate the correct number of shares or contracts for any trade — based on your actual risk budget.",
+    tagline: "Calculate the correct number of shares or contracts for any trade, based on your actual risk budget.",
     steps: [
       { title: "Enter your account size", body: "Use the current total value of your trading account, not your total net worth." },
       { title: "Set your risk percentage", body: "1% per trade is conservative. 2% is standard. Never exceed 3% on a single position." },
-      { title: "Enter entry and stop loss prices", body: "The stop loss must be defined before you size — not the other way around." },
+      { title: "Enter entry and stop loss prices", body: "The stop loss must be defined before you size, not the other way around." },
       { title: "Read the share count", body: "The result is the maximum shares you can hold to keep your loss within your risk budget if stopped out." },
       { title: "For options, enter the premium", body: "The contract count calculation uses premium × 100. One contract controls 100 shares." },
     ],
@@ -532,40 +532,40 @@ const PAGE_GUIDES: Record<string, PageGuide> = {
       { term: "Kelly Criterion", def: "Mathematical formula for optimal bet size: f = (bp − q) / b. In practice, use half-Kelly to reduce variance." },
     ],
     tips: [
-      "The position sizer does not care about your conviction level — it cares about your risk. Size down in volatile regimes regardless.",
+      "The position sizer does not care about your conviction level, it cares about your risk. Size down in volatile regimes regardless.",
       "Never increase your position size after a loss to 'make it back faster'. That is the fastest way to blow up.",
     ],
   },
   "/paper-trading": {
-    tagline: "Simulate trades with no real capital — test your strategy and build execution discipline before going live.",
+    tagline: "Simulate trades with no real capital, test your strategy and build execution discipline before going live.",
     steps: [
       { title: "Set a realistic starting balance", body: "Use the same amount you plan to trade with live. If you paper trade with $1M but plan to go live with $10K, the psychology lessons do not transfer." },
-      { title: "Trade your real strategy", body: "Paper trade exactly the same setups you would take live — same signals, same sizing rules, same stop logic. No hero trades." },
+      { title: "Trade your real strategy", body: "Paper trade exactly the same setups you would take live, same signals, same sizing rules, same stop logic. No hero trades." },
       { title: "Log every entry and exit", body: "Paper trading without a journal is just clicking buttons. The journal is where the learning happens." },
       { title: "Track your win rate", body: "After 20 trades, compare paper P&L to live signals and your performance page. If paper results diverge, find out why." },
-      { title: "Graduate to live trading", body: "When you have 20+ paper trades with a 55%+ win rate and positive expectancy, you are ready to go live — with smaller size." },
+      { title: "Graduate to live trading", body: "When you have 20+ paper trades with a 55%+ win rate and positive expectancy, you are ready to go live, with smaller size." },
     ],
     tips: [
       "The hardest part of paper trading is taking it seriously. Add emotional stakes by tracking a leaderboard or sharing results.",
-      "Do not paper trade longer than necessary — you need real P&L data to refine your approach.",
+      "Do not paper trade longer than necessary, you need real P&L data to refine your approach.",
     ],
   },
   "/trading-journal": {
-    tagline: "Document every trade decision — the pattern in your journal is the edge you cannot see in the moment.",
+    tagline: "Document every trade decision, the pattern in your journal is the edge you cannot see in the moment.",
     steps: [
       { title: "Log every trade on entry", body: "Record: ticker, direction, entry price, stop, target, and why you took the trade. Do it before the market moves." },
-      { title: "Add exit notes", body: "When you close, record the exit price, P&L, and — critically — whether you followed your plan or deviated from it." },
+      { title: "Add exit notes", body: "When you close, record the exit price, P&L, and, critically, whether you followed your plan or deviated from it." },
       { title: "Rate your execution", body: "Score each trade 1–5 on execution quality, separate from P&L. A good trade that loses money is still a good trade." },
       { title: "Review weekly", body: "Every Sunday, read the last week's entries. Look for recurring patterns: same mistake, same emotional state, same market condition." },
-      { title: "Identify one improvement", body: "From the weekly review, identify one specific thing to change next week. One at a time — do not overhaul everything." },
+      { title: "Identify one improvement", body: "From the weekly review, identify one specific thing to change next week. One at a time, do not overhaul everything." },
     ],
     tips: [
-      "Your journal is private. Be brutally honest about why you really took a trade — especially the bad ones.",
+      "Your journal is private. Be brutally honest about why you really took a trade, especially the bad ones.",
       "If your journal shows you consistently exit winners too early, set a rule: no exits before 50% of your target is reached.",
     ],
   },
   "/tax-harvesting": {
-    tagline: "Turn unrealized losses into tax savings — without disrupting your long-term strategy.",
+    tagline: "Turn unrealized losses into tax savings, without disrupting your long-term strategy.",
     steps: [
       { title: "Identify unrealized losses", body: "The tool surfaces positions with unrealized losses that could be harvested before year-end or quarter-end." },
       { title: "Understand the wash-sale rule", body: "You cannot buy the same or substantially identical security within 30 days before or after selling at a loss. The loss will be disallowed." },
@@ -575,7 +575,7 @@ const PAGE_GUIDES: Record<string, PageGuide> = {
     ],
     concepts: [
       { term: "Wash-Sale Rule", def: "IRS rule: losses are disallowed if you buy the same security within 30 days before or after a loss sale." },
-      { term: "Tax Alpha", def: "Additional return generated through tax management — harvesting losses, deferring gains, and optimising holding periods." },
+      { term: "Tax Alpha", def: "Additional return generated through tax management, harvesting losses, deferring gains, and optimising holding periods." },
       { term: "Carryover Loss", def: "Unused capital losses that carry forward to future tax years to offset future gains." },
     ],
     tips: [
@@ -584,7 +584,7 @@ const PAGE_GUIDES: Record<string, PageGuide> = {
     ],
   },
   "/weekly-briefing": {
-    tagline: "Your AI-generated weekly market summary — what happened, what it means, and what to watch next week.",
+    tagline: "Your AI-generated weekly market summary, what happened, what it means, and what to watch next week.",
     steps: [
       { title: "Read the macro summary", body: "The briefing opens with the week's key macro events: Fed decisions, CPI, jobs data. These set the context for everything else." },
       { title: "Review sector performance", body: "Which sectors led and lagged? Sector rotation tells you where institutional money is moving." },
@@ -593,11 +593,11 @@ const PAGE_GUIDES: Record<string, PageGuide> = {
     ],
     tips: [
       "Read the weekly briefing on Sunday evening before markets open Monday. Use it to set your trading agenda.",
-      "Pay more attention to events that were surprises than events that met expectations — surprises move markets.",
+      "Pay more attention to events that were surprises than events that met expectations, surprises move markets.",
     ],
   },
   "/news": {
-    tagline: "AI-scored market news and intelligence — filtered for relevance so you read signal, not noise.",
+    tagline: "AI-scored market news and intelligence, filtered for relevance so you read signal, not noise.",
     steps: [
       { title: "Filter by your positions first", body: "Check news for your open positions before reading broad market news. Position-specific news is most actionable." },
       { title: "Read the sentiment score", body: "Each article is scored for market impact. High-impact + negative sentiment on a position you hold = time to re-evaluate." },
@@ -606,11 +606,11 @@ const PAGE_GUIDES: Record<string, PageGuide> = {
     ],
     tips: [
       "More news is not better. Two deeply-read articles beat skimming twenty headlines.",
-      "If a news event was already widely expected, the market reaction is to the deviation from expectation — not the event itself.",
+      "If a news event was already widely expected, the market reaction is to the deviation from expectation, not the event itself.",
     ],
   },
   "/crypto": {
-    tagline: "Live crypto prices, sentiment, and trade setups — with the same signal framework as equities.",
+    tagline: "Live crypto prices, sentiment, and trade setups, with the same signal framework as equities.",
     steps: [
       { title: "Check BTC dominance first", body: "When BTC dominance is rising, money is flowing into Bitcoin at the expense of altcoins. When falling, altcoins are outperforming." },
       { title: "Review sentiment", body: "Crypto sentiment is more volatile than equities. Extreme fear is often a buying opportunity; extreme greed is a warning." },
@@ -623,7 +623,7 @@ const PAGE_GUIDES: Record<string, PageGuide> = {
     ],
   },
   "/markets": {
-    tagline: "Forex, commodities, fixed income, and alternative markets — broaden your edge beyond equities.",
+    tagline: "Forex, commodities, fixed income, and alternative markets, broaden your edge beyond equities.",
     steps: [
       { title: "Check the dollar index (DXY)", body: "A rising dollar is bearish for commodities and emerging markets. A falling dollar is generally bullish for gold and risk assets." },
       { title: "Review commodity momentum", body: "Gold, oil, and agricultural commodities often lead inflation data. Watch them for macro context." },
@@ -636,7 +636,7 @@ const PAGE_GUIDES: Record<string, PageGuide> = {
     ],
   },
   "/security": {
-    tagline: "Your account security score, risk controls, and audit trail — keep your account and strategy protected.",
+    tagline: "Your account security score, risk controls, and audit trail, keep your account and strategy protected.",
     steps: [
       { title: "Review your security score", body: "The score is based on 2FA status, API key age, session activity, and daily loss limits. Target 90+." },
       { title: "Set daily loss limits", body: "A daily loss limit automatically prevents emotional revenge trading. Set it at 3–5% of account value." },
@@ -645,11 +645,11 @@ const PAGE_GUIDES: Record<string, PageGuide> = {
     ],
     tips: [
       "Enable 2FA if you have not already. A compromised trading account is far more damaging than a compromised email.",
-      "Check the audit log if your P&L looks unexpected — it will show you exactly what changed and when.",
+      "Check the audit log if your P&L looks unexpected, it will show you exactly what changed and when.",
     ],
   },
   "/settings": {
-    tagline: "Configure your profile, risk preferences, and account behaviour — set it once, benefit every day.",
+    tagline: "Configure your profile, risk preferences, and account behaviour, set it once, benefit every day.",
     steps: [
       { title: "Set your risk profile", body: "Conservative, Moderate, or Aggressive. This setting influences signal recommendations and default position sizing." },
       { title: "Configure daily loss limit", body: "Enter the dollar amount that stops you trading for the day if hit. This is your most important setting." },
@@ -657,20 +657,20 @@ const PAGE_GUIDES: Record<string, PageGuide> = {
       { title: "Review connected integrations", body: "If you have broker connections or API keys configured, verify they are current and active." },
     ],
     tips: [
-      "Revisit settings quarterly. Your risk tolerance and account size change — your settings should reflect that.",
-      "The daily loss limit is not a suggestion. Set it and honour it — it exists for the days when you are not thinking clearly.",
+      "Revisit settings quarterly. Your risk tolerance and account size change, your settings should reflect that.",
+      "The daily loss limit is not a suggestion. Set it and honour it, it exists for the days when you are not thinking clearly.",
     ],
   },
 };
 
 function getPageGuide(pathname: string): PageGuide {
   return PAGE_GUIDES[pathname] ?? {
-    tagline: "Explore this page and use the AI Chat tab for questions about what you see.",
+    tagline: "Explore this page and use the Quick guide tab for questions about what you see.",
     steps: [
-      { title: "Use AI Chat for guidance", body: "Ask the AI anything about this page — it has full context loaded for where you are." },
+      { title: "Use the quick guide", body: "Pick a common question for a short, prepared answer about this page." },
       { title: "Check the Decisions tab", body: "The Decisions tab shows you what to do on this specific page based on your portfolio." },
     ],
-    tips: ["Every page in AJE has an AI Chat context loaded — ask it anything."],
+    tips: ["Every page has a quick guide with prepared answers."],
   };
 }
 
@@ -684,8 +684,6 @@ export default function RightBar() {
   // ── Chat state ─────────────────────────────────────────────────────────────
   type Msg = { role: "user" | "assistant"; content: string };
   const [messages, setMessages] = useState<Msg[]>([]);
-  const [chatInput, setChatInput] = useState("");
-  const [streaming, setStreaming] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const pageCtx = getPageCtx(location.pathname);
   const PageIcon = pageCtx.icon;
@@ -695,40 +693,23 @@ export default function RightBar() {
     const ctx = getPageCtx(location.pathname);
     setMessages([{
       role: "assistant",
-      content: `**${ctx.label} context loaded.**\n\nI'm ready to help with questions about this page. Try a quick prompt or ask me anything.`,
+      content: `**Quick guide: ${ctx.label}.**\n\nPick a question below for a short, prepared answer. This is not an AI. For a real conversation, open the AI coach.`,
     }]);
   }, [location.pathname]);
 
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    chatEndRef.current?.scrollIntoView?.({ behavior: "smooth" });
   }, [messages]);
 
-  const sendMessage = useCallback(async (text: string) => {
-    if (!text.trim() || streaming) return;
-    setChatInput("");
-    setMessages(prev => [...prev, { role: "user", content: text }]);
-    setStreaming(true);
-
-    // Simulate streaming response
-    const response = getAIResponse(text);
-    const words = response.split(" ");
-    let accumulated = "";
-
-    setMessages(prev => [...prev, { role: "assistant", content: "" }]);
-
-    for (const word of words) {
-      accumulated += (accumulated ? " " : "") + word;
-      const current = accumulated;
-      setMessages(prev => {
-        const next = [...prev];
-        next[next.length - 1] = { role: "assistant", content: current };
-        return next;
-      });
-      await new Promise(r => setTimeout(r, 28));
-    }
-
-    setStreaming(false);
-  }, [streaming]);
+  // Canned answers only: instant, no model call, no simulated typing.
+  const sendMessage = useCallback((text: string) => {
+    if (!text.trim()) return;
+    setMessages(prev => [
+      ...prev,
+      { role: "user", content: text },
+      { role: "assistant", content: getAIResponse(text) },
+    ]);
+  }, []);
 
   // ── Decision Intelligence state ───────────────────────────────────────────
   const pageDec = getPageDecision(location.pathname);
@@ -745,13 +726,13 @@ export default function RightBar() {
   const toggleDec = (i: number) => setDecChecked(prev => prev.map((v, idx) => idx === i ? !v : v));
 
   const TABS: { id: Tab; icon: any; label: string }[] = [
-    { id: "chat",      icon: MessageSquare, label: "Chat"   },
+    { id: "chat",      icon: MessageSquare, label: "Quick guide" },
     { id: "decisions", icon: Brain,         label: "Decide" },
     { id: "guide",     icon: HelpCircle,    label: "Guide"  },
   ];
 
   return (
-    <div className="flex h-full shrink-0">
+    <div className="hidden h-full shrink-0 lg:flex">
       <div
         className="flex h-full w-[300px] flex-col overflow-hidden border-l border-black/[0.06] dark:border-white/[0.06] bg-[#f2f2f2] dark:bg-[#111111]"
           >
@@ -762,6 +743,7 @@ export default function RightBar() {
                   key={t.id}
                   onClick={() => setTab(t.id)}
                   title={t.label}
+                  aria-pressed={tab === t.id}
                   className={`flex flex-1 flex-col items-center gap-1 py-2.5 text-[13px] font-medium transition-colors ${
                     tab === t.id
                       ? "border-b-2 border-primary text-primary"
@@ -780,7 +762,7 @@ export default function RightBar() {
                 {/* Page context badge */}
                 <div className="flex shrink-0 items-center gap-2 border-b border-border/50 px-3 py-2">
                   <PageIcon size={11} className="text-primary" />
-                  <span className="text-xs uppercase tracking-widest text-muted-foreground">{pageCtx.label} context</span>
+                  <span className="text-xs text-muted-foreground">Quick guide: {pageCtx.label}</span>
                 </div>
 
                 {/* Messages */}
@@ -793,7 +775,7 @@ export default function RightBar() {
                           : "bg-accent/60 text-foreground"
                       }`}>
                         {msg.role === "assistant" ? (
-                          <div className="prose prose-xs prose-invert max-w-none [&>p]:mb-1.5 [&>ul]:mb-1.5 [&>ul>li]:mb-0.5 [&>strong]:text-foreground [&>h3]:text-xs [&>h3]:font-bold [&>h3]:mb-1 [&>code]:bg-background/60 [&>code]:px-1 [&>code]:rounded [&>code]:font-mono [&>code]:text-[10px]">
+                          <div className="prose prose-xs prose-invert max-w-none [&>p]:mb-1.5 [&>ul]:mb-1.5 [&>ul>li]:mb-0.5 [&>strong]:text-foreground [&>h3]:text-xs [&>h3]:font-bold [&>h3]:mb-1 [&>code]:bg-background/60 [&>code]:px-1 [&>code]:rounded [&>code]:font-mono [&>code]:text-xs">
                             <ReactMarkdown>{msg.content}</ReactMarkdown>
                           </div>
                         ) : (
@@ -802,25 +784,17 @@ export default function RightBar() {
                       </div>
                     </div>
                   ))}
-                  {streaming && (
-                    <div className="flex justify-start">
-                      <div className="rounded-xl bg-accent/60 px-3 py-2">
-                        <Loader2 size={12} className="animate-spin text-muted-foreground" />
-                      </div>
-                    </div>
-                  )}
                   <div ref={chatEndRef} />
                 </div>
 
                 {/* Quick prompts */}
                 <div className="shrink-0 border-t border-border/50 px-3 py-2">
-                  <p className="mb-1.5 text-xs uppercase tracking-widest text-muted-foreground">Quick prompts</p>
+                  <p className="mb-1.5 text-xs text-muted-foreground">Common questions</p>
                   <div className="flex flex-wrap gap-1">
                     {pageCtx.prompts.map(p => (
                       <button
                         key={p}
                         onClick={() => sendMessage(p)}
-                        disabled={streaming}
                         className="rounded-md border border-border bg-background px-2 py-1 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground disabled:opacity-40"
                       >
                         {p}
@@ -829,25 +803,14 @@ export default function RightBar() {
                   </div>
                 </div>
 
-                {/* Input */}
+                {/* Pointer to the real AI coach */}
                 <div className="shrink-0 border-t border-border p-3">
-                  <div className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2">
-                    <input
-                      value={chatInput}
-                      onChange={e => setChatInput(e.target.value)}
-                      onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendMessage(chatInput)}
-                      placeholder="Ask anything…"
-                      disabled={streaming}
-                      className="flex-1 bg-transparent font-mono text-xs text-foreground outline-none placeholder:text-muted-foreground/50 disabled:opacity-50"
-                    />
-                    <button
-                      onClick={() => sendMessage(chatInput)}
-                      disabled={streaming || !chatInput.trim()}
-                      className="text-primary transition-opacity disabled:opacity-30"
-                    >
-                      <Send size={13} />
-                    </button>
-                  </div>
+                  <NavLink
+                    to="/invs/strategy"
+                    className="flex items-center gap-2 rounded-xl border border-primary/30 px-3 py-2 text-xs font-semibold text-primary transition-colors hover:bg-primary/10"
+                  >
+                    <MessageSquare size={12} aria-hidden="true" /> Want to talk it through? Open the AI coach
+                  </NavLink>
                 </div>
               </div>
             )}
@@ -916,7 +879,7 @@ export default function RightBar() {
                     ) : (
                       <p className="text-xs text-muted-foreground leading-snug">
                         {pageDec.checkpoints.some(c => c.critical)
-                          ? "Items marked * are critical — resolve before acting."
+                          ? "Items marked * are critical, resolve before acting."
                           : "Work through the checklist before committing capital."}
                       </p>
                     )}
@@ -1012,13 +975,13 @@ export default function RightBar() {
                       </div>
                     )}
 
-                    {/* Ask AI button */}
+                    {/* Quick answer button */}
                     <button
                       onClick={() => { setTab("chat"); sendMessage(`Give me a detailed explanation of how to use the ${pageCtx.label} page effectively.`); }}
                       className="w-full flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/8 px-3 py-2.5 text-left hover:bg-primary/15 transition-colors"
                     >
                       <MessageSquare size={11} className="text-primary shrink-0" />
-                      <span className="text-xs text-primary">Ask AI for more detail</span>
+                      <span className="text-xs text-primary">Show a quick answer</span>
                       <ArrowRight size={10} className="text-primary/60 ml-auto" />
                     </button>
                   </div>
