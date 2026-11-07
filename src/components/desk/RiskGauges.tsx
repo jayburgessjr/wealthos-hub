@@ -35,7 +35,7 @@ export function Gauge({ label, value, limit, valueText, limitText }: GaugeProps)
         aria-valuetext={`${valueText} of ${limitText} limit`}
         className="mt-1 h-1.5 w-full bg-muted"
       >
-        <div className={cn("h-full", hot ? "bg-[hsl(20,82%,51%)]" : "bg-foreground/60")} style={{ width: `${ratio * 100}%` }} />
+        <div className={cn("h-full", hot ? "bg-bearish" : "bg-foreground/60")} style={{ width: `${ratio * 100}%` }} />
       </div>
     </div>
   );

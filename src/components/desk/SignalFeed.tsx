@@ -41,7 +41,7 @@ export function SignalFeed() {
                         href={l.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[hsl(20,82%,51%)] underline underline-offset-2 hover:text-foreground"
+                        className="text-primary underline underline-offset-2 hover:text-foreground"
                       >
                         {l.title || hostOf(l.url)}
                       </a>

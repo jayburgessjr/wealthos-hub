@@ -7,7 +7,7 @@ import { useAccount, useClaimOwner, useIsOwner } from "@/lib/desk/hooks";
 import { ApprovalQueue } from "@/components/desk/ApprovalQueue";
 import { HeaderStrip, KillSwitchBanner } from "@/components/desk/HeaderStrip";
 import { Journal } from "@/components/desk/Journal";
-import { GHOST_BTN, ORANGE_BG } from "@/components/desk/Panel";
+import { GHOST_BTN, ACCENT_BG } from "@/components/desk/Panel";
 import { Positions } from "@/components/desk/Positions";
 import { RiskGauges } from "@/components/desk/RiskGauges";
 import { Scorecard } from "@/components/desk/Scorecard";
@@ -150,7 +150,7 @@ export default function DeskPage({ view = "overview" }: { view?: DeskView }) {
               onError: (e) => toast.error(e.message),
             })
           }
-          className={cn("mt-3 h-7 rounded-sm px-3 text-xs", ORANGE_BG)}
+          className={cn("mt-3 h-7 rounded-sm px-3 text-xs", ACCENT_BG)}
         >
           Claim desk
         </Button>

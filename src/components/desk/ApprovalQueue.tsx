@@ -7,7 +7,7 @@ import { money, pct, price, qtyText, shortTime, toNum } from "@/lib/desk/format"
 import { approvalBlockers, buildOrder, draftFrom, livePhrase, previewRisk, snapshotPositions, type Draft } from "@/lib/desk/preview";
 import type { OpenPositionSnapshot } from "../../../supabase/functions/_shared/desk/risk/engine.ts";
 import type { DeskAccount, ProposedOrderRow, ThesisRow } from "@/lib/desk/types";
-import { FIELD, GHOST_BTN, MICRO, NUM, ORANGE_BG, ORANGE_TEXT, Panel, PanelState } from "./Panel";
+import { FIELD, GHOST_BTN, MICRO, NUM, ACCENT_BG, ACCENT_TEXT, Panel, PanelState } from "./Panel";
 import { cn } from "@/lib/utils";
 
 interface CardProps {
@@ -154,7 +154,7 @@ export function ProposalCard({ proposal: p, thesis, symbol, account, openPositio
           </Button>
         ) : (
           <>
-            <Button type="button" onClick={save} disabled={patch.isPending || !dirty} className={cn("h-7 rounded-sm px-3 text-xs", ORANGE_BG)}>
+            <Button type="button" onClick={save} disabled={patch.isPending || !dirty} className={cn("h-7 rounded-sm px-3 text-xs", ACCENT_BG)}>
               Save changes
             </Button>
             <Button type="button" onClick={discard} className={GHOST_BTN}>
@@ -180,7 +180,7 @@ export function ProposalCard({ proposal: p, thesis, symbol, account, openPositio
             <ul className="mt-0.5 grid gap-x-4 md:grid-cols-2">
               {decision.checks.map((c) => (
                 <li key={c.rule} className="flex gap-2">
-                  <span className={cn("w-8 shrink-0 font-semibold uppercase", c.passed ? "text-muted-foreground" : ORANGE_TEXT)}>{c.passed ? "Pass" : "Fail"}</span>
+                  <span className={cn("w-8 shrink-0 font-semibold uppercase", c.passed ? "text-muted-foreground" : ACCENT_TEXT)}>{c.passed ? "Pass" : "Fail"}</span>
                   <span className="text-foreground/80">{c.message}</span>
                 </li>
               ))}
@@ -204,7 +204,7 @@ export function ProposalCard({ proposal: p, thesis, symbol, account, openPositio
           onClick={() => submit("approved")}
           disabled={blockers.length > 0}
           aria-describedby={blockers.length > 0 ? reasonsId : undefined}
-          className={cn("h-7 rounded-sm px-3 text-xs", ORANGE_BG)}
+          className={cn("h-7 rounded-sm px-3 text-xs", ACCENT_BG)}
         >
           Approve
         </Button>

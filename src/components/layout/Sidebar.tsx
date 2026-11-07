@@ -319,13 +319,7 @@ export default function Sidebar() {
         ? deskNavSections
         : navSections;
 
-  const sectionLabelColor = isHousehold
-    ? "text-emerald-500/50"
-    : isWealth
-      ? "text-amber-500/50"
-      : isDesk
-        ? "text-orange-500/50"
-        : "text-foreground/20";
+  const sectionLabelColor = "text-foreground/20";
 
   const togglePin = () => {
     const next = !isPinned;

@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-export const ORANGE_TEXT = "text-[hsl(20,82%,51%)]";
-export const ORANGE_BG = "bg-[hsl(20,82%,51%)] text-[hsl(240,6%,10%)] hover:bg-[hsl(20,82%,45%)]";
+export const ACCENT_TEXT = "text-primary";
+export const ACCENT_BG = "bg-primary text-primary-foreground hover:bg-primary/90";
 export const MICRO = "text-[10px] font-medium uppercase tracking-wider text-muted-foreground";
 export const NUM = "font-mono tabular-nums";
 export const FIELD = "h-7 rounded-sm border border-border bg-background px-2 text-xs text-foreground placeholder:text-muted-foreground/70";

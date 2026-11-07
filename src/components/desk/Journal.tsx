@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAddJournal, useJournal } from "@/lib/desk/hooks";
 import { shortTime } from "@/lib/desk/format";
-import { MICRO, ORANGE_BG, Panel, PanelState } from "./Panel";
+import { MICRO, ACCENT_BG, Panel, PanelState } from "./Panel";
 import { cn } from "@/lib/utils";
 
 export function Journal() {
@@ -39,7 +39,7 @@ export function Journal() {
           placeholder="What did you decide, and why?"
         />
         <div className="mt-1 flex justify-end">
-          <Button type="button" onClick={submit} disabled={add.isPending || body.trim() === ""} className={cn("h-7 rounded-sm px-3 text-xs", ORANGE_BG)}>
+          <Button type="button" onClick={submit} disabled={add.isPending || body.trim() === ""} className={cn("h-7 rounded-sm px-3 text-xs", ACCENT_BG)}>
             Add note
           </Button>
         </div>

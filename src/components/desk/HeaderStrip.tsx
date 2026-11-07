@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useResetKillSwitch } from "@/lib/desk/hooks";
 import { money, pct, pnlClass, shortTime, signedMoney, signedPct } from "@/lib/desk/format";
 import type { DeskAccount } from "@/lib/desk/types";
-import { GHOST_BTN, MICRO, NUM, ORANGE_BG, ORANGE_TEXT } from "./Panel";
+import { GHOST_BTN, MICRO, NUM, ACCENT_BG, ACCENT_TEXT } from "./Panel";
 import { cn } from "@/lib/utils";
 
 function Stat({ label, children }: { label: string; children: React.ReactNode }) {
@@ -39,14 +39,14 @@ export function KillSwitchBanner({ account }: { account: DeskAccount }) {
   return (
     <div role="alert" className="flex items-center justify-between gap-3 border-b border-border bg-muted/40 px-3 py-2 text-foreground">
       <div className="flex items-center gap-2">
-        <ShieldAlert className={cn("h-4 w-4", ORANGE_TEXT)} aria-hidden="true" />
+        <ShieldAlert className={cn("h-4 w-4", ACCENT_TEXT)} aria-hidden="true" />
         <span className="font-semibold">Kill switch engaged</span>
         <span className="text-muted-foreground">
           New orders are halted{account.state.halted_reason ? `: ${account.state.halted_reason}` : ""}
           {account.state.halted_at ? ` (since ${shortTime(account.state.halted_at)})` : ""}.
         </span>
       </div>
-      <Button type="button" onClick={() => setOpen(true)} className={cn("h-7 rounded-sm px-3 text-xs", ORANGE_BG)}>
+      <Button type="button" onClick={() => setOpen(true)} className={cn("h-7 rounded-sm px-3 text-xs", ACCENT_BG)}>
         Reset kill switch
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
@@ -71,7 +71,7 @@ export function KillSwitchBanner({ account }: { account: DeskAccount }) {
             <Button type="button" variant="outline" onClick={() => setOpen(false)} className={GHOST_BTN}>
               Cancel
             </Button>
-            <Button type="button" disabled={note.trim().length < 10 || reset.isPending} onClick={submit} className={cn("h-7 rounded-sm px-3 text-xs", ORANGE_BG)}>
+            <Button type="button" disabled={note.trim().length < 10 || reset.isPending} onClick={submit} className={cn("h-7 rounded-sm px-3 text-xs", ACCENT_BG)}>
               {reset.isPending ? "Resetting..." : "Confirm reset"}
             </Button>
           </DialogFooter>
@@ -95,7 +95,7 @@ export function HeaderStrip({ account }: { account: DeskAccount }) {
         <span
           className={cn(
             "rounded-sm border px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider",
-            live ? "border-[hsl(20,82%,51%)] bg-[hsl(20,82%,51%)] text-[hsl(240,6%,10%)]" : "border-foreground/30 text-foreground",
+            live ? "border-primary bg-primary text-primary-foreground" : "border-foreground/30 text-foreground",
           )}
         >
           {live ? "Live" : "Paper"}
@@ -111,7 +111,7 @@ export function HeaderStrip({ account }: { account: DeskAccount }) {
       <Stat label="High-water mark">{money(hwm)}</Stat>
       <Stat label="Drawdown">{pct(dd)}</Stat>
       <Stat label="Kill switch">
-        <span className={halted ? ORANGE_TEXT : "text-foreground"}>{halted ? "Engaged" : "Clear"}</span>
+        <span className={halted ? ACCENT_TEXT : "text-foreground"}>{halted ? "Engaged" : "Clear"}</span>
       </Stat>
       <div className="ml-auto px-3 py-1.5 text-[10px] text-muted-foreground">As of {shortTime(account.account.asOf)}</div>
     </div>

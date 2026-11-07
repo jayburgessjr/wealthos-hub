@@ -116,7 +116,7 @@ export default function Navbar() {
           onClick={() => navigate("/invs/dashboard")}
           className={`flex items-center gap-1 rounded px-2.5 py-1 text-[11px] font-semibold transition-colors ${
             mode === "invest"
-              ? "bg-blue-600/15 text-blue-400"
+              ? "bg-primary/15 text-primary"
               : "text-muted-foreground/50 hover:text-foreground"
           }`}
         >
@@ -127,7 +127,7 @@ export default function Navbar() {
           onClick={() => navigate("/wealth")}
           className={`flex items-center gap-1 rounded px-2.5 py-1 text-[11px] font-semibold transition-colors ${
             mode === "wealth"
-              ? "bg-amber-500/15 text-amber-400"
+              ? "bg-primary/15 text-primary"
               : "text-muted-foreground/50 hover:text-foreground"
           }`}
         >
@@ -138,7 +138,7 @@ export default function Navbar() {
           onClick={() => navigate("/household")}
           className={`flex items-center gap-1 rounded px-2.5 py-1 text-[11px] font-semibold transition-colors ${
             mode === "household"
-              ? "bg-emerald-600/15 text-emerald-400"
+              ? "bg-primary/15 text-primary"
               : "text-muted-foreground/50 hover:text-foreground"
           }`}
         >
@@ -150,7 +150,7 @@ export default function Navbar() {
             onClick={() => navigate("/desk")}
             className={`flex items-center gap-1 rounded px-2.5 py-1 text-[11px] font-semibold transition-colors ${
               mode === "desk"
-                ? "bg-orange-500/15 text-orange-400"
+                ? "bg-primary/15 text-primary"
                 : "text-muted-foreground/50 hover:text-foreground"
             }`}
           >
