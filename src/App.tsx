@@ -106,6 +106,7 @@ import Fundraising from "./pages/Fundraising";
 import WealthDashboard from "./pages/WealthDashboard";
 import HomeDashboard from "./pages/HomeDashboard";
 import Learn from "./pages/Learn";
+import Help from "./pages/Help";
 
 const queryClient = new QueryClient();
 
@@ -552,6 +553,7 @@ const AppRoutes = () => (
       />
 
       <Route path="/learn" element={<Learn />} />
+      <Route path="/help" element={<Help />} />
 
       <Route path="/household/*" element={<HouseholdRoutes />} />
     </Route>
