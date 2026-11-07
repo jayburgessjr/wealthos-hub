@@ -1,7 +1,9 @@
 import { CheckCircle2, Circle, CircleDot } from "lucide-react";
 import type { LadderResult } from "@/lib/wealthLadder";
+import type { EarnTrack } from "@/lib/earnTrack";
+import { EarnTrackRow } from "@/components/coach/EarnTrackRow";
 
-export function WealthLadder({ result }: { result: LadderResult }) {
+export function WealthLadder({ result, earn }: { result: LadderResult; earn?: EarnTrack }) {
   const pct = Math.round(result.progress * 100);
   return (
     <section className="rounded-xl border border-border bg-card p-4" aria-labelledby="ladder-heading">
@@ -51,6 +53,7 @@ export function WealthLadder({ result }: { result: LadderResult }) {
           </li>
         ))}
       </ol>
+      {earn && <EarnTrackRow earn={earn} />}
     </section>
   );
 }

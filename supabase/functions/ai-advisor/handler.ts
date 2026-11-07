@@ -30,7 +30,8 @@ export interface AdvisorDeps {
   auth: AuthDeps;
 }
 
-export const buildSystemPrompt = (mode: ModeDef, context: ValidChat["context"]): string => mode.systemPrompt + renderContext(context);
+export const buildSystemPrompt = (mode: ModeDef, context: ValidChat["context"], pro = false): string =>
+  mode.systemPrompt + (pro && mode.advanced ? mode.advanced : "") + renderContext(context);
 
 export async function authenticate(req: Request, deps: AdvisorDeps): Promise<Response | { auth: AuthedUser; body: unknown }> {
   const pre = preflight(req, deps.auth.env);
@@ -53,7 +54,7 @@ export async function callOpenAI(
   const key = env("OPENAI_API_KEY");
   if (!key) return errorResponse(req, env, 500, "OPENAI_API_KEY is not configured");
 
-  const system = buildSystemPrompt(mode, chat.context);
+  const system = buildSystemPrompt(mode, chat.context, chat.pro);
   const messages = [{ role: "system", content: system }, ...chat.messages];
 
   let response: Response;
@@ -89,6 +90,15 @@ export async function handle(req: Request, deps: AdvisorDeps): Promise<Response>
   try {
     const a = await authenticate(req, deps);
     if (isResponse(a)) return a;
+
+    // Modes with a `run` hook own their request shape (coach); auth and usage limits still come first.
+    const peek = (a.body as { mode?: unknown } | null)?.mode;
+    const own = typeof peek === "string" ? resolveMode(peek) : undefined;
+    if (own?.run) {
+      const g = await consumeUsage(a.auth.client, "ai", FN_NAME, AI_DAILY_CAP);
+      if (g !== "ok") return usageResponse(req, env, g);
+      return await own.run(req, deps, a.auth, a.body, own);
+    }
 
     const v = validateChat(a.body, MODE_NAMES);
     if (!v.ok) return errorResponse(req, env, 400, `validateChat: ${v.reason}`);

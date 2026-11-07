@@ -20,6 +20,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { StatCard } from "@/components/household/dashboard/StatCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
+import { StrategySection } from "@/components/coach/StrategySection";
 
 function fmt(n: number) {
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`;
@@ -188,6 +189,8 @@ export default function WealthDashboard() {
             growth.
           </p>
         </div>
+
+        <StrategySection />
 
         {/* KPI grid */}
         {isLoading ? (

@@ -187,7 +187,7 @@ describe("ai-advisor handler", () => {
   it("registers the 'aje' mode the frontend sends and falls back to the default prompt", async () => {
     const f = makeFake({ env: ENV });
     expect((await advisor(chat({ mode: "aje" }), { auth: f.deps })).status).toBe(200);
-    expect(sentToOpenAI().messages[0].content).toContain("You are AJE, a personal hedge fund AI analyst");
+    expect(sentToOpenAI().messages[0].content).toContain("You are AJE, a personal investing analyst");
   });
 
   it("streams the upstream body through with CORS and records estimated tokens afterwards", async () => {

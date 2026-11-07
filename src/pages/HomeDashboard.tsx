@@ -6,6 +6,7 @@ import { useDemo } from "@/components/DemoProvider";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { useDebtsQuery } from "@/hooks/useHouseholdBudgetData";
 import { useMonthlyFinancialSummary } from "@/hooks/useHouseholdFinancialSummary";
+import { usePlanSummary } from "@/hooks/useCoachPlan";
 import { useNavMode } from "@/lib/navMode";
 import { loadAnswers } from "@/lib/onboardingProfile";
 import { computeWealthLadder, type LadderInput } from "@/lib/wealthLadder";
@@ -50,6 +51,12 @@ export default function HomeDashboard() {
     if (user?.email) return user.email.split("@")[0];
     return "there";
   }, [user]);
+
+  const plan = usePlanSummary();
+  const blockFor = (section: "wealth" | "invest") => ({
+    topItem: plan.plan.items.find((i) => i.section === section) ?? null,
+    openActionCount: plan.openActions.length,
+  });
 
   const onboarding = useMemo(() => loadAnswers(user?.id), [user?.id]);
 
@@ -158,8 +165,8 @@ export default function HomeDashboard() {
         />
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <NextBestMove move={ladder.nextMove} />
-          <WealthLadder result={ladder} />
+          <NextBestMove move={ladder.nextMove} planMove={plan.planMove} showCoachLink />
+          <WealthLadder result={ladder} earn={plan.earn} />
         </div>
 
         <StarterChecklist items={checklist} />
@@ -189,11 +196,11 @@ export default function HomeDashboard() {
                 </Link>
               </div>
             )}
-            {showPro && <InvestPanel />}
+            {showPro && <InvestPanel strategy={blockFor("invest")} />}
           </div>
 
           <div className="space-y-4">
-            <WealthPanel />
+            <WealthPanel strategy={blockFor("wealth")} />
             {showPro && <QuickActions billsDueCount={billsDueCount} />}
           </div>
         </div>

@@ -17,6 +17,8 @@ export interface StreamCallbacks {
   onDelta: (text: string) => void;
   onDone: () => void;
   onError: (msg: string) => void;
+  /** Optional side channel for non-text events (the coach's strategy_event, or a replayed turn). */
+  onEvent?: (e: unknown) => void;
 }
 
 /** Mirrors MAX_MESSAGES in supabase/functions/_shared/limits.ts: the server rejects longer chat histories. */
@@ -76,6 +78,14 @@ export async function streamInvoke(
     return;
   }
 
+  // A replayed coach turn answers with plain JSON instead of a stream: not an error, nothing to render.
+  if ((resp.headers?.get?.("content-type") ?? "").includes("application/json")) {
+    const j = await resp.json().catch(() => null);
+    if (j?.replayed) callbacks.onEvent?.({ type: "replayed" });
+    callbacks.onDone();
+    return;
+  }
+
   const reader = resp.body.getReader();
   const decoder = new TextDecoder();
   let buffer = "";
@@ -97,6 +107,7 @@ export async function streamInvoke(
       }
       try {
         const parsed = JSON.parse(payload);
+        if (parsed?.strategy_event) callbacks.onEvent?.(parsed.strategy_event);
         const delta = parsed?.choices?.[0]?.delta?.content ?? "";
         if (delta) callbacks.onDelta(delta);
       } catch {

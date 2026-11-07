@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { StrategyBlock, type StrategyBlockData } from "@/components/coach/StrategyBlock";
 
 interface Signal {
   ticker: string;
@@ -23,7 +24,7 @@ function useHomeSignals() {
   });
 }
 
-export function InvestPanel() {
+export function InvestPanel({ strategy }: { strategy?: StrategyBlockData }) {
   const { data: signals = [], isLoading } = useHomeSignals();
   const topSignal = signals[0] ?? null;
   const chipSignals = signals.slice(0, 5);
@@ -44,6 +45,8 @@ export function InvestPanel() {
           Open pro dashboard
         </Link>
       </div>
+
+      {strategy && <StrategyBlock data={strategy} />}
 
       <div className="grid grid-cols-1 gap-2">
         <div className="rounded-lg bg-muted/50 p-3">

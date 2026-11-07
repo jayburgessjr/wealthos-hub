@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
+import { StrategyBlock, type StrategyBlockData } from "@/components/coach/StrategyBlock";
 
-export function WealthPanel() {
+export function WealthPanel({ strategy }: { strategy?: StrategyBlockData }) {
   return (
     <div className="rounded-xl border border-border border-t-2 border-t-indigo-400 bg-card p-4 space-y-4">
       <div className="flex items-start justify-between">
@@ -17,6 +18,8 @@ export function WealthPanel() {
           → Hub
         </Link>
       </div>
+
+      {strategy && <StrategyBlock data={strategy} />}
 
       <div className="space-y-2">
         <div className="rounded-lg bg-muted/50 p-3">

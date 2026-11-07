@@ -339,6 +339,7 @@ const AppRoutes = () => (
       <Route path="/invs/decisions" element={<Decisions />} />
       <Route path="/invs/trading-ai" element={<AIAdvisor />} />
       <Route path="/invs/strategy" element={<FinancialAdvisor />} />
+      <Route path="/coach" element={<FinancialAdvisor />} />
       <Route path="/invs/strategy/123" element={<Strategy123 />} />
       <Route path="/invs/strategy/allocator" element={<StrategyAllocator />} />
       <Route path="/invs/strategy/sizer" element={<PositionSizer />} />
