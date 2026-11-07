@@ -1,6 +1,6 @@
 # Desk: Architecture (draft for implementation)
 
-Status: proposed. Scope: single-user internal trading desk, paper only in phase 0. Additive only; no existing table, policy, function or edge function is modified.
+Status: proposed. Scope: internal trading desk for up to two allowlisted owners (see the two-owners amendment and the hardening amendment at the end), paper only in phase 0. Additive only; no existing table, policy, function or edge function is modified.
 
 ## 0. Context and two flags
 
@@ -451,7 +451,7 @@ Every check is returned in `checks[]`; `approved = all passed`. Engine has no cl
 | desk-mark-positions | cron | cron secret | Read port only: marks positions, snapshots `last_equity`, rolls `day_start_equity`, updates HWM, trips kill switch, proposes stop-exit close orders for options |
 | desk-scorecard | cron (after close) | cron secret | Section 5 |
 
-Cron-secret functions set `verify_jwt=false` in `supabase/config.toml` and compare the header in constant time; the secret name `DESK_CRON_SECRET` is added to the names list. UI functions use `verify_jwt=true` plus an in-code owner check; `Access-Control-Allow-Origin` restricted to the app origin for Desk functions (not `*`). Secrets (names only): `POLYGON_KEY` (exists), `ANTHROPIC_API_KEY`, `ALPACA_KEY_ID`, `ALPACA_SECRET`, `TRADING_MODE`, `LIVE_TRADING_ENABLED`, `DESK_OWNER_EMAIL`, `DESK_CRON_SECRET`. No new secret values are created by this build.
+Cron-secret functions set `verify_jwt=false` in `supabase/config.toml` and compare the header in constant time; the secret name `DESK_CRON_SECRET` is added to the names list. UI functions use `verify_jwt=true` plus an in-code owner check; `Access-Control-Allow-Origin` restricted to the app origin for Desk functions (not `*`). Secrets (names only): `POLYGON_KEY` (exists), `OPENAI_API_KEY` (research agent; the code calls OpenAI, see `pipeline/llm.ts`), `ALPACA_KEY_ID`, `ALPACA_SECRET`, `TRADING_MODE`, `LIVE_TRADING_ENABLED`, `DESK_OWNER_EMAIL`, `DESK_CRON_SECRET`. No new secret values are created by this build.
 
 Failure handling (EP 6):
 - Broker call: timeout 10s via `AbortController`; retry only the idempotent path (`getOrder(clientOrderId)` / re-`submitOrder` with the same `client_order_id`), 3 attempts, backoff 0.5s/1.5s/4s with jitter. 4xx other than 422-duplicate/429 never retried.
@@ -521,3 +521,16 @@ Unit per rule incl. boundary values (1.5%, 25%, 3 options, 3% day, 10% DD exact)
 
 ## Amendment: two owners (migration 20261108000000)
 `desk_owner` is no longer single-row. Primary key is `user_id`, with a trigger capping it at 2 rows. `DESK_OWNER_EMAIL` is a comma-separated allowlist. `is_desk_owner()` and all RLS policies are unchanged.
+
+
+## Amendment: hardening (migration 20261110000000, audit B1-B11)
+- B1: `desk_approvals_guard` refuses an approved decision unless a fresh (under 5 minutes) service-written `check_passed` risk event exists for the same proposal, the same `risk_input_hash` and the same qty, stop, limit and target. The owner cannot write risk events, and editing the proposal after the check invalidates the marker.
+- B2: a proposal stuck in `approved` (approval exists, no order) is retried idempotently with the SAME approval inside 4.5 minutes; later it is released to `failed` with a `proposal_released` risk event. Approvals stay immutable and one per proposal, so there is no revert to `pending`.
+- B3: quotes carry their bar date. An opening order priced off a stale, undated or future quote is refused (`quote_stale`); closes pass with a warning. `desk-account` returns `quoteAsOf` and `staleQuotes`; the UI shows a stale tag and blocks Approve for opens.
+- B4: `desk_reset_kill_switch` needs a non-empty note, only works while halted, and logs `prior_high_water_mark`, `reset_by` and the prior halt reason.
+- B5: `desk-mark-positions` marks option positions by current net premium (Polygon option daily bars, fresh only) and writes a close PROPOSAL on a premium-stop breach. Nothing is ever auto-executed; unmarked options are counted.
+- B6: a proposal is `executed` only for a real fill (`filled` and `filledQty > 0`); `submitted`/`partially_filled` leave it `approved` with `pendingFill`. `desk-reconcile-orders` (cron) settles stuck orders through `getOrder` by client order id, idempotently. Alpaca execution stays gated by `ALPACA_EXECUTION_ENABLED`.
+- B7: `requireOwner` re-checks the `DESK_OWNER_EMAIL` allowlist on every call; `desk-claim-owner` returns an explicit `reason`.
+- B8: `desk_journal.author_user_id` and `last_edited_by` (trigger-set); kill-switch resets record `reset_by`.
+- B9: thesis text caps, catalyst caps, target within 50% of entry, escaped prompt attributes, http(s)-only bounded source URLs.
+- B11: `boundary.test.ts` builds the real transitive import graph.

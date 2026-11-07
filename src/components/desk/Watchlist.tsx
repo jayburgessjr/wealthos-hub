@@ -50,7 +50,11 @@ export function Watchlist() {
               return (
                 <tr key={r.symbol} className="border-t border-white/10">
                   <td className={cn(NUM, "px-3 py-1 font-semibold text-white")}>{r.symbol}</td>
-                  <td className={cn(NUM, "px-2 py-1 text-right text-white/80")}>{typeof q === "number" ? price(q) : "n/a"}</td>
+                  <td className={cn(NUM, "px-2 py-1 text-right text-white/80")}>{typeof q === "number" ? price(q) : "n/a"}
+                    {account.data?.staleQuotes?.includes(r.symbol) && (
+                      <span className="ml-1 text-[10px] font-semibold uppercase" title={`Stale: last daily close ${account.data?.quoteAsOf?.[r.symbol] ?? "unknown"}`}>stale</span>
+                    )}
+                  </td>
                   <td className="px-2 py-1 capitalize text-white/80">{r.direction}</td>
                   <td className={cn(NUM, "px-3 py-1 text-right text-white/80")}>{(r.strength * 100).toFixed(0)}</td>
                 </tr>

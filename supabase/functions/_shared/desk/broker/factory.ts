@@ -4,15 +4,7 @@ import { PaperBroker, type PaperStore } from "./paper.ts";
 import type { BrokerPort } from "./port.ts";
 import type { TradingMode } from "../types.ts";
 
-export interface ModeEnv {
-  TRADING_MODE?: string;
-  LIVE_TRADING_ENABLED?: string;
-}
-
-/** Live only when BOTH flags are exactly set. Anything else (unset, typo, partial) is paper. */
-export function resolveMode(env: ModeEnv): TradingMode {
-  return env.TRADING_MODE === "live" && env.LIVE_TRADING_ENABLED === "true" ? "live" : "paper";
-}
+export { resolveMode, type ModeEnv } from "../mode.ts";
 
 export interface BrokerDeps {
   paperStore: PaperStore;
@@ -23,14 +15,14 @@ export interface BrokerDeps {
 }
 
 /**
- * Phase 0 executes on the internal PaperBroker only. Alpaca fills asynchronously and there is no order reconciler yet,
- * so routing real or Alpaca-paper orders would leave positions unrecorded. The AlpacaBroker adapter is built, tested and
- * sits behind the same port; set ALPACA_EXECUTION_ENABLED=true only after a reconciliation job exists.
+ * Phase 0 executes on the internal PaperBroker only. Alpaca fills asynchronously. A reconciler now exists
+ * (desk-reconcile-orders, scheduled per RUNBOOK) and approve never marks a proposal executed without a fill, but Alpaca
+ * execution stays OFF by default: it is enabled only by setting ALPACA_EXECUTION_ENABLED=true, a deliberate owner action.
  */
 export function makeBroker(mode: TradingMode, deps: BrokerDeps & { alpacaExecutionEnabled?: boolean }): BrokerPort {
   const wantsAlpaca = mode === "live" || deps.paperVenue === "alpaca";
   if (wantsAlpaca) {
-    if (!deps.alpacaExecutionEnabled) throw new Error("Alpaca execution is disabled in phase 0 (no order reconciler yet).");
+    if (!deps.alpacaExecutionEnabled) throw new Error("Alpaca execution is disabled in phase 0 (ALPACA_EXECUTION_ENABLED is not true).");
     if (!deps.alpaca) throw new Error("Alpaca execution requires credentials.");
     return new AlpacaBroker({ ...deps.alpaca, mode });
   }

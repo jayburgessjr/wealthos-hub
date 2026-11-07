@@ -6,7 +6,7 @@ import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
 import type { OpenPositionSnapshot } from "../risk/engine.ts";
 import type {
   ApprovalRow, DeskRepo, DeskState, OrderRow, OrderStatus, PositionRow, ProposalStatus, RunPatch, ScoreDbRow,
-  StoredPosition, StoredProposal, StoredSignal, StoredThesis,
+  StoredApproval, StoredOrder, StoredPosition, StoredProposal, StoredSignal, StoredThesis,
 } from "./repo.ts";
 import type { AssetClass, ProposedOrder, Signal, Structure, Thesis } from "../types.ts";
 
@@ -186,6 +186,32 @@ export class SupabaseRepo implements DeskRepo {
       client_order_id: o.clientOrderId, intent: o.intent, structure: o.structure, side: o.side, qty: o.qty, order_type: o.orderType,
       limit_price: o.limitPrice ?? null, legs: o.legs ?? null, stop_price: o.stopPrice, target_price: o.targetPrice ?? null,
     }).select("id").single(), "insertOrder").id);
+  }
+
+  async getApprovalForProposal(proposedOrderId: string): Promise<StoredApproval | null> {
+    const { data, error } = await this.admin.from("desk_approvals").select("id, proposed_order_id, decision, risk_passed, risk_decision, mode, consumed_at, decided_at").eq("proposed_order_id", proposedOrderId).maybeSingle();
+    if (error) throw new Error(`getApprovalForProposal: ${error.message}`);
+    if (!data) return null;
+    const r = data as Row;
+    return { id: String(r.id), proposedOrderId: String(r.proposed_order_id), decision: r.decision as "approved" | "rejected", riskPassed: Boolean(r.risk_passed), riskDecision: r.risk_decision, mode: r.mode as "paper" | "live", consumed: r.consumed_at !== null, decidedAt: String(r.decided_at) };
+  }
+
+  async listUnsettledOrders(): Promise<StoredOrder[]> {
+    const { data, error } = await this.admin.from("desk_orders").select("id, approval_id, proposed_order_id, client_order_id, broker, status, created_at").in("status", ["submitting", "submitted", "partially_filled"]).order("created_at", { ascending: true }).limit(200);
+    if (error) throw new Error(`listUnsettledOrders: ${error.message}`);
+    return (data ?? []).map((raw) => {
+      const r = raw as Row;
+      return { id: String(r.id), approvalId: String(r.approval_id), proposedOrderId: String(r.proposed_order_id), clientOrderId: String(r.client_order_id), broker: r.broker as StoredOrder["broker"], status: r.status as OrderStatus, createdAt: String(r.created_at) };
+    });
+  }
+
+  async orderHasPosition(orderId: string): Promise<boolean> {
+    const [a, b] = await Promise.all([
+      this.admin.from("desk_positions").select("id").eq("opened_order_id", orderId).limit(1),
+      this.admin.from("desk_positions").select("id").eq("closed_order_id", orderId).limit(1),
+    ]);
+    if (a.error || b.error) throw new Error(`orderHasPosition: ${(a.error ?? b.error)?.message}`);
+    return (a.data ?? []).length + (b.data ?? []).length > 0;
   }
 
   async updateOrder(id: string, p: { status: OrderStatus; brokerOrderId?: string; filledQty?: number; avgFillPrice?: number; error?: string }): Promise<void> {
