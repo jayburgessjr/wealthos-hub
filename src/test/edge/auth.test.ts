@@ -243,6 +243,21 @@ describe("secret redaction in logs", () => {
     expect(redact(42)).toBe(42);
   });
 
+  it.each(["apiKey", "apikey", "api_key", "api-key", "api_token", "api-token", "token", "access_token", "key"])("redacts %s= query values", (name) => {
+    const out = String(redact(`https://x.test/p?a=1&${name}=${KEY}&b=2`));
+    expect(out).not.toContain(KEY);
+    expect(out).toContain(`${name}=[redacted]`);
+    expect(out).toContain("a=1");
+    expect(out).toContain("b=2");
+  });
+
+  it("redaction is linear-time on adversarial input", () => {
+    const evil = "api_".repeat(50000) + "token" + "=".repeat(1000);
+    const t = Date.now();
+    redact(evil);
+    expect(Date.now() - t).toBeLessThan(1000);
+  });
+
   it("logError and errorResponse never write the key to console.error", () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => undefined);
     logError("Polygon failed", new Error(`fetch failed https://api.polygon.io/z?apiKey=${KEY}`));

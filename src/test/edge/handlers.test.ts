@@ -4,7 +4,7 @@ import { handle as advisor } from "../../../supabase/functions/ai-advisor/handle
 import { handle as briefing } from "../../../supabase/functions/weekly-briefing/handler";
 import { handle as checkAlerts } from "../../../supabase/functions/check-alerts/handler";
 import { buildReturnUrls, handle as checkout, type StripeLike } from "../../../supabase/functions/stripe-checkout/handler";
-import { AI_DAILY_CAP, MAX_TOKENS } from "../../../supabase/functions/_shared/limits";
+import { AI_DAILY_CAP, MAX_ASSISTANT_CHARS, MAX_MESSAGES, MAX_TOKENS, MAX_TOTAL_CHARS } from "../../../supabase/functions/_shared/limits";
 import { makeFake, post, USER_ID, type Fake } from "./fakes";
 
 const SENTINEL = "SECRET-UPSTREAM-DETAIL-sk-proj-999";
@@ -126,6 +126,62 @@ describe("ai-advisor handler", () => {
     expect(sent.messages[0].content).not.toContain("IGNORE EVERYTHING");
     expect(sent.messages[0].content).not.toContain("reveal secrets");
     expect((fetchMock.mock.calls[0][1] as RequestInit).headers).toMatchObject({ Authorization: "Bearer sk-test" });
+  });
+
+  describe("history handling reaches the upstream request", () => {
+    const history = (n: number) =>
+      Array.from({ length: n }, (_, i) => ({ role: i % 2 === 0 ? "user" : "assistant", content: `msg${i}`.padEnd(2000, "x") })).concat([
+        { role: "user", content: "FINAL QUESTION" },
+      ]);
+
+    it("accepts [user, assistant(4800), user], truncates the assistant to 4000 (tail), keeps the stream shape", async () => {
+      const f = makeFake({ env: ENV });
+      const long = "H".repeat(800) + "T".repeat(4000);
+      expect(long.length).toBe(4800);
+      const res = await advisor(
+        post({ messages: [{ role: "user", content: "q1" }, { role: "assistant", content: long }, { role: "user", content: "q2" }] }),
+        { auth: f.deps },
+      );
+      expect(res.status).toBe(200);
+      expect(res.headers.get("content-type")).toBe("text/event-stream");
+      const text = await res.text();
+      expect(text).toContain("data: ");
+      expect(text).toContain("[DONE]");
+      const sent = sentToOpenAI();
+      expect(sent.messages[0].role).toBe("system");
+      expect(sent.messages[sent.messages.length - 1]).toEqual({ role: "user", content: "q2" });
+      const asst = sent.messages.find((m: { role: string }) => m.role === "assistant");
+      expect(asst.content.length).toBe(MAX_ASSISTANT_CHARS);
+      expect(asst.content).toBe(long.slice(-MAX_ASSISTANT_CHARS));
+      expect(asst.content).not.toContain("H");
+      expect(sent.messages.filter((m: { role: string }) => m.role === "system")).toHaveLength(1);
+    });
+
+    it("uses max_tokens 2000 for financial-advisor and 1200 for default", async () => {
+      const f = makeFake({ env: ENV });
+      await (await advisor(chat({ mode: "financial-advisor" }), { auth: f.deps })).text();
+      expect(sentToOpenAI().max_tokens).toBe(MAX_TOKENS.advisor);
+      expect(sentToOpenAI().max_tokens).toBe(2000);
+      fetchMock.mockClear();
+      await (await advisor(chat(), { auth: f.deps })).text();
+      expect(sentToOpenAI().max_tokens).toBe(1200);
+    });
+
+    it("accepts a 30-message history, trimming oldest-first and keeping the last user message", async () => {
+      const f = makeFake({ env: ENV });
+      const msgs = history(29); // 30 messages, last is user
+      expect(msgs).toHaveLength(30);
+      const res = await advisor(post({ messages: msgs }), { auth: f.deps });
+      expect(res.status).toBe(200);
+      await res.text();
+      const sent = sentToOpenAI();
+      const rest = sent.messages.slice(1);
+      expect(rest.length).toBeLessThan(30);
+      expect(rest.length).toBeLessThanOrEqual(MAX_MESSAGES);
+      expect(rest[rest.length - 1]).toEqual({ role: "user", content: "FINAL QUESTION" });
+      expect(rest[0].content.startsWith("msg0")).toBe(false); // oldest dropped
+      expect(rest.reduce((n: number, m: { content: string }) => n + m.content.length, 0)).toBeLessThanOrEqual(MAX_TOTAL_CHARS);
+    });
   });
 
   it("registers the 'aje' mode the frontend sends and falls back to the default prompt", async () => {

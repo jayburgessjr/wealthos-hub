@@ -96,7 +96,7 @@ export function jsonResponse(req: Request, env: Env, body: unknown, status = 200
 
 export const optionsResponse = (req: Request, env: Env): Response => new Response(null, { status: 204, headers: corsHeaders(req, env) });
 
-const SECRET_QS = /\b(api[_-]?key|apikey|access_token|token|key)=([^&\s"')]+)/gi;
+const SECRET_QS = /\b(api[_-]?key|api[_-]?token|access[_-]?token|token|key)=([^&\s"')]+)/gi;
 
 /** Strips apiKey=/apikey=/token= query values from anything about to be logged (fetch errors embed the URL). */
 export function redact(v: unknown): unknown {
