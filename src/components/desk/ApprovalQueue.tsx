@@ -180,7 +180,7 @@ export function ProposalCard({ proposal: p, thesis, symbol, account, openPositio
               {account ? ` | ${pct(decision.sized.riskAmount / account.account.equity)} of equity` : ""}
             </p>
             {staleQuoteNote(account, symbol) && (
-              <p role="alert" className={cn("mt-0.5 font-semibold", ORANGE_TEXT)}>
+              <p role="alert" className={cn("mt-0.5 font-semibold", "text-bearish")}>
                 {staleQuoteNote(account, symbol)}{p.intent === "close" ? " Closes are still allowed." : ""}
               </p>
             )}

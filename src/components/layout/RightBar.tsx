@@ -5,7 +5,7 @@ import {
   MessageSquare,
   TrendingUp, Lightbulb, BarChart2, Globe, Cpu, Newspaper, Shield,
   Zap, Briefcase, Radar, Brain, CheckCircle2, Circle,
-  ArrowRight, HelpCircle, X,
+  ArrowRight, ChevronRight, HelpCircle, X,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 

@@ -27,6 +27,14 @@ describe("Invest, Wealth, Household and Desk share one look", () => {
     expect(side).not.toMatch(/text-(emerald|amber|orange)-500\/50/);
   });
 
+  it("no file references removed names (ORANGE_*) or uses ChevronRight without importing it", () => {
+    for (const f of readdirSync(join(SRC, "components/desk"))) {
+      if (/\.tsx?$/.test(f)) expect(read(join("components/desk", f)), f).not.toMatch(/ORANGE_(TEXT|BG)/);
+    }
+    const bar = read("components/layout/RightBar.tsx");
+    expect(bar).toMatch(/import \{[^}]*\bChevronRight\b[^}]*\} from "lucide-react"/s);
+  });
+
   it("the Desk uses theme tokens only: no hardcoded white or accent hsl values", () => {
     const files: string[] = [];
     for (const dir of ["components/desk", "pages/desk", "lib/desk"]) {
