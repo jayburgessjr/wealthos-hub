@@ -162,11 +162,13 @@ export interface ValidChat {
   /** undefined when the caller sent no mode (the default mode applies). */
   mode: string | undefined;
   context: SafeContext;
+  /** Opt-in advanced framing (pro view). Absent or non-boolean means false. */
+  pro: boolean;
 }
 
 export function validateChat(body: unknown, allowedModes: readonly string[]): Result<ValidChat> {
   if (!isObj(body)) return { ok: false, reason: "body must be an object" };
-  const { messages, mode, context } = body;
+  const { messages, mode, context, pro } = body;
 
   if (mode !== undefined && mode !== null) {
     if (typeof mode !== "string" || !allowedModes.includes(mode)) return { ok: false, reason: "unknown mode" };
@@ -194,7 +196,7 @@ export function validateChat(body: unknown, allowedModes: readonly string[]): Re
   while (total > MAX_TOTAL_CHARS && clean.length > 1) total -= clean.shift()!.content.length;
   if (total > MAX_TOTAL_CHARS) return { ok: false, reason: "total size" };
 
-  return { ok: true, value: { messages: clean, mode: typeof mode === "string" ? mode : undefined, context: sanitizeContext(context) } };
+  return { ok: true, value: { messages: clean, mode: typeof mode === "string" ? mode : undefined, context: sanitizeContext(context), pro: pro === true } };
 }
 
 // ── Weekly briefing ─────────────────────────────────────────────────────────
