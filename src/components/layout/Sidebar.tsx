@@ -235,7 +235,10 @@ const wealthNavSections = [
 const householdNavSections = [
   {
     label: "Home",
-    items: [{ to: "/household", icon: LayoutDashboard, label: "Dashboard" }],
+    items: [
+      { to: "/household", icon: LayoutDashboard, label: "Dashboard" },
+      { to: "/household/money", icon: DollarSign, label: "Money coach" },
+    ],
   },
   {
     label: "Money In",

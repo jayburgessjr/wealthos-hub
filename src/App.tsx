@@ -6,6 +6,7 @@ import { HouseholdBudgetProvider } from "@/context/HouseholdBudgetContext";
 // Household pages (stubs — will be replaced in Tasks 9-29)
 import HouseholdSetup from "./pages/household/HouseholdSetup";
 import HouseholdDashboard from "./pages/household/HouseholdDashboard";
+import HouseholdMoney from "./pages/household/HouseholdMoney";
 import HouseholdBudget from "./pages/household/HouseholdBudget";
 import HouseholdBills from "./pages/household/HouseholdBills";
 import HouseholdIncome from "./pages/household/HouseholdIncome";
@@ -113,6 +114,7 @@ const HouseholdRoutes = () => (
       {/* Dashboard — standalone */}
       <Route path="/" element={<HouseholdDashboard />} />
       <Route path="/setup" element={<HouseholdSetup />} />
+      <Route path="/money" element={<HouseholdMoney />} />
 
       {/* Money In */}
       <Route
