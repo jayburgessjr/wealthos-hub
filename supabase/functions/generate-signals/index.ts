@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 import { realAuthDeps } from "../_shared/auth-deno.ts";
-import { corsHeaders as sharedCors, errorResponse, fetchT, isResponse, preflight, readJsonBody, requireUser } from "../_shared/auth.ts";
+import { corsHeaders as sharedCors, logError, logWarn, errorResponse, fetchT, isResponse, preflight, readJsonBody, requireUser } from "../_shared/auth.ts";
 import { AI_DAILY_CAP, BODY_CAP_BYTES, DATA_DAILY_CAP, MAX_SIGNAL_TICKERS, MAX_TOKENS, consumeUsage, usageResponse } from "../_shared/limits.ts";
 import { asObject, validateTickerList } from "../_shared/validate.ts";
 
@@ -23,14 +23,14 @@ async function getPriceData(ticker: string, apiKey: string) {
     const res = await fetchT(url);
 
     if (!res.ok) {
-      console.error(`Polygon error for ${ticker}: ${res.status} ${res.statusText}`);
+      logError(`Polygon error for ${ticker}: ${res.status} ${res.statusText}`);
       return [];
     }
 
     const data = await res.json();
     return data.results || [];
   } catch (err) {
-    console.error(`Fetch error for ${ticker}:`, err);
+    logError(`Fetch error for ${ticker}:`, err);
     return [];
   }
 }
@@ -146,7 +146,7 @@ async function calcSentimentScore(
     }, 30000);
 
     if (!response.ok) {
-      console.error(`OpenAI error for ${ticker}: ${response.status}`);
+      logError(`OpenAI error for ${ticker}: ${response.status}`);
       return { score: 50, summary: "" };
     }
 
@@ -157,7 +157,7 @@ async function calcSentimentScore(
       summary: result.summary || "",
     };
   } catch (err) {
-    console.error(`Sentiment score exception for ${ticker}:`, err);
+    logError(`Sentiment score exception for ${ticker}:`, err);
     return { score: 50, summary: "" };
   }
 }
@@ -257,7 +257,7 @@ async function calcVixProxy(polygonKey: string): Promise<{ score: number; value:
   try {
     const res = await fetchT(`https://api.polygon.io/v2/aggs/ticker/I:VIX/prev?adjusted=true&apiKey=${polygonKey}`);
     if (!res.ok) {
-      console.warn("VIX Index fetch failed (likely subscription level). Falling back to SPY volatility proxy.");
+      logWarn("VIX Index fetch failed (likely subscription level). Falling back to SPY volatility proxy.");
       return { score: 70, value: 15, label: 'Low Risk' };
     }
     const data = await res.json();
@@ -398,7 +398,7 @@ serve(async (req) => {
             generated_at: new Date().toISOString(),
           };
         } catch (err) {
-          console.error(`Error generating signal for ${ticker}:`, err);
+          logError(`Error generating signal for ${ticker}:`, err);
           return { ticker, signal_score: 50, action: "hold", error: "Signal generation failed" };
         }
       })

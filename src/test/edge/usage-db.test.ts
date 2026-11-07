@@ -157,13 +157,15 @@ describe('A7 search_path pins', () => {
 });
 
 describe('A7 households INSERT policy', () => {
-  it('is replaced by the stricter policy: authenticated role, auth.uid() is not null', async () => {
-    const pol = await h.q('postgres', null, `select polname, polroles::regrole[]::text roles, pg_get_expr(polwithcheck, polrelid) chk from pg_policy where polrelid='public.households'::regclass and polcmd='a'`);
-    expect(pol).toHaveLength(1);
-    expect(String(pol[0].chk)).toMatch(/auth\.uid\(\)/);
-    expect(String(pol[0].chk)).toMatch(/IS NOT NULL/i);
-    expect(String(pol[0].roles)).toContain('authenticated');
-    expect(String(pol[0].chk)).not.toBe('true');
+  it('has no INSERT policy at all (authenticated has no direct insert path)', async () => {
+    const pol = await h.q('postgres', null, `select polname from pg_policy where polrelid='public.households'::regclass and polcmd in ('a','*')`);
+    expect(pol).toEqual([]);
+    const rls = await h.q('postgres', null, `select relrowsecurity from pg_class where oid='public.households'::regclass`);
+    expect(rls[0].relrowsecurity).toBe(true);
+  });
+
+  it('a direct authenticated INSERT into households fails even with a valid uid', async () => {
+    await expect(h.q('authenticated', U1, `insert into public.households(name) values ('sneaky')`)).rejects.toThrow(/row-level security/i);
   });
 
   it('create_household still works for a signed-in user', async () => {
@@ -183,7 +185,6 @@ describe('A9 profiles guard and approval flag', () => {
     const old = await h.q('postgres', null, `select id, access_approved from public.profiles order by id`);
     expect(old.every((r) => r.access_approved === true)).toBe(true);
     await h.q('postgres', null, `insert into auth.users(id,email) values ('44444444-4444-4444-4444-444444444444','new@example.test')`);
-    await h.q('postgres', null, `insert into public.profiles(id,email) values ('44444444-4444-4444-4444-444444444444','new@example.test')`);
     const fresh = await h.q('postgres', null, `select access_approved from public.profiles where id='44444444-4444-4444-4444-444444444444'`);
     expect(fresh[0].access_approved).toBe(false);
     await h.q('postgres', null, `delete from public.profiles where id='44444444-4444-4444-4444-444444444444'`);
@@ -248,6 +249,55 @@ describe('A9 profiles guard and approval flag', () => {
   });
 });
 
+describe('A9 profiles INSERT guard', () => {
+  const NEWU = '55555555-5555-5555-5555-555555555555';
+  const mkUser = () => h.db.exec(`insert into auth.users(id,email) values ('${NEWU}','n@example.test') on conflict do nothing; delete from public.profiles where id='${NEWU}'`);
+  const row = () => h.q('postgres', null, `select is_admin, access_approved, subscription_plan, subscription_status, stripe_customer_id from public.profiles where id='${NEWU}'`);
+
+  it('neutralizes privileged columns on a self-insert by authenticated', async () => {
+    await mkUser();
+    await h.q('authenticated', NEWU, `insert into public.profiles(id,email,is_admin,access_approved,subscription_plan,subscription_status,stripe_customer_id) values ('${NEWU}','n@example.test',true,true,'pro','active','cus_x')`);
+    expect(await row()).toEqual([{ is_admin: false, access_approved: false, subscription_plan: 'free', subscription_status: 'none', stripe_customer_id: null }]);
+  });
+
+  it('still rejects inserting someone else\'s profile id (existing RLS)', async () => {
+    await mkUser();
+    await expect(h.q('authenticated', U1, `insert into public.profiles(id,email) values ('${NEWU}','n@example.test')`)).rejects.toThrow(/row-level security/i);
+  });
+
+  it('blocks the ON CONFLICT DO UPDATE path from escalating an existing row', async () => {
+    await h.q('postgres', null, `update public.profiles set access_approved = false, is_admin = false where id='${U2}'`);
+    // Either rejected by the UPDATE guard or neutralized to no change; never escalated.
+    await h
+      .q('authenticated', U2, `insert into public.profiles(id,email,is_admin,access_approved) values ('${U2}','u2@example.test',true,true) on conflict (id) do update set is_admin = excluded.is_admin, access_approved = excluded.access_approved`)
+      .catch(() => undefined);
+    const r = await h.q('postgres', null, `select is_admin, access_approved from public.profiles where id='${U2}'`);
+    expect(r).toEqual([{ is_admin: false, access_approved: false }]);
+    await h.q('postgres', null, `update public.profiles set access_approved = true where id='${U2}'`);
+  });
+
+  it('ON CONFLICT cannot flip an approved row either (change is rejected by the UPDATE guard)', async () => {
+    await expect(
+      h.q('authenticated', U1, `insert into public.profiles(id,email,access_approved) values ('${U1}','u1@example.test',true) on conflict (id) do update set access_approved = excluded.access_approved`),
+    ).rejects.toThrow(/protected profile columns/i);
+    const r = await h.q('postgres', null, `select access_approved from public.profiles where id='${U1}'`);
+    expect(r[0].access_approved).toBe(true);
+  });
+
+  it('the signup trigger (handle_new_user) still creates an unapproved, non-admin row', async () => {
+    await h.db.exec(`delete from public.profiles where id='${NEWU}'; delete from auth.users where id='${NEWU}'`);
+    await h.q('postgres', null, `insert into auth.users(id,email) values ('${NEWU}','n@example.test')`);
+    expect(await row()).toEqual([{ is_admin: false, access_approved: false, subscription_plan: 'free', subscription_status: 'none', stripe_customer_id: null }]);
+  });
+
+  it('service_role and the owner can still insert privileged values', async () => {
+    await mkUser();
+    await h.q('service_role', null, `insert into public.profiles(id,email,is_admin,access_approved,subscription_plan) values ('${NEWU}','n@example.test',true,true,'pro')`);
+    expect(await row()).toMatchObject([{ is_admin: true, access_approved: true, subscription_plan: 'pro' }]);
+    await h.db.exec(`delete from public.profiles where id='${NEWU}'; delete from auth.users where id='${NEWU}'`);
+  });
+});
+
 describe('A8 audit queries', () => {
   const AUDIT = `select c.relname from pg_class c join pg_namespace n on n.oid = c.relnamespace where n.nspname='public' and c.relkind='r' and not c.relrowsecurity`;
   it('finds no public table without RLS after the migration', async () => {
@@ -261,14 +311,16 @@ describe('A8 audit queries', () => {
 });
 
 describe('migration is additive', () => {
-  it('only drops its own objects plus the one households policy', () => {
+  it('only drops its own objects plus the one households policy (not recreated)', () => {
     const sql = h.migrationSql.replace(/--.*$/gm, '');
     const drops = [...sql.matchAll(/^\s*drop\s+(\w+)(?:\s+if\s+exists)?\s+("[^"]+"|[\w.]+)(?:\s+on\s+([\w.]+))?/gim)].map((m) => `${m[1].toLowerCase()} ${m[2]}${m[3] ? ' on ' + m[3] : ''}`);
     expect(drops.sort()).toEqual([
       'policy "Users can create households" on public.households',
       'policy ai_usage_select_own on public.ai_usage',
+      'trigger profiles_guard_insert on public.profiles',
       'trigger profiles_guard_privileged_cols on public.profiles',
     ].sort());
+    expect(sql).not.toMatch(/create\s+policy\s+"Users can create households"/i);
     expect(sql).not.toMatch(/\bdrop\s+(table|column|schema|function|type)\b/i);
     expect(sql).not.toMatch(/\balter\s+table\b[^;]*\bdrop\b/i);
     expect(sql).not.toMatch(/\btruncate\b|\bdelete\s+from\b/i);

@@ -6,10 +6,11 @@ import { errorResponse, type Env } from "./auth.ts";
 export const AI_DAILY_CAP = 150; // AI calls per user per UTC day, all AI functions combined
 export const DATA_DAILY_CAP = 2000; // market-data proxy calls per user per UTC day
 
-export const MAX_TOKENS = { chat: 1200, briefing: 1800, signals: 2500 } as const;
+export const MAX_TOKENS = { chat: 1200, advisor: 2000, briefing: 1800, signals: 2500 } as const;
 
 export const MAX_MESSAGES = 20;
-export const MAX_MESSAGE_CHARS = 4000;
+export const MAX_MESSAGE_CHARS = 8000; // user messages over this are rejected
+export const MAX_ASSISTANT_CHARS = 4000; // assistant turns (echoed back as history) are truncated to this, keeping the tail
 export const MAX_TOTAL_CHARS = 24000;
 export const MAX_CONTEXT_BYTES = 16384;
 export const MAX_POSITIONS = 50;

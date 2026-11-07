@@ -1,6 +1,7 @@
 // Mode registry for ai-advisor. Prompt TEXT below is moved verbatim from the previous index.ts.
 // To add a mode: add ONE entry to MODE_REGISTRY (plus its optional context validator). Do not touch
 // auth, limits or validation code.
+import { MAX_TOKENS } from "../_shared/limits.ts";
 import type { Validator } from "../_shared/validate.ts";
 
 export interface ModeDef {
@@ -154,7 +155,7 @@ export const MODE_REGISTRY: Record<string, ModeDef> = {
   default: { systemPrompt: SYSTEM_PROMPT },
   // AIAdvisor.tsx sends mode "aje" for its default persona; it has always used the default prompt.
   aje: { systemPrompt: SYSTEM_PROMPT },
-  "financial-advisor": { systemPrompt: FINANCIAL_ADVISOR_PROMPT },
+  "financial-advisor": { systemPrompt: FINANCIAL_ADVISOR_PROMPT, maxTokens: MAX_TOKENS.advisor },
   buffett: { systemPrompt: PERSONA_BUFFETT_PROMPT },
   graham: { systemPrompt: PERSONA_GRAHAM_PROMPT },
   lynch: { systemPrompt: PERSONA_LYNCH_PROMPT },

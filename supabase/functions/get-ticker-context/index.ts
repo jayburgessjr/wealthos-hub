@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { realAuthDeps } from "../_shared/auth-deno.ts";
-import { corsHeaders as sharedCors, errorResponse, fetchT, isResponse, preflight, readJsonBody, requireUser } from "../_shared/auth.ts";
+import { corsHeaders as sharedCors, logError, logWarn, errorResponse, fetchT, isResponse, preflight, readJsonBody, requireUser } from "../_shared/auth.ts";
 import { BODY_CAP_BYTES, DATA_DAILY_CAP, consumeUsage, usageResponse } from "../_shared/limits.ts";
 import { asObject, cleanTicker } from "../_shared/validate.ts";
 
@@ -72,7 +72,7 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
-    console.error("get-ticker-context error:", e);
+    logError("get-ticker-context error:", e);
     return errorResponse(req, env, 500, e);
   }
 });

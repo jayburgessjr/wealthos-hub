@@ -1,15 +1,17 @@
 -- Edge function auth hardening and AI cost controls (slice SEC). See docs/builds/edge-auth-hardening/ARCHITECTURE.md.
 --
--- Additive. The ONLY drop is one policy replaced by a stricter one (households INSERT, section 3).
+-- Additive. The ONLY drop of existing objects is the households INSERT policy (section 3, tightening to default deny).
 -- No table or column is dropped. Product premise: no tiers, friends and family only.
 --
 -- Contents
 --   1. ai_usage table + consume_usage / record_usage_tokens RPCs (per-user daily usage counters, A6)
 --   2. search_path pins on SECURITY DEFINER functions (A7); ALTER only, no body or grant change
---   3. households INSERT policy replacement (A7)
+--   3. households INSERT policy removal (A7): authenticated gets no direct insert path
 --   4. profiles: access_approved flag (one-time backfill) + guard trigger (A9)
 --
 -- Manual rollback (Needs Jay; not run by the build):
+--   drop trigger if exists profiles_guard_insert on public.profiles;
+--   drop function if exists public.profiles_guard_insert();
 --   drop trigger if exists profiles_guard_privileged_cols on public.profiles;
 --   drop function if exists public.profiles_guard_privileged_cols();
 --   drop function if exists public.is_caller_admin();
@@ -17,13 +19,13 @@
 --   drop function if exists public.record_usage_tokens(text, text, bigint, bigint);
 --   drop function if exists public.consume_usage(text, text);
 --   drop table if exists public.ai_usage;
---   (Restoring the old WITH CHECK (true) households policy is not recommended.)
+--   (Restoring the old WITH CHECK (true) households policy is not recommended; create_household() needs no policy.)
 --
 -- Audit queries (A8), read-only, expect zero rows for the first:
 --   select c.relname from pg_class c join pg_namespace n on n.oid = c.relnamespace
 --    where n.nspname = 'public' and c.relkind = 'r' and not c.relrowsecurity;
---   select polname, pg_get_expr(polwithcheck, polrelid) from pg_policy
---    where polrelid = 'public.households'::regclass and polcmd = 'a';   -- expect: auth.uid() IS NOT NULL
+--   select polname from pg_policy
+--    where polrelid = 'public.households'::regclass and polcmd = 'a';   -- expect: zero rows (no direct insert path)
 
 -- ═════════════════════════════════════════════════════════════════════════
 -- 1. Per-user usage counters (A6)
@@ -149,14 +151,13 @@ exception when undefined_function or undefined_object then null; end $$;
 -- ═════════════════════════════════════════════════════════════════════════
 -- 3. households INSERT policy (A7)
 --    20260620000000 (dated after the 0523 hardening) re-created this policy as WITH CHECK (true) with no role,
---    so by file order the effective policy was the weak one. Replace it with the stricter 0523 definition.
---    create_household() is SECURITY DEFINER, so no client needs direct INSERT. This is the only DROP here.
+--    so by file order any signed-in user could insert households directly. Remove it: with RLS enabled and no
+--    INSERT policy, authenticated has no direct insert path (default deny). create_household() is SECURITY
+--    DEFINER and runs as its owner (postgres, which bypasses RLS), and no client inserts into households directly.
+--    This is the only DROP of an existing object here.
 -- ═════════════════════════════════════════════════════════════════════════
 
 drop policy if exists "Users can create households" on public.households;
-create policy "Users can create households" on public.households
-  for insert to authenticated
-  with check ((select auth.uid()) is not null);
 
 -- ═════════════════════════════════════════════════════════════════════════
 -- 4. profiles: approval flag (invite-only gate) and privileged-column guard (A9)
@@ -210,6 +211,34 @@ begin
   return new;
 end;
 $$;
+
+-- INSERT path: the existing "Users can insert their own profile" policy lets a user with no profile row post
+-- {id: self, is_admin: true, access_approved: true}. For anon/authenticated callers, force every privileged
+-- column to its safe default (neutralize rather than raise, so a legitimate client-side profile insert still
+-- works). service_role / table owner (handle_new_user, SQL editor) are unaffected. For INSERT ... ON CONFLICT
+-- DO UPDATE the neutralized row then flows through the UPDATE guard above, which rejects any change.
+create or replace function public.profiles_guard_insert()
+returns trigger
+language plpgsql
+security invoker
+set search_path = public, pg_catalog
+as $$
+begin
+  if current_user in ('anon', 'authenticated') then
+    new.is_admin := false;
+    new.access_approved := false;
+    new.stripe_customer_id := null;
+    new.subscription_plan := 'free';
+    new.subscription_status := 'none';
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists profiles_guard_insert on public.profiles;
+create trigger profiles_guard_insert
+  before insert on public.profiles
+  for each row execute function public.profiles_guard_insert();
 
 drop trigger if exists profiles_guard_privileged_cols on public.profiles;
 create trigger profiles_guard_privileged_cols

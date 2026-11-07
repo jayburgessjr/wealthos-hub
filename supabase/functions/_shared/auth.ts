@@ -96,9 +96,28 @@ export function jsonResponse(req: Request, env: Env, body: unknown, status = 200
 
 export const optionsResponse = (req: Request, env: Env): Response => new Response(null, { status: 204, headers: corsHeaders(req, env) });
 
-/** Logs `internal` server-side and returns only a fixed public message. Raw error text is never returned. */
+const SECRET_QS = /\b(api[_-]?key|apikey|access_token|token|key)=([^&\s"')]+)/gi;
+
+/** Strips apiKey=/apikey=/token= query values from anything about to be logged (fetch errors embed the URL). */
+export function redact(v: unknown): unknown {
+  if (typeof v === "string") return v.replace(SECRET_QS, "$1=[redacted]");
+  if (v instanceof Error) return redact(`${v.name}: ${v.message}${v.stack ? `\n${v.stack}` : ""}`);
+  if (v !== null && typeof v === "object") {
+    try {
+      return redact(JSON.stringify(v));
+    } catch {
+      return "[unserializable]";
+    }
+  }
+  return v;
+}
+
+export const logError = (...args: unknown[]): void => console.error(...args.map(redact));
+export const logWarn = (...args: unknown[]): void => console.warn(...args.map(redact));
+
+/** Logs `internal` server-side (secrets redacted) and returns only a fixed public message. Raw error text is never returned. */
 export function errorResponse(req: Request, env: Env, status: number, internal?: unknown, extra: Record<string, string> = {}): Response {
-  if (internal !== undefined) console.error(`[edge ${status}]`, internal);
+  if (internal !== undefined) logError(`[edge ${status}]`, internal);
   return jsonResponse(req, env, { error: PUBLIC_MESSAGES[status] ?? PUBLIC_MESSAGES[500] }, status, extra);
 }
 

@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { denoEnv } from "../_shared/auth-deno.ts";
 import { corsHeaders as sharedCors, preflight } from "../_shared/auth.ts";
+import { escapeHtml } from "../_shared/html.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
@@ -118,16 +119,16 @@ serve(async (req) => {
         html: `
           <div style="font-family:monospace;max-width:600px;margin:0 auto;padding:24px">
             <h2 style="margin-bottom:8px">You're invited!</h2>
-            <p>You have been invited to join <strong>${householdName}</strong> on AJE — your AI-powered personal finance dashboard.</p>
+            <p>You have been invited to join <strong>${escapeHtml(householdName)}</strong> on AJE — your AI-powered personal finance dashboard.</p>
             <p style="margin:24px 0">
-              <a href="${acceptUrl}"
+              <a href="${escapeHtml(acceptUrl)}"
                  style="background:#059669;color:#fff;padding:12px 24px;text-decoration:none;font-weight:bold;display:inline-block">
                 Accept Invitation
               </a>
             </p>
             <p style="font-size:12px;color:#666">
               Or copy this link into your browser:<br/>
-              <code>${acceptUrl}</code>
+              <code>${escapeHtml(acceptUrl)}</code>
             </p>
             <p style="font-size:11px;color:#999;margin-top:32px">
               This invitation expires and can only be used once. If you did not expect this email, you can ignore it.

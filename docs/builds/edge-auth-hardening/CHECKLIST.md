@@ -17,15 +17,24 @@ STATUS: OPEN (built, awaiting verifier + Security gate; nothing committed, pushe
 
 ## Needs Jay (production; the build executed none of this)
 Follow ARCHITECTURE.md section 11 in order. Additions from this build:
-- [ ] Confirm `APP_URL` is a SINGLE exact production origin (send-household-invite and stripe-checkout use the first entry for links; a comma list works for CORS only).
-- [ ] After deploy, check-alerts returns 401 to any scheduler that does not send `x-cron-secret` (existing DESK_CRON_SECRET value).
-- [ ] New signups are inert (403) until approved; approve friends with the SQL in CONTEXT.md. Recommended: also disable public signups in the Supabase dashboard.
-- [ ] Apply migration BEFORE deploying functions (functions read `profiles.access_approved` and call the RPCs; without the migration every call fails closed).
+- [~] PARKED: Needs Jay (production step, no approved RELEASE.md). Confirm `APP_URL` is a SINGLE exact production origin (send-household-invite and stripe-checkout use the first entry for links; a comma list works for CORS only).
+- [~] PARKED: Needs Jay (production step, no approved RELEASE.md). After deploy, check-alerts returns 401 to any scheduler that does not send `x-cron-secret` (existing DESK_CRON_SECRET value).
+- [~] PARKED: Needs Jay (production step, no approved RELEASE.md). New signups are inert (403) until approved; approve friends with the SQL in CONTEXT.md. Recommended: also disable public signups in the Supabase dashboard.
+- [~] PARKED: Needs Jay (production step, no approved RELEASE.md). Apply migration BEFORE deploying functions (functions read `profiles.access_approved` and call the RPCs; without the migration every call fails closed).
 
-## Later (max 3)
+## Later (low; max 3 original items plus the three security-gate deferrals)
 - supabase.functions.invoke callers (about 20 pages) show a generic non-2xx error for 401/403/429; only streamInvoke callers get the specific messages.
 - Pre-existing `no-explicit-any` lint debt in the data functions was left untouched.
 - Repo-level ARCHITECTURE.md "Edge function auth" section and `ai_usage` entry (ADR section 12) when the PR lands.
+- (low, security gate) `consume_usage` accepts any `p_fn` string up to 64 chars: add an allowlist of function names.
+- (low, security gate) stripe-webhook / check-alerts webhook SSRF hardening (DNS-rebinding and redirect handling).
+- (low, security gate) unique constraint on `profiles.stripe_customer_id`.
+
+## Fix cycle 1 (security gate + verifier)
+- [x] profiles BEFORE INSERT guard (`profiles_guard_insert`): anon/authenticated inserts get is_admin/access_approved/billing columns forced to safe defaults; ON CONFLICT DO UPDATE flows through the UPDATE guard; handle_new_user and service_role unaffected.
+- [x] households: INSERT policy dropped and NOT recreated (default deny); create_household (definer, owner bypasses RLS) still works; no src code inserts into households directly (only select/update in household-queries.ts).
+- [x] Ticker regex requires a leading alphanumeric; `redact()`/`logError`/`logWarn` strip apiKey/token query values from logs; `escapeHtml` applied in send-household-invite HTML.
+- [x] Chat validation: assistant turns truncated to 4000 chars (tail kept), user messages rejected over 8000, oldest history trimmed to 20 messages / 24000 chars, last message must still be user; financial-advisor mode `max_tokens` 2000.
 
 ## Engineer notes (decisions taken without asking; most conservative option chosen)
 1. **Handler split.** `ai-advisor`, `weekly-briefing`, `check-alerts`, `stripe-checkout` have `handler.ts` exporting `handle(req, deps)`; `index.ts` is a thin `serve(...)`. Reason: `index.ts` imports `https://deno.land/...`, which Vitest cannot resolve. The static test scans every `.ts` in a function directory. Other functions keep logic in `index.ts` (not individually unit-tested; covered by the static guard).

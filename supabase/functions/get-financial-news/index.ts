@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 import { realAuthDeps } from "../_shared/auth-deno.ts";
-import { corsHeaders as sharedCors, errorResponse, fetchT, isResponse, preflight, readJsonBody, requireUser } from "../_shared/auth.ts";
+import { corsHeaders as sharedCors, logError, logWarn, errorResponse, fetchT, isResponse, preflight, readJsonBody, requireUser } from "../_shared/auth.ts";
 import { BODY_CAP_BYTES, DATA_DAILY_CAP, consumeUsage, usageResponse } from "../_shared/limits.ts";
 import { asObject, clampNum, validateTickerList } from "../_shared/validate.ts";
 
@@ -52,7 +52,7 @@ async function fetchPolygonNews(apiKey: string, tickers?: string[]): Promise<New
     const url = `https://api.polygon.io/v2/reference/news?limit=50&order=desc${tickerParam}&apiKey=${apiKey}`;
     const res = await fetchT(url);
     if (!res.ok) {
-      console.warn(`Polygon news ${res.status}`);
+      logWarn(`Polygon news ${res.status}`);
       return [];
     }
     const data = await res.json();
@@ -74,7 +74,7 @@ async function fetchPolygonNews(apiKey: string, tickers?: string[]): Promise<New
       } as NewsItem;
     });
   } catch (e) {
-    console.error("Polygon news error:", e);
+    logError("Polygon news error:", e);
     return [];
   }
 }
@@ -85,7 +85,7 @@ async function fetchFinnhubNews(apiKey: string): Promise<NewsItem[]> {
     const url = `https://finnhub.io/api/v1/news?category=general&token=${apiKey}`;
     const res = await fetchT(url);
     if (!res.ok) {
-      console.warn(`Finnhub news ${res.status}`);
+      logWarn(`Finnhub news ${res.status}`);
       return [];
     }
     const data = await res.json();
@@ -107,7 +107,7 @@ async function fetchFinnhubNews(apiKey: string): Promise<NewsItem[]> {
       } as NewsItem;
     });
   } catch (e) {
-    console.error("Finnhub news error:", e);
+    logError("Finnhub news error:", e);
     return [];
   }
 }
@@ -118,7 +118,7 @@ async function fetchNewsAPI(apiKey: string): Promise<NewsItem[]> {
     const url = `https://newsapi.org/v2/top-headlines?category=business&language=en&pageSize=30&apiKey=${apiKey}`;
     const res = await fetchT(url);
     if (!res.ok) {
-      console.warn(`NewsAPI ${res.status}`);
+      logWarn(`NewsAPI ${res.status}`);
       return [];
     }
     const data = await res.json();
@@ -140,7 +140,7 @@ async function fetchNewsAPI(apiKey: string): Promise<NewsItem[]> {
       } as NewsItem;
     }).filter((a: NewsItem) => a.headline && a.headline !== "[Removed]");
   } catch (e) {
-    console.error("NewsAPI error:", e);
+    logError("NewsAPI error:", e);
     return [];
   }
 }
@@ -152,7 +152,7 @@ async function fetchAlphaVantageNews(apiKey: string, tickers?: string[]): Promis
     const url = `https://www.alphavantage.co/query?function=NEWS_SENTIMENT${tickerParam}&limit=30&apikey=${apiKey}`;
     const res = await fetchT(url);
     if (!res.ok) {
-      console.warn(`AlphaVantage news ${res.status}`);
+      logWarn(`AlphaVantage news ${res.status}`);
       return [];
     }
     const data = await res.json();
@@ -178,7 +178,7 @@ async function fetchAlphaVantageNews(apiKey: string, tickers?: string[]): Promis
       } as NewsItem;
     });
   } catch (e) {
-    console.error("AlphaVantage news error:", e);
+    logError("AlphaVantage news error:", e);
     return [];
   }
 }
@@ -190,7 +190,7 @@ async function fetchMarketAux(apiKey: string, tickers?: string[]): Promise<NewsI
     const url = `https://api.marketaux.com/v1/news/all?language=en&filter_entities=true&limit=25${symbolsParam}&api_token=${apiKey}`;
     const res = await fetchT(url);
     if (!res.ok) {
-      console.warn(`MarketAux news ${res.status}`);
+      logWarn(`MarketAux news ${res.status}`);
       return [];
     }
     const data = await res.json();
@@ -215,7 +215,7 @@ async function fetchMarketAux(apiKey: string, tickers?: string[]): Promise<NewsI
       } as NewsItem;
     });
   } catch (e) {
-    console.error("MarketAux news error:", e);
+    logError("MarketAux news error:", e);
     return [];
   }
 }

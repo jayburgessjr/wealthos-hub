@@ -1,6 +1,7 @@
 // Request validation for non-desk edge functions. Pure TypeScript (no npm:, no Deno.*).
 import {
   MAX_CONTEXT_BYTES,
+  MAX_ASSISTANT_CHARS,
   MAX_MESSAGES,
   MAX_MESSAGE_CHARS,
   MAX_POSITIONS,
@@ -19,7 +20,7 @@ const isObj = (x: unknown): x is Record<string, unknown> => typeof x === "object
 
 // ── Scalars ─────────────────────────────────────────────────────────────────
 
-export const TICKER_RE = /^[A-Z0-9.-]{1,10}$/;
+export const TICKER_RE = /^[A-Z0-9][A-Z0-9.-]{0,9}$/;
 const SAFE_LABEL_RE = /^[A-Za-z0-9 _\-/&+%.,()]{1,40}$/;
 export const RISK_TIERS = ["conservative", "moderate", "aggressive"] as const;
 export const ACTIONS = ["strong_buy", "buy", "hold", "watch", "exit", "strong_exit"] as const;
@@ -170,19 +171,28 @@ export function validateChat(body: unknown, allowedModes: readonly string[]): Re
   if (mode !== undefined && mode !== null) {
     if (typeof mode !== "string" || !allowedModes.includes(mode)) return { ok: false, reason: "unknown mode" };
   }
-  if (!Array.isArray(messages) || messages.length < 1 || messages.length > MAX_MESSAGES) return { ok: false, reason: "messages count" };
+  if (!Array.isArray(messages) || messages.length < 1) return { ok: false, reason: "messages count" };
 
-  const clean: ChatMessage[] = [];
-  let total = 0;
+  let clean: ChatMessage[] = [];
   for (const m of messages) {
     if (!isObj(m)) return { ok: false, reason: "message shape" };
     if (m.role !== "user" && m.role !== "assistant") return { ok: false, reason: "message role" };
-    if (typeof m.content !== "string" || m.content.length < 1 || m.content.length > MAX_MESSAGE_CHARS) return { ok: false, reason: "message content" };
-    total += m.content.length;
-    clean.push({ role: m.role, content: m.content });
+    if (typeof m.content !== "string" || m.content.length < 1) return { ok: false, reason: "message content" };
+    if (m.role === "user") {
+      if (m.content.length > MAX_MESSAGE_CHARS) return { ok: false, reason: "message content" };
+      clean.push({ role: "user", content: m.content });
+    } else {
+      // Assistant turns are echoed back by the chat pages as history; keep the tail rather than reject.
+      clean.push({ role: "assistant", content: m.content.length > MAX_ASSISTANT_CHARS ? m.content.slice(-MAX_ASSISTANT_CHARS) : m.content });
+    }
   }
-  if (total > MAX_TOTAL_CHARS) return { ok: false, reason: "total size" };
   if (clean[clean.length - 1].role !== "user") return { ok: false, reason: "last message must be user" };
+
+  // Trim the oldest history (never the final user message) to the count and total-size caps.
+  if (clean.length > MAX_MESSAGES) clean = clean.slice(-MAX_MESSAGES);
+  let total = clean.reduce((n, m) => n + m.content.length, 0);
+  while (total > MAX_TOTAL_CHARS && clean.length > 1) total -= clean.shift()!.content.length;
+  if (total > MAX_TOTAL_CHARS) return { ok: false, reason: "total size" };
 
   return { ok: true, value: { messages: clean, mode: typeof mode === "string" ? mode : undefined, context: sanitizeContext(context) } };
 }

@@ -5,7 +5,9 @@ import {
   errorResponse,
   isAllowedReturnUrl,
   isSafeReturnPath,
+  logError,
   readJsonBody,
+  redact,
   requireCronOrUser,
   requireUser,
   safeEqual,
@@ -228,5 +230,25 @@ describe("return URL helpers", () => {
     expect(isSafeReturnPath("/\\evil.example")).toBe(false);
     expect(isSafeReturnPath("dashboard")).toBe(false);
     expect(isSafeReturnPath(undefined)).toBe(false);
+  });
+});
+
+describe("secret redaction in logs", () => {
+  const KEY = "SUPERSECRETKEY123";
+  it("redact strips apiKey=/apikey=/token= query values from strings, errors and objects", () => {
+    expect(redact(`https://api.polygon.io/v2/x?adjusted=true&apiKey=${KEY}&limit=5`)).toBe("https://api.polygon.io/v2/x?adjusted=true&apiKey=[redacted]&limit=5");
+    expect(redact(`https://f.io/q?apikey=${KEY}`)).toBe("https://f.io/q?apikey=[redacted]");
+    expect(String(redact(new Error(`error sending request for url (https://x/y?api_key=${KEY})`)))).not.toContain(KEY);
+    expect(String(redact({ url: `https://x/y?token=${KEY}` }))).not.toContain(KEY);
+    expect(redact(42)).toBe(42);
+  });
+
+  it("logError and errorResponse never write the key to console.error", () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    logError("Polygon failed", new Error(`fetch failed https://api.polygon.io/z?apiKey=${KEY}`));
+    errorResponse(post({}), () => undefined, 502, new Error(`fetch failed https://api.polygon.io/z?apiKey=${KEY}`));
+    const logged = JSON.stringify(spy.mock.calls);
+    expect(logged).not.toContain(KEY);
+    expect(logged).toContain("[redacted]");
   });
 });

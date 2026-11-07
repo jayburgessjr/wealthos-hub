@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 import { realAuthDeps } from "../_shared/auth-deno.ts";
-import { corsHeaders as sharedCors, errorResponse, fetchT, isResponse, preflight, readJsonBody, requireUser } from "../_shared/auth.ts";
+import { corsHeaders as sharedCors, logError, logWarn, errorResponse, fetchT, isResponse, preflight, readJsonBody, requireUser } from "../_shared/auth.ts";
 import { BODY_CAP_BYTES, DATA_DAILY_CAP, consumeUsage, usageResponse } from "../_shared/limits.ts";
 import { validateScreener } from "../_shared/validate.ts";
 
@@ -84,7 +84,7 @@ serve(async (req) => {
     const polygonRes = await fetchT(url);
 
     if (!polygonRes.ok) {
-      console.error(`Polygon error: ${polygonRes.status} ${polygonRes.statusText}`);
+      logError(`Polygon error: ${polygonRes.status} ${polygonRes.statusText}`);
       return new Response(
         JSON.stringify({ results: [], message: `Polygon API error: ${polygonRes.status}` }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }

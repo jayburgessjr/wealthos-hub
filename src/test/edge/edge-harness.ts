@@ -44,6 +44,8 @@ create table public.profiles (
 alter table public.profiles enable row level security;
 create policy "Users can view own profile" on public.profiles for select using (auth.uid() = id);
 create policy "Users can update own profile" on public.profiles for update using (auth.uid() = id);
+-- as in 20260620000000: a user may insert their own profile row
+create policy "Users can insert their own profile" on public.profiles for insert with check (auth.uid() = id);
 -- fixture helper (definer, avoids policy recursion in the fixture); mirrors the admin policies of 20260331090000
 create function public.fx_is_admin() returns boolean language sql stable security definer set search_path = public
   as $$ select coalesce((select is_admin from public.profiles where id = auth.uid()), false) $$;
@@ -62,7 +64,7 @@ create table public.user_roles (
 alter table public.user_roles enable row level security;
 
 -- Pre-migration (unpinned) definer functions, signatures copied from the real migrations.
-create function public.handle_new_user() returns trigger language plpgsql security definer as $$ begin return new; end $$;
+create function public.handle_new_user() returns trigger language plpgsql security definer as $$ begin insert into public.profiles (id, email) values (new.id, new.email); return new; end $$;
 create function public.create_household(name text, monthly_income numeric) returns uuid
   language plpgsql security definer as $$
 declare uid uuid := auth.uid(); hid uuid;
@@ -115,6 +117,8 @@ export async function makeEdgeHarness(): Promise<EdgeHarness> {
   `);
   const migrationSql = readFileSync(MIGRATION_PATH, 'utf8');
   await db.exec(migrationSql);
+  // signup trigger (created after seeding so the seed profiles above are not duplicated)
+  await db.exec(`create trigger on_auth_user_created after insert on auth.users for each row execute function public.handle_new_user();`);
 
   const q: EdgeHarness['q'] = async (caller, uid, sql) => {
     await db.exec(`reset role; set role ${caller}; select set_config('request.jwt.claim.sub', '${uid ?? ''}', false);`);

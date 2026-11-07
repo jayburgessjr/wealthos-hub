@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 import { realAuthDeps } from "../_shared/auth-deno.ts";
-import { corsHeaders as sharedCors, errorResponse, fetchT, isResponse, preflight, readJsonBody, requireUser } from "../_shared/auth.ts";
+import { corsHeaders as sharedCors, logError, logWarn, errorResponse, fetchT, isResponse, preflight, readJsonBody, requireUser } from "../_shared/auth.ts";
 import { BODY_CAP_BYTES, DATA_DAILY_CAP, consumeUsage, usageResponse } from "../_shared/limits.ts";
 import { MARKET_DATA_TYPES, asObject, validateEnum } from "../_shared/validate.ts";
 
@@ -38,7 +38,7 @@ async function fetchForex() {
         };
       });
   } catch (e) {
-    console.error("Forex fetch error:", e);
+    logError("Forex fetch error:", e);
     return [];
   }
 }

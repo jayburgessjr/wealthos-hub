@@ -106,7 +106,7 @@ describe('config.toml', () => {
 });
 
 describe('shared auth modules stay Vitest-importable', () => {
-  for (const f of ['auth.ts', 'limits.ts', 'validate.ts']) {
+  for (const f of ['auth.ts', 'limits.ts', 'validate.ts', 'html.ts']) {
     it(`_shared/${f} has no npm: specifier and no Deno.* access`, () => {
       const src = readFileSync(join(FUNCTIONS, '_shared', f), 'utf8').replace(/\/\/.*$/gm, '');
       expect(src).not.toMatch(/npm:/);
