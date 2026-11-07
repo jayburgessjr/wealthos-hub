@@ -90,7 +90,7 @@ export const PAGE_GUIDES: PageGuide[] = [
   { prefix: "/household/future", title: "Future", purpose: "Goals, net worth over time and what-if simulations.", howTo: ["Set a goal with a target and date.", "Use the simulator to test a change before you make it.", "Simulations are estimates, not predictions."] },
   { prefix: "/household/insights", title: "Insights", purpose: "AI assistant and CFO-style reports for your household.", howTo: ["Ask a plain question about your numbers.", "Answers use what you have entered, so keep it current.", "Treat output as a starting point, not advice."] },
   { prefix: "/household/life", title: "Life", purpose: "Careers, vision and tasks that sit around the money.", howTo: ["Capture longer-term plans.", "Turn plans into tasks.", "Revisit them when your numbers change."] },
-  { prefix: "/household/manage", title: "Household settings", purpose: "Members, invitations and household details.", howTo: ["Invite someone by email.", "Members of a household share the same data.", "Only the owner can manage members."] },
+  { prefix: "/household/manage", title: "Household settings", purpose: "Members, invitations and household details.", howTo: ["Invite someone by email.", "Members of a household share the same data.", "Manage members and invitations here."] },
   { prefix: "/household", title: "Household", purpose: "Everyday money for the people you share it with.", howTo: ["Start with Setup if you have not created a household.", "Use the left menu: Money in, Money out, Future, Insights.", "Open Money coach for ranked next steps."] },
   { prefix: "/wealth", title: "Wealth", purpose: "Long-term planning and the things you own.", howTo: ["Start with the dashboard summary.", "Open Long-term for retirement and estate planning.", "Open Assets for property, collectibles and dividends.", "Protection covers insurance and tax."] },
   { prefix: "/invs/execute/paper", title: "Paper trading", purpose: "Practise trades with pretend money.", howTo: ["Pick a ticker and size.", "Place a paper order and watch it.", "Nothing here touches a real broker."] },
@@ -136,7 +136,7 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
   avalanche: { term: "Debt avalanche", short: "Pay the highest interest rate first.", long: "Make minimum payments on everything, then put extra money on the debt with the highest rate. It usually costs the least interest overall." },
   "interest-rate": { term: "Interest rate (APR)", short: "The yearly cost of a debt.", long: "A 20% rate on 1,000 dollars costs about 200 dollars a year if left unpaid." },
   subscription: { term: "Subscriptions", short: "Recurring charges that renew on their own.", long: "Small monthly amounts add up. The coach shows the yearly total so you can cancel what you do not use." },
-  "paper-trading": { term: "Paper trading", short: "Practice trading with pretend money.", long: "Orders are simulated at market prices. No real money moves and no real broker is involved." },
+  "paper-trading": { term: "Paper trading", short: "Practice trading with pretend money.", long: "Orders are simulated at market prices. No real money moves." },
   "approval-queue": { term: "Approval queue", short: "Trade ideas waiting for your yes or no.", long: "Agents propose; you decide. Nothing leaves the queue until you approve it." },
   "stop-loss": { term: "Stop", short: "The price where you accept you were wrong.", long: "A stop limits how much one trade can lose. The risk preview uses it to size the position." },
   "risk-preview": { term: "Risk preview", short: "A pre-check on a proposed trade.", long: "Shows size, dollars at risk and rule checks. It is advisory; the server recomputes risk before anything is sent." },
@@ -156,7 +156,7 @@ export interface Faq {
 }
 
 export const FAQS: Faq[] = [
-  { q: "Does this app move my money or place real trades?", a: "No. The Money coach only reads what you entered. Invest and Desk are paper-only. Nothing connects to a bank or broker." },
+  { q: "Does this app move my money or place real trades?", a: "No. The Money coach only reads what you entered. Invest and Desk are paper-only. Nothing connects to a bank, and nothing places a real-money trade." },
   { q: "Where does my data come from?", a: "Only from what you type in. Numbers are as accurate as your entries, so update balances when they change." },
   { q: "Who can see my data?", a: "You, and members of your household. Other households cannot see it." },
   { q: "Why is the Money coach saying to add data?", a: "It needs bills, debts, accounts or income to work out advice. Empty sections are skipped, not guessed." },
